@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://dhruvilthewebhost.github.io/Shiv-Root/sitemap.xml
