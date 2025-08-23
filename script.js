@@ -1,6 +1,8 @@
 // Global variables
 let allProducts = [];
 let amazonProducts = [];
+let facebookAdsProducts = [];
+let combinedSearchResults = [];
 let currentFilter = 'all';
 let searchQuery = '';
 let isSearching = false;
@@ -50,6 +52,11 @@ document.addEventListener('DOMContentLoaded', function() {
     initLazyLoading();
     registerEnhancedServiceWorker();
     
+    // Prefetch Facebook Ads data for faster search (delayed to not impact initial load)
+    setTimeout(() => {
+        prefetchFacebookAdsData();
+    }, 3000);
+    
     // Show notification popup after 5 seconds (or 3 seconds on mobile)
     const deviceInfo = getDeviceInfo();
     const popupDelay = deviceInfo.isMobile ? 3000 : 5000;
@@ -76,8 +83,13 @@ function handleSearch(e) {
         clearSearchBtn.style.display = isSearching ? 'block' : 'none';
     }
     
-    // Filter and display products
-    filterAndDisplayProducts();
+    // If searching, perform multi-source search
+    if (isSearching) {
+        performMultiSourceSearch(searchQuery);
+    } else {
+        combinedSearchResults = [];
+        filterAndDisplayProducts();
+    }
     
     // Track search analytics
     trackEvent('search', {
@@ -97,25 +109,159 @@ function clearSearch() {
         clearSearchBtn.style.display = 'none';
     }
     
+    combinedSearchResults = [];
     filterAndDisplayProducts();
 }
 
+// Multi-source search function
+async function performMultiSourceSearch(query) {
+    try {
+        // Show loading state
+        showProductsLoading(true);
+        
+        // Search in existing products (Amazon tab)
+        const amazonResults = searchInProducts(allProducts, query, 'Amazon');
+        
+        // Fetch and search Facebook Ads products
+        let facebookResults = [];
+        if (facebookAdsProducts.length === 0) {
+            // Fetch Facebook Ads data if not already loaded
+            await fetchFacebookAdsProducts();
+        }
+        facebookResults = searchInProducts(facebookAdsProducts, query, 'Facebook Ads');
+        
+        // Combine results with Facebook Ads prioritized first
+        combinedSearchResults = [...facebookResults, ...amazonResults];
+        
+        // Remove duplicates based on model name
+        combinedSearchResults = removeDuplicateProducts(combinedSearchResults);
+        
+        // Display combined results
+        filterAndDisplayProducts();
+        showProductsLoading(false);
+        
+        // Track multi-source search
+        trackEvent('multi_source_search', {
+            search_term: query,
+            facebook_results: facebookResults.length,
+            amazon_results: amazonResults.length,
+            total_results: combinedSearchResults.length
+        });
+        
+    } catch (error) {
+        console.error('Multi-source search error:', error);
+        showProductsLoading(false);
+        
+        // Fallback to regular search in existing products
+        const fallbackResults = searchInProducts(allProducts, query, 'Amazon');
+        combinedSearchResults = fallbackResults;
+        filterAndDisplayProducts();
+        
+        trackEvent('search_error', {
+            error_message: error.message,
+            search_term: query
+        });
+    }
+}
+
+// Search within a specific product array
+function searchInProducts(products, query, source = 'Unknown') {
+    return products.filter(product => {
+        const searchableText = `${product.model} ${product.processor} ${product.ram} ${product.storage} ${product.category} ${product.description || ''}`.toLowerCase();
+        const matches = searchableText.includes(query);
+        
+        if (matches) {
+            // Add source identifier for tracking
+            product.source = source;
+        }
+        
+        return matches;
+    });
+}
+
+// Remove duplicate products based on model name (prioritize Facebook Ads)
+function removeDuplicateProducts(products) {
+    const seen = new Set();
+    return products.filter(product => {
+        const key = product.model.toLowerCase().trim();
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+}
+
+// Fetch Facebook Ads products
+async function fetchFacebookAdsProducts() {
+    const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=Facebook%20Ads";
+    
+    try {
+        const response = await fetch(sheetURL);
+        let data = await response.text();
+        
+        // Remove extra characters added by Google Sheets API
+        data = data.substring(47, data.length - 2);
+        const json = JSON.parse(data);
+        
+        facebookAdsProducts = [];
+        const rows = json.table.rows;
+        
+        rows.forEach(row => {
+            const product = {
+                model: row.c[0]?.v || "N/A",
+                category: row.c[1]?.v || "Other",
+                processor: row.c[2]?.v || "N/A",
+                ram: row.c[3]?.v || "N/A",
+                storage: row.c[4]?.v || "N/A",
+                price: row.c[5]?.v || "N/A",
+                imageUrl: row.c[6]?.v || "",
+                description: row.c[7]?.v || "",
+                source: 'Facebook Ads'
+            };
+            facebookAdsProducts.push(product);
+        });
+        
+        trackEvent('facebook_ads_products_loaded', {
+            total_products: facebookAdsProducts.length
+        });
+        
+    } catch (error) {
+        console.error("Error fetching Facebook Ads products:", error);
+        trackEvent('facebook_ads_products_load_error', {
+            error_message: error.message
+        });
+        throw error;
+    }
+}
+
+// Prefetch Facebook Ads data for faster search
+async function prefetchFacebookAdsData() {
+    if (facebookAdsProducts.length === 0) {
+        try {
+            await fetchFacebookAdsProducts();
+            console.log(`Prefetched ${facebookAdsProducts.length} Facebook Ads products for faster search`);
+        } catch (error) {
+            console.log('Facebook Ads prefetch failed, will fetch on demand:', error.message);
+        }
+    }
+}
+
 function getFilteredProducts() {
-    let filteredProducts = allProducts;
+    let filteredProducts;
+    
+    // If searching, use combined results from multiple sources
+    if (isSearching && combinedSearchResults.length > 0) {
+        filteredProducts = combinedSearchResults;
+    } else {
+        filteredProducts = allProducts;
+    }
     
     // Apply category filter
     if (currentFilter !== 'all') {
         filteredProducts = filteredProducts.filter(product => 
             product.category.toLowerCase() === currentFilter.toLowerCase()
         );
-    }
-    
-    // Apply search filter
-    if (isSearching) {
-        filteredProducts = filteredProducts.filter(product => {
-            const searchableText = `${product.model} ${product.processor} ${product.ram} ${product.storage} ${product.category}`.toLowerCase();
-            return searchableText.includes(searchQuery);
-        });
     }
     
     return filteredProducts;
@@ -133,7 +279,23 @@ function updateSearchResultsCount(count) {
     if (isSearching || currentFilter !== 'all') {
         const filterText = currentFilter !== 'all' ? ` in ${currentFilter}s` : '';
         const searchText = isSearching ? ` matching "${searchQuery}"` : '';
-        searchResultsCount.textContent = `Found ${count} product${count !== 1 ? 's' : ''}${searchText}${filterText}`;
+        
+        // Show source breakdown for search results
+        let sourceBreakdown = '';
+        if (isSearching && combinedSearchResults.length > 0) {
+            const facebookCount = combinedSearchResults.filter(p => p.source === 'Facebook Ads').length;
+            const amazonCount = combinedSearchResults.filter(p => p.source === 'Amazon').length;
+            
+            if (facebookCount > 0 && amazonCount > 0) {
+                sourceBreakdown = ` (${facebookCount} featured, ${amazonCount} from catalog)`;
+            } else if (facebookCount > 0) {
+                sourceBreakdown = ` (${facebookCount} featured)`;
+            } else if (amazonCount > 0) {
+                sourceBreakdown = ` (from catalog)`;
+            }
+        }
+        
+        searchResultsCount.textContent = `Found ${count} product${count !== 1 ? 's' : ''}${searchText}${filterText}${sourceBreakdown}`;
         searchResultsCount.style.display = 'block';
     } else {
         searchResultsCount.style.display = 'none';
@@ -141,17 +303,18 @@ function updateSearchResultsCount(count) {
 }
 
 // Enhanced WhatsApp Integration
-function buyOnWhatsApp(productName, price) {
+function buyOnWhatsApp(productName, price, source = 'Website') {
     const phoneNumber = "916351541231";
     const message = encodeURIComponent(
         `Hello, I am interested in ${productName}. Please share details.`
     );
     const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
     
-    // Track WhatsApp click
+    // Track WhatsApp click with source information
     trackEvent('whatsapp_inquiry', {
         product_name: productName,
         product_price: price,
+        product_source: source,
         inquiry_type: 'product_specific'
     });
     
@@ -1051,22 +1214,30 @@ function displayProducts(products) {
         return;
     }
     
-    const productsHTML = products.map((product, index) => `
-        <div class="product-card lazy-load" data-category="${product.category}" style="animation-delay: ${index * 0.1}s">
-            <img src="${product.imageUrl}" alt="${product.model}" loading="lazy" class="lazy-load" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+'">
-            <div class="product-card-content">
-                <h3>${product.model}</h3>
-                ${product.processor !== "N/A" ? `<p><strong>Processor:</strong> ${product.processor}</p>` : ""}
-                ${product.ram !== "N/A" ? `<p><strong>RAM:</strong> ${product.ram}</p>` : ""}
-                ${product.storage !== "N/A" ? `<p><strong>Storage:</strong> ${product.storage}</p>` : ""}
-                ${product.description ? `<p class="product-description">${product.description}</p>` : ""}
-                <div class="price">₹${formatPrice(product.price)}</div>
-                <button onclick="buyOnWhatsApp('${product.model.replace(/'/g, "\\'")}', '${product.price}')" class="btn btn-primary">
-                    <i class="fab fa-whatsapp"></i> Enquire Now
-                </button>
+    const productsHTML = products.map((product, index) => {
+        const isFacebookAds = product.source === 'Facebook Ads';
+        const sourceIndicator = isFacebookAds ? 
+            `<div class="product-source facebook-ads" title="Featured Product"><i class="fas fa-star"></i> Featured</div>` : 
+            (product.source ? `<div class="product-source ${product.source.toLowerCase().replace(' ', '-')}">${product.source}</div>` : '');
+        
+        return `
+            <div class="product-card lazy-load ${isFacebookAds ? 'featured-product' : ''}" data-category="${product.category}" style="animation-delay: ${index * 0.1}s">
+                ${sourceIndicator}
+                <img src="${product.imageUrl}" alt="${product.model}" loading="lazy" class="lazy-load" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+'">
+                <div class="product-card-content">
+                    <h3>${product.model}</h3>
+                    ${product.processor !== "N/A" ? `<p><strong>Processor:</strong> ${product.processor}</p>` : ""}
+                    ${product.ram !== "N/A" ? `<p><strong>RAM:</strong> ${product.ram}</p>` : ""}
+                    ${product.storage !== "N/A" ? `<p><strong>Storage:</strong> ${product.storage}</p>` : ""}
+                    ${product.description ? `<p class="product-description">${product.description}</p>` : ""}
+                    <div class="price">₹${formatPrice(product.price)}</div>
+                    <button onclick="buyOnWhatsApp('${product.model.replace(/'/g, "\\'")}', '${product.price}', '${product.source || 'Website'}')" class="btn btn-primary">
+                        <i class="fab fa-whatsapp"></i> Enquire Now
+                    </button>
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
     
     productGrid.innerHTML = productsHTML;
     
@@ -1300,6 +1471,43 @@ const additionalStyles = `
     .toast {
         font-family: 'Inter', sans-serif;
         font-weight: 500;
+    }
+    
+    /* Product source indicators */
+    .product-source {
+        position: absolute;
+        top: 0.75rem;
+        right: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        z-index: 2;
+        backdrop-filter: blur(4px);
+    }
+    
+    .product-source.facebook-ads {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
+    }
+    
+    .product-source.amazon {
+        background: rgba(255, 255, 255, 0.95);
+        color: var(--text-dark);
+        border: 1px solid var(--gray-200);
+    }
+    
+    .featured-product {
+        border: 2px solid var(--accent-color);
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+    }
+    
+    .featured-product:hover {
+        border-color: #d97706;
+        box-shadow: 0 8px 30px rgba(245, 158, 11, 0.25);
     }
 `;
 
