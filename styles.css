@@ -18,6 +18,7 @@
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
   --border-radius: 0.5rem;
   --border-radius-lg: 1rem;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2037,6 +2038,72 @@ body {
   transform: translateY(-5px);
   box-shadow: var(--shadow-xl);
   border-color: var(--primary-color);
+}
+
+/* Clickable Product Cards */
+.product-card.clickable {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.product-card.clickable:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: var(--shadow-2xl);
+}
+
+.product-card.clickable:active {
+  transform: translateY(-4px) scale(0.98);
+}
+
+.product-card.clickable::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.product-card.clickable:hover::before {
+  opacity: 1;
+}
+
+.product-card.clickable .product-actions {
+  position: relative;
+  z-index: 2;
+}
+
+.product-card.clickable .click-hint {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  text-align: center;
+  margin-top: 0.5rem;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.product-card.clickable:hover .click-hint {
+  opacity: 1;
+  color: var(--primary-color);
+}
+
+.product-card.clickable .whatsapp-btn {
+  position: relative;
+  z-index: 2;
+  transition: all 0.3s ease;
+}
+
+.product-card.clickable:hover .whatsapp-btn {
+  background: var(--primary-color);
+  color: var(--white);
+  transform: scale(1.05);
 }
 
 .product-card img {
