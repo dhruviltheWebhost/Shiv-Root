@@ -58,29 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show notification popup after 5 seconds
     setTimeout(showNotificationPopup, 5000);
     
-    // Initialize OneSignal after a delay to ensure SDK is loaded
-    setTimeout(() => {
-        if (window.OneSignal) {
-            console.log('OneSignal SDK detected, initializing...');
-            initOneSignal();
-        } else {
-            console.log('OneSignal SDK not yet loaded, will retry...');
-            // Retry every 2 seconds for up to 10 seconds
-            let retryCount = 0;
-            const maxRetries = 5;
-            const retryInterval = setInterval(() => {
-                retryCount++;
-                if (window.OneSignal) {
-                    console.log('OneSignal SDK loaded on retry, initializing...');
-                    initOneSignal();
-                    clearInterval(retryInterval);
-                } else if (retryCount >= maxRetries) {
-                    console.warn('OneSignal SDK failed to load after retries');
-                    clearInterval(retryInterval);
-                }
-            }, 2000);
-        }
-    }, 1000);
+    // Initialize OneSignal with proper retry logic
+    initOneSignalWithRetry();
 });
 
 // Search Functionality
@@ -342,12 +321,46 @@ function initNotificationPopup() {
 
 // Show popup (only if not dismissed/subscribed before)
 function showNotificationPopup() {
-    if (getCookie("notification_dismissed") === "true") return;
-    if (getCookie("notification_subscribed") === "true") return;
-
-    if (notificationPopup) {
+    try {
+        // Check if popup element exists
+        if (!notificationPopup) {
+            console.warn('Notification popup element not found');
+            return;
+        }
+        
+        // Check if already dismissed or subscribed
+        if (getCookie("notification_dismissed") === "true") {
+            console.log('Notification popup dismissed previously');
+            return;
+        }
+        
+        if (getCookie("notification_subscribed") === "true") {
+            console.log('User already subscribed to notifications');
+            return;
+        }
+        
+        // Check browser support for notifications
+        const browserSupport = checkBrowserNotificationSupport();
+        if (!browserSupport.notifications) {
+            if (browserSupport.iosSafari) {
+                console.log('Notifications not supported in iOS Safari');
+            } else {
+                console.log('Notifications not supported in this browser');
+            }
+            return;
+        }
+        
+        // Show the popup
         notificationPopup.classList.add("show");
         trackEvent("notification_popup", { action: "shown" });
+        
+        console.log('Notification popup shown successfully');
+        
+    } catch (error) {
+        console.error('Error showing notification popup:', error);
+        trackEvent('notification_popup_error', {
+            error: error.message
+        });
     }
 }
 
@@ -360,35 +373,131 @@ function hideNotificationPopup() {
 
 // Subscribe with OneSignal v16
 function subscribeToNotifications() {
-    if (!window.OneSignal) {
-        showToast("Push notifications are not supported in your browser", "info");
-        hideNotificationPopup();
-        return;
-    }
-
-    OneSignal.Notifications.requestPermission().then((permission) => {
-        if (permission === "granted") {
-            setCookie("notification_subscribed", "true", 365);
+    try {
+        // Check browser compatibility
+        const browserSupport = checkBrowserNotificationSupport();
+        if (!browserSupport.notifications) {
+            if (browserSupport.iosSafari) {
+                showToast("Push notifications are not supported in iOS Safari. Please use Chrome or Firefox.", "info");
+            } else {
+                showToast("Push notifications are not supported in your browser", "info");
+            }
             hideNotificationPopup();
-            showToast("✅ Successfully subscribed to notifications!", "success");
-            trackEvent("notification_subscription", { status: "subscribed" });
-            
-            // Subscribe to OneSignal
-            OneSignal.User.PushSubscription.optIn();
-            
-            // Track successful subscription
-            trackEvent('onesignal_subscription_success', {
-                app_id: "ee523d8b-51c0-43d7-ad51-f0cf380f0487"
+            return;
+        }
+        
+        // Check if OneSignal is available
+        if (!window.OneSignal) {
+            console.warn('OneSignal not available, using native notifications');
+            // Fallback to native notifications
+            requestNativeNotificationPermission();
+            return;
+        }
+        
+        // Use OneSignal if available
+        if (OneSignal.Notifications && OneSignal.Notifications.requestPermission) {
+            OneSignal.Notifications.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                    setCookie("notification_subscribed", "true", 365);
+                    hideNotificationPopup();
+                    showToast("✅ Successfully subscribed to notifications!", "success");
+                    trackEvent("notification_subscription", { status: "subscribed", method: "onesignal" });
+                    
+                    // Subscribe to OneSignal
+                    try {
+                        if (OneSignal.User && OneSignal.User.PushSubscription) {
+                            OneSignal.User.PushSubscription.optIn();
+                        }
+                    } catch (error) {
+                        console.warn('Error opting into OneSignal:', error);
+                    }
+                    
+                    // Track successful subscription
+                    trackEvent('onesignal_subscription_success', {
+                        app_id: "ee523d8b-51c0-43d7-ad51-f0cf380f0487"
+                    });
+                } else {
+                    showToast("⚠️ You denied notifications. Enable them in browser settings.", "error");
+                    trackEvent("notification_subscription", { status: "denied", method: "onesignal" });
+                }
+            }).catch((error) => {
+                console.error('Error requesting OneSignal permission:', error);
+                trackEvent('notification_subscription', { status: 'error', method: 'onesignal', error: error.message });
+                // Fallback to native notifications
+                requestNativeNotificationPermission();
             });
         } else {
-            showToast("⚠️ You denied notifications. Enable them in browser settings.", "error");
-            trackEvent("notification_subscription", { status: "denied" });
+            console.warn('OneSignal.Notifications not available, using native notifications');
+            requestNativeNotificationPermission();
         }
-    }).catch((error) => {
-        console.error('Error requesting notification permission:', error);
-        trackEvent('notification_subscription', { status: 'error', error: error.message });
-        showToast('Failed to subscribe to notifications', 'error');
-    });
+        
+    } catch (error) {
+        console.error('Error in subscribeToNotifications:', error);
+        trackEvent('notification_subscription', { status: 'error', method: 'unknown', error: error.message });
+        // Fallback to native notifications
+        requestNativeNotificationPermission();
+    }
+}
+
+// Check browser compatibility for notifications
+function checkBrowserNotificationSupport() {
+    const support = {
+        notifications: 'Notification' in window,
+        serviceWorker: 'serviceWorker' in navigator,
+        pushManager: 'PushManager' in window,
+        userAgent: navigator.userAgent,
+        browser: 'unknown'
+    };
+    
+    // Detect browser
+    if (navigator.userAgent.includes('Chrome')) {
+        support.browser = 'Chrome';
+    } else if (navigator.userAgent.includes('Firefox')) {
+        support.browser = 'Firefox';
+    } else if (navigator.userAgent.includes('Safari')) {
+        support.browser = 'Safari';
+    } else if (navigator.userAgent.includes('Edge')) {
+        support.browser = 'Edge';
+    }
+    
+    // Check iOS Safari limitations
+    if (support.browser === 'Safari' && /iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        support.iosSafari = true;
+        support.notifications = false; // iOS Safari doesn't support notifications
+    }
+    
+    console.log('Browser notification support:', support);
+    return support;
+}
+
+// Fallback to native notifications
+function requestNativeNotificationPermission() {
+    if ('Notification' in window) {
+        Notification.requestPermission().then((permission) => {
+            if (permission === "granted") {
+                setCookie("notification_subscribed", "true", 365);
+                hideNotificationPopup();
+                showToast("✅ Successfully subscribed to notifications!", "success");
+                trackEvent("notification_subscription", { status: "subscribed", method: "native" });
+                
+                // Show a test notification
+                new Notification("RootTech Shop", {
+                    body: "Welcome! You'll now receive updates about our latest products.",
+                    icon: "/root_tech_back_remove-removebg-preview.png"
+                });
+            } else {
+                showToast("⚠️ You denied notifications. Enable them in browser settings.", "error");
+                trackEvent("notification_subscription", { status: "denied", method: "native" });
+            }
+        }).catch((error) => {
+            console.error('Error requesting native notification permission:', error);
+            trackEvent('notification_subscription', { status: 'error', method: 'native', error: error.message });
+            showToast('Failed to subscribe to notifications', 'error');
+        });
+    } else {
+        showToast("Push notifications are not supported in your browser", "info");
+        hideNotificationPopup();
+    }
 }
 
 // Send push notification (for testing/admin use)
@@ -906,18 +1015,28 @@ function displayProducts(products) {
         return;
     }
     
-    const productsHTML = products.map((product, index) => `
+    const productsHTML = products.map((product, index) => {
+        // Validate and sanitize image URL
+        const imageUrl = validateImageUrl(product.imageUrl);
+        const safeModel = (product.model || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+        const safePrice = (product.price || '').toString();
+        
+        return `
         <div class="product-card lazy-load clickable" 
-             data-category="${product.category}" 
+             data-category="${product.category || 'Other'}" 
              style="animation-delay: ${index * 0.1}s"
-             onclick="buyOnWhatsApp('${product.model.replace(/'/g, "\\'")}', '${product.price}')"
+             onclick="buyOnWhatsApp('${safeModel}', '${safePrice}')"
              title="Click to enquire about ${product.model}">
-            <img src="${product.imageUrl}" alt="${product.model}" loading="lazy" class="lazy-load" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+'">
+            <img src="${imageUrl}" 
+                 alt="${product.model || 'Product'}" 
+                 loading="lazy" 
+                 class="lazy-load" 
+                 onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+'">
             <div class="product-card-content">
-                <h3>${product.model}</h3>
-                ${product.processor !== "N/A" ? `<p><strong>Processor:</strong> ${product.processor}</p>` : ""}
-                ${product.ram !== "N/A" ? `<p><strong>RAM:</strong> ${product.ram}</p>` : ""}
-                ${product.storage !== "N/A" ? `<p><strong>Storage:</strong> ${product.storage}</p>` : ""}
+                <h3>${product.model || 'Product'}</h3>
+                ${product.processor && product.processor !== "N/A" ? `<p><strong>Processor:</strong> ${product.processor}</p>` : ""}
+                ${product.ram && product.ram !== "N/A" ? `<p><strong>RAM:</strong> ${product.ram}</p>` : ""}
+                ${product.storage && product.storage !== "N/A" ? `<p><strong>Storage:</strong> ${product.storage}</p>` : ""}
                 ${product.description ? `<p class="product-description">${product.description}</p>` : ""}
                 <div class="price">₹${formatPrice(product.price)}</div>
                 <div class="product-actions">
@@ -930,7 +1049,8 @@ function displayProducts(products) {
                 </div>
             </div>
         </div>
-    `).join('');
+    `;
+    }).join('');
     
     productGrid.innerHTML = productsHTML;
     
@@ -978,16 +1098,21 @@ function displayAmazonProducts() {
 }
 
 function createAmazonProductCard(product) {
+    // Validate and sanitize image URL
+    const imageUrl = validateImageUrl(product.imageUrl);
+    const safeModel = (product.model || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
+    const safePrice = (product.price || '').toString();
+    
     return `
         <div class="product-card">
-            <img src="${product.imageUrl}" alt="${product.model}" loading="lazy" class="lazy-load" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+'">
+            <img src="${imageUrl}" alt="${product.model || 'Product'}" loading="lazy" class="lazy-load" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+'">
             <div class="product-card-content">
-                <h3>${product.model}</h3>
-                ${product.processor !== "N/A" ? `<p><strong>Processor:</strong> ${product.processor}</p>` : ""}
-                ${product.ram !== "N/A" ? `<p><strong>RAM:</strong> ${product.ram}</p>` : ""}
-                ${product.storage !== "N/A" ? `<p><strong>Storage:</strong> ${product.storage}</p>` : ""}
+                <h3>${product.model || 'Product'}</h3>
+                ${product.processor && product.processor !== "N/A" ? `<p><strong>Processor:</strong> ${product.processor}</p>` : ""}
+                ${product.ram && product.ram !== "N/A" ? `<p><strong>RAM:</strong> ${product.ram}</p>` : ""}
+                ${product.storage && product.storage !== "N/A" ? `<p><strong>Storage:</strong> ${product.storage}</p>` : ""}
                 <div class="price">₹${formatPrice(product.price)}</div>
-                <a href="${product.link}" target="_blank" class="btn btn-amazon" onclick="trackEvent('amazon_product_click', {product_name: '${product.model}', product_price: '${product.price}'})">
+                <a href="${product.link || '#'}" target="_blank" class="btn btn-amazon" onclick="trackEvent('amazon_product_click', {product_name: '${safeModel}', product_price: '${safePrice}'})">
                     <i class="fab fa-amazon"></i> Buy on Amazon
                 </a>
             </div>
@@ -1018,8 +1143,28 @@ function showError(message) {
 
 // Utility Functions
 function formatPrice(price) {
-    if (price === "N/A" || !price) return "N/A";
-    return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    try {
+        if (price === "N/A" || price === null || price === undefined) return "N/A";
+        
+        // Convert to string and clean up
+        const priceStr = price.toString().trim();
+        if (!priceStr || priceStr === "") return "N/A";
+        
+        // Remove any non-numeric characters except dots and commas
+        const cleanPrice = priceStr.replace(/[^\d.,]/g, '');
+        if (!cleanPrice) return "N/A";
+        
+        // Convert to number and format
+        const numPrice = parseFloat(cleanPrice.replace(',', ''));
+        if (isNaN(numPrice)) return "N/A";
+        
+        // Format with commas
+        return numPrice.toLocaleString('en-IN');
+        
+    } catch (error) {
+        console.warn('Error formatting price:', price, error);
+        return "N/A";
+    }
 }
 
 function setCookie(name, value, days) {
@@ -1303,75 +1448,128 @@ function adaptToConnectionSpeed() {
 // Initialize connection speed adaptation
 adaptToConnectionSpeed();
 
+// OneSignal initialization with retry logic
+function initOneSignalWithRetry() {
+    let retryCount = 0;
+    const maxRetries = 8; // Increased retries
+    const retryDelay = 1500; // 1.5 seconds between retries
+    
+    function attemptInit() {
+        if (window.OneSignal) {
+            console.log('OneSignal SDK detected, initializing...');
+            const success = initOneSignal();
+            if (success) {
+                console.log('OneSignal initialized successfully');
+                return;
+            }
+        }
+        
+        retryCount++;
+        if (retryCount < maxRetries) {
+            console.log(`OneSignal SDK not ready, retrying in ${retryDelay}ms... (${retryCount}/${maxRetries})`);
+            setTimeout(attemptInit, retryDelay);
+        } else {
+            console.warn('OneSignal SDK failed to load after all retries');
+            trackEvent('onesignal_final_failure', {
+                retry_count: retryCount,
+                max_retries: maxRetries
+            });
+        }
+    }
+    
+    // Start the retry process
+    attemptInit();
+}
+
 // OneSignal Push Notifications Initialization
 function initOneSignal() {
-    if (window.OneSignal) {
-        OneSignal.push(function() {
-            OneSignal.init({
-                appId: "ee523d8b-51c0-43d7-ad51-f0cf380f0487",
-                safari_web_id: "web.onesignal.auto.YOUR_SAFARI_WEB_ID",
-                notifyButton: {
-                    enable: false,
-                },
-                autoResubscribe: true,
-                persistNotification: false,
-                allowLocalhostAsSecureOrigin: true,
-                welcomeNotification: {
-                    title: "Welcome to RootTech Shop!",
-                    message: "Stay updated with our latest products and offers."
+    try {
+        if (window.OneSignal) {
+            console.log('OneSignal SDK found, initializing...');
+            
+            OneSignal.push(function() {
+                OneSignal.init({
+                    appId: "ee523d8b-51c0-43d7-ad51-f0cf380f0487",
+                    safari_web_id: "web.onesignal.auto.YOUR_SAFARI_WEB_ID",
+                    notifyButton: {
+                        enable: false,
+                    },
+                    autoResubscribe: true,
+                    persistNotification: false,
+                    allowLocalhostAsSecureOrigin: true,
+                    welcomeNotification: {
+                        title: "Welcome to RootTech Shop!",
+                        message: "Stay updated with our latest products and offers."
+                    }
+                });
+                
+                console.log('OneSignal initialized successfully');
+                
+                // Track OneSignal initialization
+                trackEvent('onesignal_initialized', {
+                    app_id: "ee523d8b-51c0-43d7-ad51-f0cf380f0487"
+                });
+                
+                // Set up OneSignal event listeners with error handling
+                try {
+                    if (OneSignal.User && OneSignal.User.PushSubscription) {
+                        OneSignal.User.PushSubscription.addEventListener('change', (event) => {
+                            console.log('Push subscription changed:', event);
+                            trackEvent('push_subscription_changed', {
+                                is_subscribed: event.currentTarget.optedIn
+                            });
+                        });
+                    }
+                    
+                    if (OneSignal.Notifications) {
+                        OneSignal.Notifications.addEventListener('click', (event) => {
+                            console.log('Notification clicked:', event);
+                            trackEvent('notification_clicked', {
+                                notification_id: event.notification.id,
+                                notification_title: event.notification.title
+                            });
+                        });
+                        
+                        OneSignal.Notifications.addEventListener('dismiss', (event) => {
+                            console.log('Notification dismissed:', event);
+                            trackEvent('notification_dismissed', {
+                                notification_id: event.notification.id
+                            });
+                        });
+                    }
+                    
+                    // Check current subscription status
+                    if (OneSignal.User && OneSignal.User.PushSubscription) {
+                        OneSignal.User.PushSubscription.optedIn.then((optedIn) => {
+                            console.log('User opted in to push notifications:', optedIn);
+                            if (optedIn) {
+                                setCookie('notification_subscribed', 'true', 365);
+                            }
+                        }).catch((error) => {
+                            console.warn('Error checking subscription status:', error);
+                        });
+                    }
+                    
+                } catch (error) {
+                    console.warn('Error setting up OneSignal event listeners:', error);
                 }
+                
             });
             
-            // Track OneSignal initialization
-            trackEvent('onesignal_initialized', {
-                app_id: "ee523d8b-51c0-43d7-ad51-f0cf380f0487"
+            return true;
+        } else {
+            console.warn('OneSignal SDK not loaded');
+            trackEvent('onesignal_load_error', {
+                error: 'SDK not loaded'
             });
-            
-            // Set up OneSignal event listeners
-            OneSignal.User.PushSubscription.addEventListener('change', (event) => {
-                console.log('Push subscription changed:', event);
-                trackEvent('push_subscription_changed', {
-                    is_subscribed: event.currentTarget.optedIn
-                });
-            });
-            
-            OneSignal.Notifications.addEventListener('click', (event) => {
-                console.log('Notification clicked:', event);
-                trackEvent('notification_clicked', {
-                    notification_id: event.notification.id,
-                    notification_title: event.notification.title
-                });
-            });
-            
-            OneSignal.Notifications.addEventListener('dismiss', (event) => {
-                console.log('Notification dismissed:', event);
-                trackEvent('notification_dismissed', {
-                    notification_id: event.notification.id
-                });
-            });
-            
-            // Check current subscription status
-            OneSignal.User.PushSubscription.optedIn.then((optedIn) => {
-                console.log('User opted in to push notifications:', optedIn);
-                if (optedIn) {
-                    setCookie('notification_subscribed', 'true', 365);
-                }
-            });
-            
+            return false;
+        }
+    } catch (error) {
+        console.error('Error initializing OneSignal:', error);
+        trackEvent('onesignal_init_error', {
+            error: error.message
         });
-    } else {
-        console.warn('OneSignal SDK not loaded');
-        trackEvent('onesignal_load_error', {
-            error: 'SDK not loaded'
-        });
-        
-        // Retry loading OneSignal after a delay
-        setTimeout(() => {
-            if (window.OneSignal) {
-                console.log('OneSignal loaded on retry, initializing...');
-                initOneSignal();
-            }
-        }, 2000);
+        return false;
     }
 }
 
@@ -1417,16 +1615,61 @@ function initServiceWorker() {
     }
 }
 
-// Dynamic Structured Data for Products
-function updateProductStructuredData(products) {
+// Image URL validation and fallback
+function validateImageUrl(imageUrl) {
+    if (!imageUrl || typeof imageUrl !== 'string') {
+        return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+';
+    }
+    
+    // Check if URL is valid
     try {
-        // Remove existing product structured data
-        const existingScript = document.querySelector('script[data-dynamic-products]');
-        if (existingScript) {
-            existingScript.remove();
+        const url = new URL(imageUrl);
+        // Only allow HTTP/HTTPS protocols
+        if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+';
         }
         
-        // Create new structured data
+        // Check for common invalid domains
+        const invalidDomains = ['suncomputersystem.com', 'localhost', '127.0.0.1'];
+        if (invalidDomains.some(domain => url.hostname.includes(domain))) {
+            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+';
+        }
+        
+        return imageUrl;
+    } catch (error) {
+        console.warn('Invalid image URL:', imageUrl, error);
+        return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+';
+    }
+}
+
+// Preload and validate images
+function preloadImage(imageUrl) {
+    return new Promise((resolve) => {
+        if (!imageUrl || imageUrl.startsWith('data:')) {
+            resolve(imageUrl); // Return as-is for data URLs
+            return;
+        }
+        
+        const img = new Image();
+        img.onload = () => {
+            resolve(imageUrl); // Image loaded successfully
+        };
+        img.onerror = () => {
+            console.warn('Failed to load image:', imageUrl);
+            resolve('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+');
+        };
+        
+        // Set timeout to prevent hanging
+        setTimeout(() => {
+            img.onload = null;
+            img.onerror = null;
+            resolve('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+');
+        }, 5000); // 5 second timeout
+        
+        img.src = imageUrl;
+    });
+}
+        // Create new structured data with safe data handling
         const structuredData = {
             "@context": "https://schema.org",
             "@type": "ItemList",
@@ -1434,48 +1677,71 @@ function updateProductStructuredData(products) {
             "description": `Current inventory of ${products.length} refurbished IT products`,
             "url": window.location.href + "#products",
             "numberOfItems": products.length,
-            "itemListElement": products.map((product, index) => ({
-                "@type": "ListItem",
-                "position": index + 1,
-                "item": {
-                    "@type": "Product",
-                    "name": product.model,
-                    "description": product.description || `${product.category} - ${product.processor} ${product.ram} ${product.storage}`,
-                    "category": product.category,
-                    "brand": {
-                        "@type": "Brand",
-                        "name": product.source || "RootTech Shop"
-                    },
-                    "offers": {
-                        "@type": "Offer",
-                        "price": product.price.replace(/[^\d]/g, ''),
-                        "priceCurrency": "INR",
-                        "availability": "https://schema.org/InStock",
-                        "seller": {
-                            "@type": "Organization",
-                            "name": "Shiv Infocom - RootTech Shop",
-                            "url": "https://dhruvilthewebhost.github.io/Shiv-Root/"
-                        }
-                    },
-                    "additionalProperty": [
-                        {
-                            "@type": "PropertyValue",
-                            "name": "Processor",
-                            "value": product.processor
-                        },
-                        {
-                            "@type": "PropertyValue",
-                            "name": "RAM",
-                            "value": product.ram
-                        },
-                        {
-                            "@type": "PropertyValue",
-                            "name": "Storage",
-                            "value": product.storage
-                        }
-                    ].filter(prop => prop.value !== "N/A")
+            "itemListElement": products.map((product, index) => {
+                // Safely handle all product properties
+                const safeModel = (product.model || 'Product').toString();
+                const safeCategory = (product.category || 'Other').toString();
+                const safeProcessor = (product.processor || 'N/A').toString();
+                const safeRam = (product.ram || 'N/A').toString();
+                const safeStorage = (product.storage || 'N/A').toString();
+                const safeDescription = (product.description || `${safeCategory} - ${safeProcessor} ${safeRam} ${safeStorage}`).toString();
+                const safeSource = (product.source || 'RootTech Shop').toString();
+                
+                // Safely handle price
+                let safePrice = '0';
+                try {
+                    if (product.price !== null && product.price !== undefined) {
+                        safePrice = product.price.toString().replace(/[^\d.]/g, '');
+                        if (!safePrice || safePrice === '') safePrice = '0';
+                    }
+                } catch (error) {
+                    console.warn('Error processing price for product:', product.model, error);
+                    safePrice = '0';
                 }
-            }))
+                
+                return {
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "item": {
+                        "@type": "Product",
+                        "name": safeModel,
+                        "description": safeDescription,
+                        "category": safeCategory,
+                        "brand": {
+                            "@type": "Brand",
+                            "name": safeSource
+                        },
+                        "offers": {
+                            "@type": "Offer",
+                            "price": safePrice,
+                            "priceCurrency": "INR",
+                            "availability": "https://schema.org/InStock",
+                            "seller": {
+                                "@type": "Organization",
+                                "name": "Shiv Infocom - RootTech Shop",
+                                "url": "https://dhruvilthewebhost.github.io/Shiv-Root/"
+                            }
+                        },
+                        "additionalProperty": [
+                            {
+                                "@type": "PropertyValue",
+                                "name": "Processor",
+                                "value": safeProcessor
+                            },
+                            {
+                                "@type": "PropertyValue",
+                                "name": "RAM",
+                                "value": safeRam
+                            },
+                            {
+                                "@type": "PropertyValue",
+                                "name": "Storage",
+                                "value": safeStorage
+                            }
+                        ].filter(prop => prop.value && prop.value !== "N/A" && prop.value !== "undefined")
+                    }
+                };
+            })
         };
         
         // Create and inject the script tag
