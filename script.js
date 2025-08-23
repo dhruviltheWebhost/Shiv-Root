@@ -1,6 +1,7 @@
 // Global variables
 let allProducts = [];
 let amazonProducts = [];
+let facebookAdsProducts = [];
 let currentFilter = 'all';
 let searchQuery = '';
 let isSearching = false;
@@ -46,13 +47,40 @@ document.addEventListener('DOMContentLoaded', function() {
     initSearchFunctionality();
     initNotificationPopup();
     initAnalytics();
+    initOneSignal();
+    initServiceWorker();
     fetchProducts();
     fetchAmazonProducts();
+    fetchFacebookAdsProducts();
     initTawkTo();
     initLazyLoading();
     
     // Show notification popup after 5 seconds
     setTimeout(showNotificationPopup, 5000);
+    
+    // Initialize OneSignal after a delay to ensure SDK is loaded
+    setTimeout(() => {
+        if (window.OneSignal) {
+            console.log('OneSignal SDK detected, initializing...');
+            initOneSignal();
+        } else {
+            console.log('OneSignal SDK not yet loaded, will retry...');
+            // Retry every 2 seconds for up to 10 seconds
+            let retryCount = 0;
+            const maxRetries = 5;
+            const retryInterval = setInterval(() => {
+                retryCount++;
+                if (window.OneSignal) {
+                    console.log('OneSignal SDK loaded on retry, initializing...');
+                    initOneSignal();
+                    clearInterval(retryInterval);
+                } else if (retryCount >= maxRetries) {
+                    console.warn('OneSignal SDK failed to load after retries');
+                    clearInterval(retryInterval);
+                }
+            }, 2000);
+        }
+    }, 1000);
 });
 
 // Search Functionality
@@ -153,7 +181,7 @@ function clearHeaderSearch() {
 }
 
 function getFilteredProducts() {
-    let filteredProducts = [...allProducts, ...amazonProducts];
+    let filteredProducts = [...allProducts, ...amazonProducts, ...facebookAdsProducts];
     
     // Apply category filter
     if (currentFilter !== 'all') {
@@ -344,11 +372,51 @@ function subscribeToNotifications() {
             hideNotificationPopup();
             showToast("✅ Successfully subscribed to notifications!", "success");
             trackEvent("notification_subscription", { status: "subscribed" });
+            
+            // Subscribe to OneSignal
+            OneSignal.User.PushSubscription.optIn();
+            
+            // Track successful subscription
+            trackEvent('onesignal_subscription_success', {
+                app_id: "ee523d8b-51c0-43d7-ad51-f0cf380f0487"
+            });
         } else {
             showToast("⚠️ You denied notifications. Enable them in browser settings.", "error");
             trackEvent("notification_subscription", { status: "denied" });
         }
+    }).catch((error) => {
+        console.error('Error requesting notification permission:', error);
+        trackEvent('notification_subscription', { status: 'error', error: error.message });
+        showToast('Failed to subscribe to notifications', 'error');
     });
+}
+
+// Send push notification (for testing/admin use)
+function sendTestNotification(title, message) {
+    if (!window.OneSignal) {
+        console.warn('OneSignal not available');
+        return;
+    }
+    
+    try {
+        OneSignal.User.PushSubscription.optIn();
+        OneSignal.Notifications.add({
+            title: title || 'RootTech Shop Update',
+            message: message || 'New products available!',
+            url: window.location.href + '#products',
+            icon: '/root_tech_back_remove-removebg-preview.png'
+        });
+        
+        trackEvent('test_notification_sent', {
+            title: title,
+            message: message
+        });
+        
+        showToast('Test notification sent!', 'success');
+    } catch (error) {
+        console.error('Error sending test notification:', error);
+        showToast('Failed to send notification', 'error');
+    }
 }
 
 // Analytics Integration
@@ -464,21 +532,22 @@ function initScrollEffects() {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                const headerHeight = document.querySelector('.header').offsetHeight;
-                const quickContactHeight = document.querySelector('.quick-contact').offsetHeight;
-                const targetPosition = target.offsetTop - headerHeight - quickContactHeight;
-                
-                window.scrollTo({
-                    top: targetPosition,
-                    behavior: 'smooth'
-                });
-                
-                trackEvent('internal_link_click', {
-                    link_target: this.getAttribute('href')
-                });
-            }
+                    const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            const headerHeight = document.querySelector('.header')?.offsetHeight || 0;
+            const quickContactElement = document.querySelector('.quick-contact');
+            const quickContactHeight = quickContactElement ? quickContactElement.offsetHeight : 0;
+            const targetPosition = target.offsetTop - headerHeight - quickContactHeight;
+            
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
+            
+            trackEvent('internal_link_click', {
+                link_target: this.getAttribute('href')
+            });
+        }
         });
     });
 }
@@ -552,18 +621,54 @@ async function fetchProducts() {
     showProductsLoading(true);
     
     try {
-        const response = await fetch(sheetURL);
+        // Add timeout to fetch request
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+        
+        const response = await fetch(sheetURL, {
+            signal: controller.signal,
+            headers: {
+                'Accept': 'application/json',
+                'Cache-Control': 'no-cache'
+            }
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status} - ${response.statusText}`);
+        }
+        
         let data = await response.text();
+        
+        // Validate response format
+        if (!data || data.length < 50) {
+            throw new Error('Invalid response from Google Sheets - response too short');
+        }
         
         // Remove extra characters added by Google Sheets API
         data = data.substring(47, data.length - 2);
-        const json = JSON.parse(data);
+        
+        let json;
+        try {
+            json = JSON.parse(data);
+        } catch (parseError) {
+            throw new Error(`Failed to parse JSON response: ${parseError.message}`);
+        }
+        
+        // Validate JSON structure
+        if (!json.table || !json.table.rows || !Array.isArray(json.table.rows)) {
+            throw new Error('Invalid JSON structure - missing table.rows array');
+        }
         
         allProducts = [];
         const rows = json.table.rows;
         
         // Skip header row if it exists
         const startIndex = rows[0]?.c[0]?.v === 'Model' ? 1 : 0;
+        
+        let validProducts = 0;
+        let invalidProducts = 0;
         
         for (let i = startIndex; i < rows.length; i++) {
             const row = rows[i];
@@ -582,25 +687,104 @@ async function fetchProducts() {
                 // Only add products with valid data
                 if (product.model !== "N/A" && product.model.trim() !== "") {
                     allProducts.push(product);
+                    validProducts++;
+                } else {
+                    invalidProducts++;
                 }
             }
         }
         
-        console.log(`Loaded ${allProducts.length} products from Google Sheets`);
-        filterAndDisplayProducts();
+        console.log(`Loaded ${allProducts.length} products from Google Sheets (${validProducts} valid, ${invalidProducts} invalid)`);
+        
+        if (allProducts.length === 0) {
+            console.warn('No valid products found in Google Sheets');
+            showError("No products found. Please check the Google Sheets configuration.");
+        } else {
+            filterAndDisplayProducts();
+            // Save to cache for offline use
+            await saveProductsToCache(allProducts, 'products_cache');
+        }
         showProductsLoading(false);
         
         trackEvent('products_loaded', {
-            total_products: allProducts.length
+            total_products: allProducts.length,
+            valid_products: validProducts,
+            invalid_products: invalidProducts
         });
         
     } catch (error) {
         console.error("Error fetching products:", error);
         showProductsLoading(false);
-        showError("Failed to load products. Please try again later.");
+        
+        let errorMessage = "Failed to load products. ";
+        if (error.name === 'AbortError') {
+            errorMessage += "Request timed out. Please check your internet connection.";
+        } else if (error.message.includes('HTTP error')) {
+            errorMessage += "Server error. Please try again later.";
+        } else if (error.message.includes('JSON')) {
+            errorMessage += "Data format error. Please contact support.";
+        } else {
+            errorMessage += "Please try again later.";
+        }
+        
+        showError(errorMessage);
+        
         trackEvent('products_load_error', {
-            error_message: error.message
+            error_message: error.message,
+            error_type: error.name,
+            error_stack: error.stack
         });
+        
+        // Try to load from cache if available
+        try {
+            const cachedProducts = await loadProductsFromCache();
+            if (cachedProducts && cachedProducts.length > 0) {
+                console.log('Loading products from cache...');
+                allProducts = cachedProducts;
+                filterAndDisplayProducts();
+                showToast('Loaded products from cache', 'info');
+            }
+        } catch (cacheError) {
+            console.log('No cached products available');
+        }
+    }
+}
+
+// Cache management functions
+async function saveProductsToCache(products, cacheKey = 'products_cache') {
+    try {
+        const cacheData = {
+            products: products,
+            timestamp: Date.now(),
+            version: '1.0'
+        };
+        localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+        console.log(`Products saved to cache: ${products.length} items`);
+    } catch (error) {
+        console.error('Error saving to cache:', error);
+    }
+}
+
+async function loadProductsFromCache(cacheKey = 'products_cache') {
+    try {
+        const cached = localStorage.getItem(cacheKey);
+        if (!cached) return null;
+        
+        const cacheData = JSON.parse(cached);
+        const cacheAge = Date.now() - cacheData.timestamp;
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours
+        
+        if (cacheAge > maxAge) {
+            console.log('Cache expired, removing old data');
+            localStorage.removeItem(cacheKey);
+            return null;
+        }
+        
+        console.log(`Products loaded from cache: ${cacheData.products.length} items (age: ${Math.round(cacheAge / 1000 / 60)} minutes)`);
+        return cacheData.products;
+    } catch (error) {
+        console.error('Error loading from cache:', error);
+        return null;
     }
 }
 
@@ -653,6 +837,60 @@ async function fetchAmazonProducts() {
     }
 }
 
+async function fetchFacebookAdsProducts() {
+    const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=FacebookAds";
+    
+    try {
+        const response = await fetch(sheetURL);
+        let data = await response.text();
+        
+        // Remove extra characters added by Google Sheets API
+        data = data.substring(47, data.length - 2);
+        const json = JSON.parse(data);
+        
+        facebookAdsProducts = [];
+        const rows = json.table.rows;
+        
+        // Skip header row if it exists
+        const startIndex = rows[0]?.c[0]?.v === 'Model' ? 1 : 0;
+        
+        for (let i = startIndex; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.c && row.c.length > 0) {
+                const product = {
+                    model: row.c[0]?.v || "N/A",
+                    category: row.c[1]?.v || "Other",
+                    processor: row.c[2]?.v || "N/A",
+                    ram: row.c[3]?.v || "N/A",
+                    storage: row.c[4]?.v || "N/A",
+                    price: row.c[5]?.v || "N/A",
+                    imageUrl: row.c[6]?.v || "",
+                    description: row.c[7]?.v || "",
+                    source: "Facebook Ads"
+                };
+                
+                // Only add products with valid data
+                if (product.model !== "N/A" && product.model.trim() !== "") {
+                    facebookAdsProducts.push(product);
+                }
+            }
+        }
+        
+        console.log(`Loaded ${facebookAdsProducts.length} Facebook Ads products from Google Sheets`);
+        filterAndDisplayProducts(); // Refresh display to include new products
+        
+        trackEvent('facebook_ads_products_loaded', {
+            total_products: facebookAdsProducts.length
+        });
+        
+    } catch (error) {
+        console.error("Error fetching Facebook Ads products:", error);
+        trackEvent('facebook_ads_products_load_error', {
+            error_message: error.message
+        });
+    }
+}
+
 function displayProducts(products) {
     if (!productGrid) return;
     
@@ -668,7 +906,11 @@ function displayProducts(products) {
     }
     
     const productsHTML = products.map((product, index) => `
-        <div class="product-card lazy-load" data-category="${product.category}" style="animation-delay: ${index * 0.1}s">
+        <div class="product-card lazy-load clickable" 
+             data-category="${product.category}" 
+             style="animation-delay: ${index * 0.1}s"
+             onclick="buyOnWhatsApp('${product.model.replace(/'/g, "\\'")}', '${product.price}')"
+             title="Click to enquire about ${product.model}">
             <img src="${product.imageUrl}" alt="${product.model}" loading="lazy" class="lazy-load" onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik0xMjUgNzVIMTc1VjEyNUgxMjVWNzVaIiBmaWxsPSIjRTVFN0VCIi8+CjxwYXRoIGQ9Ik0xMzEuMjUgOTMuNzVIMTY4Ljc1VjEwNi4yNUgxMzEuMjVWOTMuNzVaIiBmaWxsPSIjRDFENURCIi8+CjwvZz4KPC9zdmc+'">
             <div class="product-card-content">
                 <h3>${product.model}</h3>
@@ -677,9 +919,14 @@ function displayProducts(products) {
                 ${product.storage !== "N/A" ? `<p><strong>Storage:</strong> ${product.storage}</p>` : ""}
                 ${product.description ? `<p class="product-description">${product.description}</p>` : ""}
                 <div class="price">₹${formatPrice(product.price)}</div>
-                <button onclick="buyOnWhatsApp('${product.model.replace(/'/g, "\\'")}', '${product.price}')" class="btn btn-primary">
-                    <i class="fab fa-whatsapp"></i> Enquire Now
-                </button>
+                <div class="product-actions">
+                    <button class="btn btn-primary whatsapp-btn">
+                        <i class="fab fa-whatsapp"></i> Enquire Now
+                    </button>
+                    <div class="click-hint">
+                        <i class="fas fa-mouse-pointer"></i> Click anywhere on card to enquire
+                    </div>
+                </div>
             </div>
         </div>
     `).join('');
@@ -695,6 +942,9 @@ function displayProducts(products) {
             card.classList.add('loaded');
         });
     }, 100);
+    
+    // Update dynamic structured data for products
+    updateProductStructuredData(products);
 }
 
 function displayAmazonProducts() {
@@ -1051,6 +1301,212 @@ function adaptToConnectionSpeed() {
 
 // Initialize connection speed adaptation
 adaptToConnectionSpeed();
+
+// OneSignal Push Notifications Initialization
+function initOneSignal() {
+    if (window.OneSignal) {
+        OneSignal.push(function() {
+            OneSignal.init({
+                appId: "ee523d8b-51c0-43d7-ad51-f0cf380f0487",
+                safari_web_id: "web.onesignal.auto.YOUR_SAFARI_WEB_ID",
+                notifyButton: {
+                    enable: false,
+                },
+                autoResubscribe: true,
+                persistNotification: false,
+                allowLocalhostAsSecureOrigin: true,
+                welcomeNotification: {
+                    title: "Welcome to RootTech Shop!",
+                    message: "Stay updated with our latest products and offers."
+                }
+            });
+            
+            // Track OneSignal initialization
+            trackEvent('onesignal_initialized', {
+                app_id: "ee523d8b-51c0-43d7-ad51-f0cf380f0487"
+            });
+            
+            // Set up OneSignal event listeners
+            OneSignal.User.PushSubscription.addEventListener('change', (event) => {
+                console.log('Push subscription changed:', event);
+                trackEvent('push_subscription_changed', {
+                    is_subscribed: event.currentTarget.optedIn
+                });
+            });
+            
+            OneSignal.Notifications.addEventListener('click', (event) => {
+                console.log('Notification clicked:', event);
+                trackEvent('notification_clicked', {
+                    notification_id: event.notification.id,
+                    notification_title: event.notification.title
+                });
+            });
+            
+            OneSignal.Notifications.addEventListener('dismiss', (event) => {
+                console.log('Notification dismissed:', event);
+                trackEvent('notification_dismissed', {
+                    notification_id: event.notification.id
+                });
+            });
+            
+            // Check current subscription status
+            OneSignal.User.PushSubscription.optedIn.then((optedIn) => {
+                console.log('User opted in to push notifications:', optedIn);
+                if (optedIn) {
+                    setCookie('notification_subscribed', 'true', 365);
+                }
+            });
+            
+        });
+    } else {
+        console.warn('OneSignal SDK not loaded');
+        trackEvent('onesignal_load_error', {
+            error: 'SDK not loaded'
+        });
+        
+        // Retry loading OneSignal after a delay
+        setTimeout(() => {
+            if (window.OneSignal) {
+                console.log('OneSignal loaded on retry, initializing...');
+                initOneSignal();
+            }
+        }, 2000);
+    }
+}
+
+// Service Worker Registration
+function initServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/sw.js')
+                .then((registration) => {
+                    console.log('Service Worker registered successfully:', registration);
+                    
+                    // Track successful registration
+                    trackEvent('service_worker_registered', {
+                        scope: registration.scope,
+                        version: registration.active?.scriptURL
+                    });
+                    
+                    // Handle updates
+                    registration.addEventListener('updatefound', () => {
+                        const newWorker = registration.installing;
+                        newWorker.addEventListener('statechange', () => {
+                            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                // New version available
+                                console.log('New Service Worker version available');
+                                trackEvent('service_worker_update_available');
+                                
+                                // You can show a notification to the user here
+                                showToast('New version available! Refresh to update.', 'info');
+                            }
+                        });
+                    });
+                })
+                .catch((error) => {
+                    console.error('Service Worker registration failed:', error);
+                    trackEvent('service_worker_registration_failed', {
+                        error: error.message
+                    });
+                });
+        });
+    } else {
+        console.warn('Service Worker not supported');
+        trackEvent('service_worker_not_supported');
+    }
+}
+
+// Dynamic Structured Data for Products
+function updateProductStructuredData(products) {
+    try {
+        // Remove existing product structured data
+        const existingScript = document.querySelector('script[data-dynamic-products]');
+        if (existingScript) {
+            existingScript.remove();
+        }
+        
+        // Create new structured data
+        const structuredData = {
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            "name": "Available Products",
+            "description": `Current inventory of ${products.length} refurbished IT products`,
+            "url": window.location.href + "#products",
+            "numberOfItems": products.length,
+            "itemListElement": products.map((product, index) => ({
+                "@type": "ListItem",
+                "position": index + 1,
+                "item": {
+                    "@type": "Product",
+                    "name": product.model,
+                    "description": product.description || `${product.category} - ${product.processor} ${product.ram} ${product.storage}`,
+                    "category": product.category,
+                    "brand": {
+                        "@type": "Brand",
+                        "name": product.source || "RootTech Shop"
+                    },
+                    "offers": {
+                        "@type": "Offer",
+                        "price": product.price.replace(/[^\d]/g, ''),
+                        "priceCurrency": "INR",
+                        "availability": "https://schema.org/InStock",
+                        "seller": {
+                            "@type": "Organization",
+                            "name": "Shiv Infocom - RootTech Shop",
+                            "url": "https://dhruvilthewebhost.github.io/Shiv-Root/"
+                        }
+                    },
+                    "additionalProperty": [
+                        {
+                            "@type": "PropertyValue",
+                            "name": "Processor",
+                            "value": product.processor
+                        },
+                        {
+                            "@type": "PropertyValue",
+                            "name": "RAM",
+                            "value": product.ram
+                        },
+                        {
+                            "@type": "PropertyValue",
+                            "name": "Storage",
+                            "value": product.storage
+                        }
+                    ].filter(prop => prop.value !== "N/A")
+                }
+            }))
+        };
+        
+        // Create and inject the script tag
+        const script = document.createElement('script');
+        script.type = 'application/ld+json';
+        script.setAttribute('data-dynamic-products', 'true');
+        script.textContent = JSON.stringify(structuredData, null, 2);
+        
+        // Insert after the existing structured data
+        const existingStructuredData = document.querySelector('script[type="application/ld+json"]');
+        if (existingStructuredData) {
+            existingStructuredData.parentNode.insertBefore(script, existingStructuredData.nextSibling);
+        } else {
+            document.head.appendChild(script);
+        }
+        
+        console.log('Product structured data updated with', products.length, 'products');
+        
+        // Track structured data update
+        trackEvent('structured_data_updated', {
+            product_count: products.length,
+            data_type: 'products'
+        });
+        
+    } catch (error) {
+        console.error('Error updating product structured data:', error);
+        trackEvent('structured_data_error', {
+            error: error.message,
+            data_type: 'products'
+        });
+    }
+}
 
 // Final performance optimization
 document.addEventListener('DOMContentLoaded', function() {
