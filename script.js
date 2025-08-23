@@ -156,73 +156,144 @@ function buyOnWhatsApp(productName, price) {
 }
 
 // Notification Popup Functionality
+// function initNotificationPopup() {
+//     if (!notificationPopup) return;
+    
+//     if (closePopupBtn) {
+//         closePopupBtn.addEventListener('click', hideNotificationPopup);
+//     }
+    
+//     if (notNowBtn) {
+//         notNowBtn.addEventListener('click', () => {
+//             hideNotificationPopup();
+//             // Set cookie to not show again for 7 days
+//             setCookie('notification_dismissed', 'true', 7);
+//             trackEvent('notification_popup', { action: 'dismissed' });
+//         });
+//     }
+    
+//     if (subscribeBtn) {
+//         subscribeBtn.addEventListener('click', subscribeToNotifications);
+//     }
+    
+//     // Close popup when clicking outside
+//     notificationPopup.addEventListener('click', (e) => {
+//         if (e.target === notificationPopup) {
+//             hideNotificationPopup();
+//         }
+//     });
+// }
+
+// function showNotificationPopup() {
+//     // Don't show if user already dismissed it
+//     if (getCookie('notification_dismissed') === 'true' || getCookie('notification_subscribed') === 'true') {
+//         return;
+//     }
+    
+//     if (notificationPopup) {
+//         notificationPopup.classList.add('show');
+//         trackEvent('notification_popup', { action: 'shown' });
+//     }
+// }
+
+// function hideNotificationPopup() {
+//     if (notificationPopup) {
+//         notificationPopup.classList.remove('show');
+//     }
+// }
+
+// function subscribeToNotifications() {
+//     if (window.OneSignal) {
+//         OneSignal.push(function() {
+//             OneSignal.showNativePrompt();
+            
+//             OneSignal.on('subscriptionChange', function(isSubscribed) {
+//                 if (isSubscribed) {
+//                     setCookie('notification_subscribed', 'true', 365);
+//                     hideNotificationPopup();
+//                     showToast('Successfully subscribed to notifications!', 'success');
+//                     trackEvent('notification_subscription', { status: 'subscribed' });
+//                 } else {
+//                     trackEvent('notification_subscription', { status: 'declined' });
+//                 }
+//             });
+//         });
+//     } else {
+//         // Fallback for browsers that don't support push notifications
+//         showToast('Push notifications are not supported in your browser', 'info');
+//         hideNotificationPopup();
+//     }
+// }
+// Notification Popup Functionality
 function initNotificationPopup() {
     if (!notificationPopup) return;
-    
+
+    // Close (X) button
     if (closePopupBtn) {
-        closePopupBtn.addEventListener('click', hideNotificationPopup);
+        closePopupBtn.addEventListener("click", hideNotificationPopup);
     }
-    
+
+    // "Not Now" button → hide for 7 days
     if (notNowBtn) {
-        notNowBtn.addEventListener('click', () => {
+        notNowBtn.addEventListener("click", () => {
             hideNotificationPopup();
-            // Set cookie to not show again for 7 days
-            setCookie('notification_dismissed', 'true', 7);
-            trackEvent('notification_popup', { action: 'dismissed' });
+            setCookie("notification_dismissed", "true", 7);
+            trackEvent("notification_popup", { action: "dismissed" });
         });
     }
-    
+
+    // "Subscribe" button → request OneSignal permission
     if (subscribeBtn) {
-        subscribeBtn.addEventListener('click', subscribeToNotifications);
+        subscribeBtn.addEventListener("click", () => {
+            subscribeToNotifications();
+        });
     }
-    
-    // Close popup when clicking outside
-    notificationPopup.addEventListener('click', (e) => {
+
+    // Click outside popup closes it
+    notificationPopup.addEventListener("click", (e) => {
         if (e.target === notificationPopup) {
             hideNotificationPopup();
         }
     });
 }
 
+// Show popup (only if not dismissed/subscribed before)
 function showNotificationPopup() {
-    // Don't show if user already dismissed it
-    if (getCookie('notification_dismissed') === 'true' || getCookie('notification_subscribed') === 'true') {
-        return;
-    }
-    
+    if (getCookie("notification_dismissed") === "true") return;
+    if (getCookie("notification_subscribed") === "true") return;
+
     if (notificationPopup) {
-        notificationPopup.classList.add('show');
-        trackEvent('notification_popup', { action: 'shown' });
+        notificationPopup.classList.add("show");
+        trackEvent("notification_popup", { action: "shown" });
     }
 }
 
+// Hide popup
 function hideNotificationPopup() {
     if (notificationPopup) {
-        notificationPopup.classList.remove('show');
+        notificationPopup.classList.remove("show");
     }
 }
 
+// Subscribe with OneSignal v16
 function subscribeToNotifications() {
-    if (window.OneSignal) {
-        OneSignal.push(function() {
-            OneSignal.showNativePrompt();
-            
-            OneSignal.on('subscriptionChange', function(isSubscribed) {
-                if (isSubscribed) {
-                    setCookie('notification_subscribed', 'true', 365);
-                    hideNotificationPopup();
-                    showToast('Successfully subscribed to notifications!', 'success');
-                    trackEvent('notification_subscription', { status: 'subscribed' });
-                } else {
-                    trackEvent('notification_subscription', { status: 'declined' });
-                }
-            });
-        });
-    } else {
-        // Fallback for browsers that don't support push notifications
-        showToast('Push notifications are not supported in your browser', 'info');
+    if (!window.OneSignal) {
+        showToast("Push notifications are not supported in your browser", "info");
         hideNotificationPopup();
+        return;
     }
+
+    OneSignal.Notifications.requestPermission().then((permission) => {
+        if (permission === "granted") {
+            setCookie("notification_subscribed", "true", 365);
+            hideNotificationPopup();
+            showToast("✅ Successfully subscribed to notifications!", "success");
+            trackEvent("notification_subscription", { status: "subscribed" });
+        } else {
+            showToast("⚠️ You denied notifications. Enable them in browser settings.", "error");
+            trackEvent("notification_subscription", { status: "denied" });
+        }
+    });
 }
 
 // Analytics Integration
