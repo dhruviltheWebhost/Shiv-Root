@@ -15,14 +15,16 @@ const productsLoading = document.getElementById('products-loading');
 const filterTabs = document.querySelectorAll('.filter-tab');
 const statNumbers = document.querySelectorAll('.stat-number');
 
-// New DOM Elements
+// Fixed DOM Elements - matching HTML IDs
 const searchInput = document.getElementById('product-search');
 const clearSearchBtn = document.getElementById('clear-search');
 const searchResultsCount = document.getElementById('search-results-count');
+const headerSearchInput = document.getElementById('header-search');
+const headerClearSearchBtn = document.getElementById('header-clear-search');
 const notificationPopup = document.getElementById('notification-popup');
-const closePopupBtn = document.getElementById('close-popup');
-const subscribeBtn = document.getElementById('subscribe-notifications');
-const notNowBtn = document.getElementById('not-now');
+const closePopupBtn = document.getElementById('close-popup-btn');
+const subscribeBtn = document.getElementById('subscribe-btn');
+const notNowBtn = document.getElementById('not-now-btn');
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -55,12 +57,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Search Functionality
 function initSearchFunctionality() {
-    if (!searchInput) return;
-    
-    searchInput.addEventListener('input', handleSearch);
+    // Main search section
+    if (searchInput) {
+        searchInput.addEventListener('input', handleSearch);
+    }
     
     if (clearSearchBtn) {
         clearSearchBtn.addEventListener('click', clearSearch);
+    }
+    
+    // Header search
+    if (headerSearchInput) {
+        headerSearchInput.addEventListener('input', handleHeaderSearch);
+    }
+    
+    if (headerClearSearchBtn) {
+        headerClearSearchBtn.addEventListener('click', clearHeaderSearch);
     }
 }
 
@@ -97,8 +109,51 @@ function clearSearch() {
     filterAndDisplayProducts();
 }
 
+function handleHeaderSearch(e) {
+    searchQuery = e.target.value.toLowerCase().trim();
+    isSearching = searchQuery.length > 0;
+    
+    // Show/hide clear button
+    if (headerClearSearchBtn) {
+        headerClearSearchBtn.style.display = isSearching ? 'block' : 'none';
+    }
+    
+    // Sync with main search input
+    if (searchInput) {
+        searchInput.value = e.target.value;
+    }
+    
+    // Filter and display products
+    filterAndDisplayProducts();
+    
+    // Track search analytics
+    trackEvent('header_search', {
+        search_term: searchQuery,
+        search_results_count: getFilteredProducts().length
+    });
+}
+
+function clearHeaderSearch() {
+    if (headerSearchInput) {
+        headerSearchInput.value = '';
+        searchQuery = '';
+        isSearching = false;
+    }
+    
+    if (headerClearSearchBtn) {
+        headerClearSearchBtn.style.display = 'none';
+    }
+    
+    // Sync with main search input
+    if (searchInput) {
+        searchInput.value = '';
+    }
+    
+    filterAndDisplayProducts();
+}
+
 function getFilteredProducts() {
-    let filteredProducts = allProducts;
+    let filteredProducts = [...allProducts, ...amazonProducts];
     
     // Apply category filter
     if (currentFilter !== 'all') {
@@ -507,20 +562,31 @@ async function fetchProducts() {
         allProducts = [];
         const rows = json.table.rows;
         
-        rows.forEach(row => {
-            const product = {
-                model: row.c[0]?.v || "N/A",
-                category: row.c[1]?.v || "Other",
-                processor: row.c[2]?.v || "N/A",
-                ram: row.c[3]?.v || "N/A",
-                storage: row.c[4]?.v || "N/A",
-                price: row.c[5]?.v || "N/A",
-                imageUrl: row.c[6]?.v || "",
-                description: row.c[7]?.v || ""
-            };
-            allProducts.push(product);
-        });
+        // Skip header row if it exists
+        const startIndex = rows[0]?.c[0]?.v === 'Model' ? 1 : 0;
         
+        for (let i = startIndex; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.c && row.c.length > 0) {
+                const product = {
+                    model: row.c[0]?.v || "N/A",
+                    category: row.c[1]?.v || "Other",
+                    processor: row.c[2]?.v || "N/A",
+                    ram: row.c[3]?.v || "N/A",
+                    storage: row.c[4]?.v || "N/A",
+                    price: row.c[5]?.v || "N/A",
+                    imageUrl: row.c[6]?.v || "",
+                    description: row.c[7]?.v || ""
+                };
+                
+                // Only add products with valid data
+                if (product.model !== "N/A" && product.model.trim() !== "") {
+                    allProducts.push(product);
+                }
+            }
+        }
+        
+        console.log(`Loaded ${allProducts.length} products from Google Sheets`);
         filterAndDisplayProducts();
         showProductsLoading(false);
         
@@ -539,7 +605,7 @@ async function fetchProducts() {
 }
 
 async function fetchAmazonProducts() {
-    const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json";
+    const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=Amazon";
     
     try {
         const response = await fetch(sheetURL);
@@ -552,20 +618,31 @@ async function fetchAmazonProducts() {
         amazonProducts = [];
         const rows = json.table.rows;
         
-        rows.forEach(row => {
-            const product = {
-                model: row.c[0]?.v || "N/A",
-                category: row.c[1]?.v || "Other",
-                processor: row.c[2]?.v || "N/A",
-                ram: row.c[3]?.v || "N/A",
-                storage: row.c[4]?.v || "N/A",
-                price: row.c[5]?.v || "N/A",
-                imageUrl: row.c[6]?.v || "",
-                link: row.c[7]?.v || "#"
-            };
-            amazonProducts.push(product);
-        });
+        // Skip header row if it exists
+        const startIndex = rows[0]?.c[0]?.v === 'Model' ? 1 : 0;
         
+        for (let i = startIndex; i < rows.length; i++) {
+            const row = rows[i];
+            if (row.c && row.c.length > 0) {
+                const product = {
+                    model: row.c[0]?.v || "N/A",
+                    category: row.c[1]?.v || "Other",
+                    processor: row.c[2]?.v || "N/A",
+                    ram: row.c[3]?.v || "N/A",
+                    storage: row.c[4]?.v || "N/A",
+                    price: row.c[5]?.v || "N/A",
+                    imageUrl: row.c[6]?.v || "",
+                    link: row.c[7]?.v || "#"
+                };
+                
+                // Only add products with valid data
+                if (product.model !== "N/A" && product.model.trim() !== "") {
+                    amazonProducts.push(product);
+                }
+            }
+        }
+        
+        console.log(`Loaded ${amazonProducts.length} Amazon products from Google Sheets`);
         displayAmazonProducts();
         
     } catch (error) {

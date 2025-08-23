@@ -99,6 +99,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 2rem;
+  justify-content: space-between;
   padding: 1rem;
 }
 
@@ -155,6 +157,62 @@ body {
 
 .nav-link:hover::after {
   width: 100%;
+}
+
+/* Header Search Bar */
+.header-search {
+  flex: 1;
+  max-width: 400px;
+  margin: 0 2rem;
+}
+
+.header-search .search-box {
+  position: relative;
+  width: 100%;
+}
+
+.header-search .search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  border: 2px solid var(--gray-200);
+  border-radius: var(--border-radius);
+  font-size: 0.9rem;
+  transition: var(--transition);
+  background: var(--white);
+}
+
+.header-search .search-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.header-search .search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.header-search .clear-search {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: var(--transition);
+}
+
+.header-search .clear-search:hover {
+  background: var(--gray-100);
+  color: var(--text-dark);
 }
 
 .mobile-menu-toggle {
@@ -921,10 +979,668 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .header .container {
+    flex-wrap: wrap;
+  }
+  
+  .nav-brand {
+    order: 1;
+  }
+  
+  .header-search {
+    order: 3;
+    max-width: 100%;
+    margin: 0.5rem 0 0 0;
+    flex-basis: 100%;
+  }
+  
+  .header-search .search-input {
+    font-size: 1rem;
+    padding: 0.875rem 1rem 0.875rem 2.75rem;
+  }
+  
+  .header-search .search-icon {
+    font-size: 1rem;
+    left: 0.875rem;
+  }
+  
+  .header-search .clear-search {
+    font-size: 1rem;
+    padding: 0.375rem;
+  }
+  
+  .header-search .clear-search:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  
+  .header-search .clear-search:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
+    transform: scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
+    background: var(--gray-100);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
   .mobile-menu-toggle {
     display: flex;
+    order: 2;
   }
-
+  
+  .notification-popup .popup-content {
+    max-width: 90%;
+    margin: 1rem;
+  }
+  
+  .notification-popup .popup-buttons {
+    flex-direction: column;
+  }
+  
+  .notification-popup .popup-buttons .btn {
+    min-width: auto;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .notification-popup .popup-buttons .btn:last-child {
+    margin-bottom: 0;
+  }
+  
   .nav-menu {
     position: fixed;
     top: 70px;
@@ -1198,6 +1914,7 @@ body {
   box-shadow: var(--shadow-xl);
   transform: scale(0.8);
   transition: transform 0.3s ease;
+  padding: 0;
 }
 
 .notification-popup.show .popup-content {
@@ -1210,18 +1927,20 @@ body {
   padding: 1.5rem;
   border-bottom: 1px solid var(--gray-200);
   position: relative;
+  justify-content: space-between;
 }
 
 .popup-header i {
   font-size: 1.5rem;
   color: var(--primary-color);
-  margin-right: 1rem;
+  margin-right: 0;
 }
 
 .popup-header h3 {
   flex: 1;
   margin: 0;
   color: var(--text-dark);
+  text-align: center;
 }
 
 .close-popup {
@@ -1245,23 +1964,28 @@ body {
 
 .popup-body {
   padding: 1.5rem;
+  text-align: center;
 }
 
 .popup-body p {
   margin-bottom: 1.5rem;
   color: var(--text-light);
   line-height: 1.6;
+  text-align: center;
 }
 
 .popup-buttons {
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
+  justify-content: center;
 }
 
 .popup-buttons .btn {
   flex: 1;
   min-width: 120px;
+  margin: 0;
+  justify-content: center;
 }
 
 /* Enhanced Filter Tabs */
@@ -1372,6 +2096,88 @@ body {
 
 /* Mobile Responsiveness Enhancements */
 @media (max-width: 768px) {
+  .header .container {
+    flex-wrap: wrap;
+  }
+  
+  .nav-brand { 
+    order: 1; 
+  }
+  
+  .header-search {
+    order: 3;
+    max-width: 100%;
+    margin: 0.5rem 0 0 0;
+    flex-basis: 100%;
+  }
+  
+  .mobile-menu-toggle {
+    display: flex;
+    order: 2;
+  }
+  
+  .header-search .search-box {
+    border-radius: var(--border-radius);
+    background: var(--white);
+    border: 2px solid var(--gray-200);
+  }
+  
+  .header-search .search-input {
+    font-size: 1rem;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    color: var(--text-dark);
+  }
+  
+  .header-search .search-input::placeholder {
+    color: var(--text-light);
+  }
+  
+  .header-search .search-icon {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-light);
+    font-size: 1rem;
+    pointer-events: none;
+  }
+  
+  .header-search .clear-search {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--gray-100);
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-light);
+  }
+  
+  .header-search .clear-search:hover {
+    background: var(--gray-200);
+    color: var(--text-dark);
+  }
+  
+  .header-search .clear-search:active {
+    transform: translateY(-50%) scale(0.95);
+  }
+  
+  .header-search .clear-search:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+  
   .search-container {
     padding: 0 1rem;
   }
