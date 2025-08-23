@@ -48,9 +48,12 @@ document.addEventListener('DOMContentLoaded', function() {
     fetchAmazonProducts();
     initTawkTo();
     initLazyLoading();
+    registerEnhancedServiceWorker();
     
-    // Show notification popup after 5 seconds
-    setTimeout(showNotificationPopup, 5000);
+    // Show notification popup after 5 seconds (or 3 seconds on mobile)
+    const deviceInfo = getDeviceInfo();
+    const popupDelay = deviceInfo.isMobile ? 3000 : 5000;
+    setTimeout(showNotificationPopup, popupDelay);
 });
 
 // Search Functionality
@@ -173,7 +176,19 @@ function initNotificationPopup() {
     }
     
     if (subscribeBtn) {
-        subscribeBtn.addEventListener('click', subscribeToNotifications);
+        subscribeBtn.addEventListener('click', function() {
+            const deviceInfo = getDeviceInfo();
+            
+            // Handle different subscription methods based on device capabilities
+            if (!deviceInfo.pushSupported) {
+                // Direct to email subscription
+                hideNotificationPopup();
+                showEmailSubscriptionForm();
+            } else {
+                // Try push notifications first
+                subscribeToNotifications();
+            }
+        });
     }
     
     // Close popup when clicking outside
@@ -185,14 +200,87 @@ function initNotificationPopup() {
 }
 
 function showNotificationPopup() {
-    // Don't show if user already dismissed it
-    if (getCookie('notification_dismissed') === 'true' || getCookie('notification_subscribed') === 'true') {
+    // Don't show if user already dismissed it or subscribed via email
+    if (getCookie('notification_dismissed') === 'true' || 
+        getCookie('notification_subscribed') === 'true' || 
+        getCookie('email_subscribed') === 'true') {
         return;
     }
     
+    // Check device capabilities before showing
+    const deviceInfo = getDeviceInfo();
+    
     if (notificationPopup) {
+        // Update popup content based on device capabilities
+        updatePopupForDevice(deviceInfo);
         notificationPopup.classList.add('show');
-        trackEvent('notification_popup', { action: 'shown' });
+        trackEvent('notification_popup', { 
+            action: 'shown',
+            device_type: deviceInfo.type,
+            push_supported: deviceInfo.pushSupported,
+            browser: deviceInfo.browser
+        });
+    }
+}
+
+function getDeviceInfo() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isMobile = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent);
+    const isIOS = /iphone|ipad|ipod/i.test(userAgent);
+    const isAndroid = /android/i.test(userAgent);
+    const isSafari = /safari/i.test(userAgent) && !/chrome/i.test(userAgent);
+    const isChrome = /chrome/i.test(userAgent);
+    const isFirefox = /firefox/i.test(userAgent);
+    
+    // Check push notification support
+    const pushSupported = 'Notification' in window && 'serviceWorker' in navigator;
+    
+    let browser = 'unknown';
+    if (isChrome) browser = 'chrome';
+    else if (isSafari) browser = 'safari';
+    else if (isFirefox) browser = 'firefox';
+    
+    return {
+        type: isMobile ? 'mobile' : 'desktop',
+        isMobile,
+        isIOS,
+        isAndroid,
+        browser,
+        pushSupported,
+        oneSignalSupported: window.OneSignal !== undefined
+    };
+}
+
+function updatePopupForDevice(deviceInfo) {
+    const popupBody = notificationPopup.querySelector('.popup-body p');
+    const subscribeBtn = notificationPopup.querySelector('#subscribe-notifications');
+    
+    if (!popupBody || !subscribeBtn) return;
+    
+    if (!deviceInfo.pushSupported) {
+        // Device doesn't support push notifications
+        popupBody.innerHTML = `
+            <p>Stay updated with our latest products and exclusive deals! 
+            Since push notifications aren't supported on your device, 
+            we'll set up email notifications for you.</p>
+        `;
+        subscribeBtn.innerHTML = '<i class="fas fa-envelope"></i> Subscribe via Email';
+    } else if (deviceInfo.isIOS && deviceInfo.browser === 'safari') {
+        // iOS Safari specific instructions
+        popupBody.innerHTML = `
+            <p>Get notified about new arrivals, special offers, and exclusive deals on refurbished laptops and accessories.</p>
+            <div class="ios-instructions" style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem; padding: 1rem; background: var(--gray-50); border-radius: var(--border-radius);">
+                <strong>For iOS Safari:</strong> After clicking Subscribe, you may need to add our site to your Home Screen for notifications to work properly.
+            </div>
+        `;
+    } else if (deviceInfo.isAndroid) {
+        // Android specific
+        popupBody.innerHTML = `
+            <p>Get notified about new arrivals, special offers, and exclusive deals on refurbished laptops and accessories.</p>
+            <div class="android-instructions" style="font-size: 0.9rem; color: var(--text-light); margin-top: 1rem;">
+                <i class="fas fa-info-circle"></i> Notifications will appear in your notification panel and can be customized in your browser settings.
+            </div>
+        `;
     }
 }
 
@@ -202,26 +290,470 @@ function hideNotificationPopup() {
     }
 }
 
+function showNotificationStatus(message, type = 'info') {
+    const statusDiv = document.getElementById('notification-status');
+    const statusMessage = document.getElementById('status-message');
+    
+    if (statusDiv && statusMessage) {
+        statusMessage.textContent = message;
+        statusDiv.className = `notification-status ${type}`;
+        statusDiv.style.display = 'flex';
+        
+        // Auto-hide success messages after 3 seconds
+        if (type === 'success') {
+            setTimeout(() => {
+                if (statusDiv) {
+                    statusDiv.style.display = 'none';
+                }
+            }, 3000);
+        }
+    }
+}
+
+function hideNotificationStatus() {
+    const statusDiv = document.getElementById('notification-status');
+    if (statusDiv) {
+        statusDiv.style.display = 'none';
+    }
+}
+
 function subscribeToNotifications() {
+    // Check for OneSignal first
     if (window.OneSignal) {
         OneSignal.push(function() {
-            OneSignal.showNativePrompt();
+            // Check if notifications are supported
+            if (!OneSignal.isPushNotificationsSupported()) {
+                handleNotificationFallback();
+                return;
+            }
             
-            OneSignal.on('subscriptionChange', function(isSubscribed) {
-                if (isSubscribed) {
+            // Check current permission status
+            OneSignal.getNotificationPermission().then(function(permission) {
+                if (permission === 'granted') {
+                    showNotificationStatus('You are already subscribed to notifications!', 'success');
                     setCookie('notification_subscribed', 'true', 365);
-                    hideNotificationPopup();
-                    showToast('Successfully subscribed to notifications!', 'success');
-                    trackEvent('notification_subscription', { status: 'subscribed' });
-                } else {
-                    trackEvent('notification_subscription', { status: 'declined' });
+                    setTimeout(hideNotificationPopup, 2000);
+                    return;
                 }
+                
+                if (permission === 'denied') {
+                    handleNotificationFallback();
+                    return;
+                }
+                
+                // Show OneSignal prompt
+                OneSignal.showNativePrompt().then(function() {
+                    // Check subscription status after prompt
+                    OneSignal.isPushNotificationsEnabled().then(function(isEnabled) {
+                        if (isEnabled) {
+                            setCookie('notification_subscribed', 'true', 365);
+                            showNotificationStatus('Successfully subscribed to notifications!', 'success');
+                            setTimeout(hideNotificationPopup, 2000);
+                            trackEvent('notification_subscription', { 
+                                status: 'subscribed',
+                                method: 'onesignal'
+                            });
+                        } else {
+                            showNotificationStatus('Subscription was declined. Trying alternative method...', 'warning');
+                            setTimeout(handleNotificationFallback, 1500);
+                        }
+                    });
+                }).catch(function(error) {
+                    console.error('OneSignal prompt error:', error);
+                    handleNotificationFallback();
+                });
             });
         });
     } else {
-        // Fallback for browsers that don't support push notifications
-        showToast('Push notifications are not supported in your browser', 'info');
+        // Try native Web Push API as fallback
+        tryNativeNotifications();
+    }
+}
+
+function handleNotificationFallback() {
+    hideNotificationPopup();
+    
+    // Show email subscription option
+    const emailSubscription = confirm(
+        'Push notifications are not available on your device. ' +
+        'Would you like to subscribe to our email newsletter instead for updates on new products and deals?'
+    );
+    
+    if (emailSubscription) {
+        // Create email subscription form
+        showEmailSubscriptionForm();
+    } else {
+        showToast('You can always enable notifications later from your browser settings', 'info');
+    }
+    
+    trackEvent('notification_subscription', { 
+        status: 'fallback_offered',
+        email_opted: emailSubscription
+    });
+}
+
+function tryNativeNotifications() {
+    if (!('Notification' in window)) {
+        handleNotificationFallback();
+        return;
+    }
+    
+    if (Notification.permission === 'granted') {
+        showToast('You are already subscribed to notifications!', 'info');
+        setCookie('notification_subscribed', 'true', 365);
         hideNotificationPopup();
+        return;
+    }
+    
+    if (Notification.permission === 'denied') {
+        handleNotificationFallback();
+        return;
+    }
+    
+    // Request permission using native API
+    Notification.requestPermission().then(function(permission) {
+        if (permission === 'granted') {
+            // Create a test notification
+            new Notification('RootTech Shop', {
+                body: 'Thanks for subscribing! We\'ll notify you about new products and deals.',
+                icon: '/root_tech_back_remove-removebg-preview.png',
+                badge: '/root_tech_back_remove-removebg-preview.png'
+            });
+            
+            setCookie('notification_subscribed', 'true', 365);
+            hideNotificationPopup();
+            showToast('Successfully subscribed to notifications!', 'success');
+            trackEvent('notification_subscription', { 
+                status: 'subscribed',
+                method: 'native'
+            });
+        } else {
+            handleNotificationFallback();
+        }
+    }).catch(function(error) {
+        console.error('Native notification error:', error);
+        handleNotificationFallback();
+    });
+}
+
+function showEmailSubscriptionForm() {
+    // Create email subscription modal
+    const emailModal = document.createElement('div');
+    emailModal.className = 'email-subscription-modal';
+    emailModal.innerHTML = `
+        <div class="email-modal-content">
+            <div class="email-modal-header">
+                <h3><i class="fas fa-envelope"></i> Stay Updated via Email</h3>
+                <button class="close-email-modal" onclick="closeEmailModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="email-modal-body">
+                <p>Get notified about new products, exclusive deals, and special offers directly in your inbox!</p>
+                <form class="email-subscription-form" onsubmit="submitEmailSubscription(event)">
+                    <div class="email-input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="subscriber-email" placeholder="Enter your email address" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i> Subscribe
+                    </button>
+                </form>
+                <p class="email-disclaimer">We respect your privacy and won't spam you. Unsubscribe anytime.</p>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(emailModal);
+    
+    // Add styles
+    const emailModalStyles = `
+        .email-subscription-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .email-modal-content {
+            background: var(--white);
+            border-radius: var(--border-radius-lg);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            animation: slideUp 0.3s ease;
+        }
+        
+        .email-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .email-modal-header h3 {
+            margin: 0;
+            color: var(--text-dark);
+        }
+        
+        .email-modal-header i {
+            color: var(--primary-color);
+            margin-right: 0.5rem;
+        }
+        
+        .close-email-modal {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: var(--text-light);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .close-email-modal:hover {
+            background: var(--gray-100);
+            color: var(--text-dark);
+        }
+        
+        .email-modal-body {
+            padding: 1.5rem;
+        }
+        
+        .email-modal-body p {
+            margin-bottom: 1.5rem;
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+        
+        .email-input-group {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+        
+        .email-input-group i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+        }
+        
+        .email-input-group input {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .email-input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .email-disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 1rem;
+            margin-bottom: 0;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    `;
+    
+    const emailStyleSheet = document.createElement('style');
+    emailStyleSheet.textContent = emailModalStyles;
+    document.head.appendChild(emailStyleSheet);
+    
+    // Focus on email input
+    setTimeout(() => {
+        const emailInput = document.getElementById('subscriber-email');
+        if (emailInput) emailInput.focus();
+    }, 300);
+}
+
+function closeEmailModal() {
+    const modal = document.querySelector('.email-subscription-modal');
+    if (modal) {
+        modal.style.animation = 'fadeOut 0.3s ease';
+        setTimeout(() => {
+            document.body.removeChild(modal);
+        }, 300);
+    }
+}
+
+function submitEmailSubscription(event) {
+    event.preventDefault();
+    const email = document.getElementById('subscriber-email').value;
+    
+    if (!email || !isValidEmail(email)) {
+        showToast('Please enter a valid email address', 'error');
+        return;
+    }
+    
+    // Store email subscription (you can integrate with your email service here)
+    setCookie('email_subscribed', 'true', 365);
+    setCookie('subscriber_email', email, 365);
+    
+    // Track email subscription
+    trackEvent('email_subscription', { 
+        email: email,
+        source: 'notification_fallback'
+    });
+    
+    closeEmailModal();
+    showToast('Successfully subscribed to email updates!', 'success');
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// Manual notification test function (for debugging)
+function testNotification() {
+    const deviceInfo = getDeviceInfo();
+    console.log('Device Info:', deviceInfo);
+    
+    if (window.OneSignal) {
+        OneSignal.push(function() {
+            console.log('OneSignal Status:');
+            console.log('- Push Supported:', OneSignal.isPushNotificationsSupported());
+            
+            OneSignal.getNotificationPermission().then(function(permission) {
+                console.log('- Permission Status:', permission);
+            });
+            
+            OneSignal.isPushNotificationsEnabled().then(function(isEnabled) {
+                console.log('- Currently Enabled:', isEnabled);
+            });
+        });
+    }
+    
+    if ('Notification' in window) {
+        console.log('Native Notification Permission:', Notification.permission);
+    }
+    
+    return deviceInfo;
+}
+
+// Add to window for manual testing
+window.testNotification = testNotification;
+window.showNotificationPopup = showNotificationPopup;
+window.subscribeToNotifications = subscribeToNotifications;
+
+// Enhanced service worker for better notification handling
+function registerEnhancedServiceWorker() {
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            const CACHE_NAME = 'roottech-notifications-v1';
+            
+            // Handle push notifications
+            self.addEventListener('push', function(event) {
+                console.log('Push received:', event);
+                
+                const options = {
+                    body: event.data ? event.data.text() : 'New products and deals available!',
+                    icon: '/root_tech_back_remove-removebg-preview.png',
+                    badge: '/root_tech_back_remove-removebg-preview.png',
+                    vibrate: [200, 100, 200],
+                    data: {
+                        dateOfArrival: Date.now(),
+                        primaryKey: 1,
+                        url: '/'
+                    },
+                    actions: [
+                        {
+                            action: 'explore',
+                            title: 'View Products',
+                            icon: '/root_tech_back_remove-removebg-preview.png'
+                        },
+                        {
+                            action: 'close',
+                            title: 'Close',
+                            icon: '/root_tech_back_remove-removebg-preview.png'
+                        }
+                    ]
+                };
+                
+                event.waitUntil(
+                    self.registration.showNotification('RootTech Shop', options)
+                );
+            });
+            
+            // Handle notification clicks
+            self.addEventListener('notificationclick', function(event) {
+                console.log('Notification clicked:', event);
+                event.notification.close();
+                
+                if (event.action === 'explore') {
+                    event.waitUntil(
+                        clients.openWindow('/#products')
+                    );
+                } else if (event.action !== 'close') {
+                    event.waitUntil(
+                        clients.openWindow('/')
+                    );
+                }
+            });
+            
+            // Basic caching
+            self.addEventListener('fetch', function(event) {
+                if (event.request.destination === 'image') {
+                    event.respondWith(
+                        caches.open(CACHE_NAME).then(function(cache) {
+                            return cache.match(event.request).then(function(response) {
+                                return response || fetch(event.request).then(function(response) {
+                                    cache.put(event.request, response.clone());
+                                    return response;
+                                });
+                            });
+                        })
+                    );
+                }
+            });
+        `;
+        
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        
+        navigator.serviceWorker.register(swUrl)
+            .then(function(registration) {
+                console.log('Enhanced ServiceWorker registered successfully');
+                
+                // Subscribe to push notifications if supported
+                if ('PushManager' in window) {
+                    registration.pushManager.getSubscription().then(function(subscription) {
+                        if (subscription) {
+                            console.log('Push subscription active');
+                        }
+                    });
+                }
+            })
+            .catch(function(err) {
+                console.log('Enhanced ServiceWorker registration failed: ', err);
+            });
     }
 }
 

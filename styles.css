@@ -1310,6 +1310,37 @@ body {
   min-width: 120px;
 }
 
+.notification-status {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--border-radius);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+}
+
+.notification-status.success {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--secondary-color);
+  color: var(--secondary-color);
+}
+
+.notification-status.error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.notification-status.warning {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
 /* Enhanced Filter Tabs */
 .filter-tabs {
   display: flex;

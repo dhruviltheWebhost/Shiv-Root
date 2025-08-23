@@ -259,13 +259,37 @@ Laptop service Ahmedabad
     window.OneSignal = window.OneSignal || [];
     OneSignal.push(function() {
       OneSignal.init({
-        appId: "YOUR_ONESIGNAL_APP_ID",
-        safari_web_id: "web.onesignal.auto.YOUR_SAFARI_WEB_ID",
+        appId: "e8f8c4c8-3c4a-4c8c-8c4c-8c4c8c4c8c4c", // Demo App ID - replace with your actual OneSignal App ID
+        safari_web_id: "web.onesignal.auto.e8f8c4c8-3c4a-4c8c-8c4c-8c4c8c4c8c4c", // Demo Safari Web ID
+        allowLocalhostAsSecureOrigin: true,
         notifyButton: {
           enable: false,
         },
         autoResubscribe: true,
-        persistNotification: false
+        persistNotification: false,
+        welcomeNotification: {
+          "title": "RootTech Shop",
+          "message": "Thanks for subscribing! We'll notify you about new products and deals.",
+        },
+        promptOptions: {
+          slidedown: {
+            prompts: [
+              {
+                type: "push",
+                autoPrompt: false,
+                text: {
+                  actionMessage: "We'd like to show you notifications for new products and exclusive deals.",
+                  acceptButton: "Allow",
+                  cancelButton: "No Thanks"
+                },
+                delay: {
+                  pageViews: 1,
+                  timeDelay: 5
+                }
+              }
+            ]
+          }
+        }
       });
     });
   </script>
@@ -643,6 +667,10 @@ Laptop service Ahmedabad
       </div>
       <div class="popup-body">
         <p>Get notified about new arrivals, special offers, and exclusive deals on refurbished laptops and accessories.</p>
+        <div id="notification-status" class="notification-status" style="display: none;">
+          <i class="fas fa-info-circle"></i>
+          <span id="status-message"></span>
+        </div>
         <div class="popup-buttons">
           <button id="subscribe-notifications" class="btn btn-primary">
             <i class="fas fa-bell"></i> Subscribe
