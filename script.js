@@ -251,16 +251,51 @@ async function fetchFacebookAdsProducts() {
 /**
  * Filters and displays products on the main grid based on current filters and search query.
  */
+/**
+ * Filters products based on current criteria and decides whether to limit results.
+ */
 function filterAndDisplayProducts() {
-  let filteredProducts = [...allProducts, ...amazonProducts, ...facebookAdsProducts];
+    const viewAllContainer = document.getElementById('view-all-container');
+    let filteredProducts = getFilteredProducts(); // Uses your existing function to get all matches
 
-  // Apply category filter
-  if (currentFilter !== 'all') {
-    filteredProducts = filteredProducts.filter(product =>
-      product.category.toLowerCase() === currentFilter.toLowerCase()
-    );
-  }
+    // Check if we should apply the 6-item limit (only on initial load)
+    const shouldLimit = !isSearching && currentFilter === 'all';
 
+    if (shouldLimit) {
+        displayProducts(filteredProducts.slice(0, 6)); // Show only the first 6
+        
+        // If there are more than 6 products, show the "View All" button
+        if (filteredProducts.length > 6) {
+            renderViewAllButton(filteredProducts.length);
+        } else {
+            viewAllContainer.innerHTML = ''; // No need for a button if less than 6
+        }
+    } else {
+        displayProducts(filteredProducts); // Show all results when searching or filtering
+        viewAllContainer.innerHTML = ''; // Hide the button
+    }
+}
+
+/**
+ * Creates and manages the "View All" button.
+ * @param {number} totalCount - The total number of products available.
+ */
+function renderViewAllButton(totalCount) {
+    const viewAllContainer = document.getElementById('view-all-container');
+    if (viewAllContainer) {
+        viewAllContainer.innerHTML = `
+            <button id="view-all-btn" class="btn btn-secondary">View All ${totalCount} Products</button>
+        `;
+        
+        // Add a click listener to the new button
+        document.getElementById('view-all-btn').addEventListener('click', () => {
+            const allProducts = getFilteredProducts();
+            displayProducts(allProducts); // Display all products
+            viewAllContainer.innerHTML = ''; // Remove the button after click
+            trackEvent('view_all_products_click');
+        });
+    }
+}
   // Apply search filter
   if (isSearching) {
     filteredProducts = filteredProducts.filter(product => {
