@@ -26,6 +26,15 @@ const notificationPopup = document.getElementById('notification-popup');
 const closePopupBtn = document.getElementById('close-popup-btn');
 const subscribeBtn = document.getElementById('subscribe-btn');
 const notNowBtn = document.getElementById('not-now-btn');
+function debounce(func, delay = 200) {
+  let timeoutId;
+  return function(...args) {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
+}
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', function() {
@@ -84,6 +93,50 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // Search Functionality
+function initSearchSuggestions() {
+  const searchInput = document.getElementById('product-search');
+  const suggestionsContainer = document.getElementById('search-suggestions');
+
+  const debouncedSearch = debounce((query) => {
+    if (query.length < 2) {
+      suggestionsContainer.style.display = 'none';
+      return;
+    }
+
+    const allAvailableProducts = [...allProducts, ...amazonProducts, ...facebookAdsProducts];
+    const filtered = allAvailableProducts.filter(product =>
+      product.model.toLowerCase().includes(query) ||
+      (product.brand && product.brand.toLowerCase().includes(query))
+    ).slice(0, 10); // Limit to 10 results
+
+    if (filtered.length > 0) {
+      suggestionsContainer.innerHTML = filtered.map(product => `
+        <a href="${product.link || '#'}" class="suggestion-item" target="_blank">
+          <img src="${product.imageUrl}" alt="${product.model}" onerror="this.src='root_tech_back_remove-removebg-preview.png'">
+          <div class="suggestion-details">
+            <div class="suggestion-name">${product.model}</div>
+            <div class="suggestion-price">₹${formatPrice(product.price)}</div>
+          </div>
+        </a>
+      `).join('');
+    } else {
+      suggestionsContainer.innerHTML = '<div class="no-results">No results found</div>';
+    }
+    suggestionsContainer.style.display = 'block';
+  });
+
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    debouncedSearch(query);
+  });
+
+  // Hide suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target)) {
+      suggestionsContainer.style.display = 'none';
+    }
+  });
+}
 function initSearchFunctionality() {
     // Main search section
     if (searchInput) {
@@ -1517,7 +1570,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
+document.addEventListener('DOMContentLoaded', function() {
+  // ... your other init functions
+  initSearchFunctionality();
+  initSearchSuggestions(); // Add this line
+  initNotificationPopup();
+  // ... rest of your functions
+});
 // Inject additional styles
 const styleSheet = document.createElement('style');
 styleSheet.textContent = additionalStyles;
