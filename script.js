@@ -86,15 +86,14 @@ document.addEventListener('DOMContentLoaded', function() {
 // --- SEARCH FUNCTIONALITY ---
 
 /**
- * Initializes both search inputs and their suggestion dropdowns.
+ * Initializes the main search input and suggestion dropdown.
  */
 function initSearchFunctionality() {
     const mainSearchInput = document.getElementById('product-search');
-    const headerSearchInput = document.getElementById('header-search');
     const mainSuggestions = document.getElementById('search-suggestions');
-    const headerSuggestions = document.getElementById('header-search-suggestions');
     const mainClearBtn = document.getElementById('clear-search');
-    const headerClearBtn = document.getElementById('header-clear-search');
+
+    if (!mainSearchInput) return;
 
     const handleSuggestions = (query, suggestionsContainer) => {
         if (query.length < 2) {
@@ -126,36 +125,55 @@ function initSearchFunctionality() {
     };
 
     const debouncedMainSearch = debounce(query => handleSuggestions(query, mainSuggestions));
-    const debouncedHeaderSearch = debounce(query => handleSuggestions(query, headerSuggestions));
 
-    const setupSearchInput = (input, clearBtn, debouncedSearch) => {
-        input.addEventListener('input', () => {
-            const query = input.value.toLowerCase().trim();
-            searchQuery = query; // Update global search query
-            isSearching = query.length > 0;
-            clearBtn.style.display = isSearching ? 'block' : 'none';
-            debouncedSearch(query);
-            filterAndDisplayProducts(); // Also update main grid
-        });
+    // Setup main search input
+    mainSearchInput.addEventListener('input', () => {
+        const query = mainSearchInput.value.toLowerCase().trim();
+        searchQuery = query; // Update global search query
+        isSearching = query.length > 0;
+        mainClearBtn.style.display = isSearching ? 'block' : 'none';
+        debouncedMainSearch(query);
+        filterAndDisplayProducts(); // Also update main grid
+        
+        // Update search results count
+        updateSearchResultsCount();
+    });
 
-        clearBtn.addEventListener('click', () => {
-            input.value = '';
-            input.dispatchEvent(new Event('input'));
-        });
-    };
-
-    setupSearchInput(mainSearchInput, mainClearBtn, debouncedMainSearch);
-    setupSearchInput(headerSearchInput, headerClearBtn, debouncedHeaderSearch);
+    mainClearBtn.addEventListener('click', () => {
+        mainSearchInput.value = '';
+        searchQuery = '';
+        isSearching = false;
+        mainClearBtn.style.display = 'none';
+        mainSuggestions.style.display = 'none';
+        filterAndDisplayProducts();
+        updateSearchResultsCount();
+    });
 
     // Hide suggestions when clicking outside
     document.addEventListener('click', (e) => {
         if (!mainSearchInput.parentElement.contains(e.target)) {
             mainSuggestions.style.display = 'none';
         }
-        if (!headerSearchInput.parentElement.contains(e.target)) {
-            headerSuggestions.style.display = 'none';
-        }
     });
+}
+
+/**
+ * Updates the search results count display.
+ */
+function updateSearchResultsCount() {
+    const resultsCountElement = document.getElementById('search-results-count');
+    if (!resultsCountElement) return;
+    
+    if (isSearching || currentFilter !== 'all') {
+        const filteredProducts = getFilteredProducts();
+        const count = filteredProducts.length;
+        const filterText = currentFilter !== 'all' ? ` in ${currentFilter}s` : '';
+        const searchText = isSearching ? ` for "${searchQuery}"` : '';
+        resultsCountElement.textContent = `${count} product${count !== 1 ? 's' : ''} found${searchText}${filterText}`;
+        resultsCountElement.style.display = 'block';
+    } else {
+        resultsCountElement.style.display = 'none';
+    }
 }
 
 
@@ -185,9 +203,23 @@ async function fetchProducts() {
       description: row.c[7]?.v || ""
     })).filter(p => p.model !== "N/A");
 
+    // Initial load - show only first 6 products
     filterAndDisplayProducts();
+    updateSearchResultsCount();
   } catch (error) {
     console.error("Error fetching products:", error);
+    // Show error message to user
+    if (productGrid) {
+      productGrid.innerHTML = `
+        <div class="no-products">
+          <i class="fas fa-exclamation-triangle"></i>
+          <h3>Unable to load products</h3>
+          <p>Please check your internet connection and try refreshing the page.</p>
+          <button onclick="fetchProducts()" class="btn btn-primary" style="margin-top: 1rem;">
+            <i class="fas fa-refresh"></i> Try Again
+          </button>
+        </div>`;
+    }
   } finally {
     showProductsLoading(false);
   }
@@ -249,14 +281,36 @@ async function fetchFacebookAdsProducts() {
 }
 
 /**
- * Filters and displays products on the main grid based on current filters and search query.
+ * Gets filtered products based on current filter and search criteria.
+ * @returns {Array} The filtered products array.
  */
+function getFilteredProducts() {
+  let filteredProducts = [...allProducts];
+
+  // Apply category filter
+  if (currentFilter !== 'all') {
+    filteredProducts = filteredProducts.filter(product => 
+      product.category.toLowerCase() === currentFilter.toLowerCase()
+    );
+  }
+
+  // Apply search filter
+  if (isSearching && searchQuery) {
+    filteredProducts = filteredProducts.filter(product => {
+      const searchableText = `${product.model} ${product.processor} ${product.ram} ${product.storage} ${product.category}`.toLowerCase();
+      return searchableText.includes(searchQuery.toLowerCase());
+    });
+  }
+
+  return filteredProducts;
+}
+
 /**
- * Filters products based on current criteria and decides whether to limit results.
+ * Filters and displays products on the main grid based on current filters and search query.
  */
 function filterAndDisplayProducts() {
     const viewAllContainer = document.getElementById('view-all-container');
-    let filteredProducts = getFilteredProducts(); // Uses your existing function to get all matches
+    let filteredProducts = getFilteredProducts();
 
     // Check if we should apply the 6-item limit (only on initial load)
     const shouldLimit = !isSearching && currentFilter === 'all';
@@ -295,16 +349,6 @@ function renderViewAllButton(totalCount) {
             trackEvent('view_all_products_click');
         });
     }
-}
-  // Apply search filter
-  if (isSearching) {
-    filteredProducts = filteredProducts.filter(product => {
-      const searchableText = `${product.model} ${product.processor} ${product.ram} ${product.storage} ${product.category}`.toLowerCase();
-      return searchableText.includes(searchQuery);
-    });
-  }
-
-  displayProducts(filteredProducts);
 }
 
 /**
@@ -447,6 +491,7 @@ function initFilterTabs() {
       tab.classList.add('active');
       currentFilter = tab.dataset.filter;
       filterAndDisplayProducts();
+      updateSearchResultsCount();
     });
   });
 }
