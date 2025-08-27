@@ -79,7 +79,10 @@ document.addEventListener('DOMContentLoaded', function() {
   fetchFacebookAdsProducts();
 
   // Show notification popup after a delay
-  setTimeout(showNotificationPopup, 5000);
+  setTimeout(() => {
+    console.log('Attempting to show notification popup');
+    showNotificationPopup();
+  }, 5000);
 });
 
 
@@ -552,19 +555,58 @@ function buyOnWhatsApp(productName, price) {
  * Initializes the notification subscription popup.
  */
 function initNotificationPopup() {
-    if (!notificationPopup) return;
+    if (!notificationPopup) {
+        console.warn('Notification popup element not found');
+        return;
+    }
 
     const hideAndSetCookie = (cookieName, days) => {
         notificationPopup.classList.remove("show");
         if (cookieName) setCookie(cookieName, "true", days);
     };
 
-    closePopupBtn.addEventListener("click", () => hideAndSetCookie());
-    notNowBtn.addEventListener("click", () => {
-        hideAndSetCookie("notification_dismissed", 7);
-        trackEvent("notification_popup_dismissed");
-    });
-    subscribeBtn.addEventListener("click", subscribeToNotifications);
+    // Ensure all elements exist before adding listeners
+    const closeBtn = document.getElementById('close-popup-btn');
+    const notNowButton = document.getElementById('not-now-btn');
+    const subscribeButton = document.getElementById('subscribe-btn');
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", () => hideAndSetCookie());
+    }
+
+    if (notNowButton) {
+        notNowButton.addEventListener("click", () => {
+            hideAndSetCookie("notification_dismissed", 7);
+            trackEvent("notification_popup_dismissed");
+        });
+    }
+
+    if (subscribeButton) {
+        // Remove any existing listeners to prevent duplicates
+        subscribeButton.removeEventListener("click", subscribeToNotifications);
+        
+        // Add the event listener with additional debugging
+        subscribeButton.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            console.log('Subscribe button clicked');
+            
+            // Prevent multiple rapid clicks
+            if (subscribeButton.disabled) {
+                console.log('Subscribe button already processing');
+                return;
+            }
+            
+            await subscribeToNotifications();
+        });
+        
+        console.log('Subscribe button event listener attached');
+    } else {
+        console.error('Subscribe button not found');
+    }
+
+    // Add popup backdrop click handler
     notificationPopup.addEventListener("click", (e) => {
         if (e.target === notificationPopup) hideAndSetCookie();
     });
@@ -574,53 +616,165 @@ function initNotificationPopup() {
  * Shows the notification popup if it hasn't been dismissed or subscribed to.
  */
 function showNotificationPopup() {
-  if (getCookie("notification_dismissed") || getCookie("notification_subscribed")) return;
-  if (notificationPopup) notificationPopup.classList.add("show");
+  const dismissed = getCookie("notification_dismissed");
+  const subscribed = getCookie("notification_subscribed");
+  
+  console.log('Notification status - dismissed:', dismissed, 'subscribed:', subscribed);
+  
+  if (dismissed || subscribed) {
+    console.log('Notification popup skipped due to previous interaction');
+    return;
+  }
+  
+  if (notificationPopup) {
+    console.log('Showing notification popup');
+    notificationPopup.classList.add("show");
+    
+    // Re-ensure event listeners are attached (in case of dynamic content)
+    const subscribeButton = document.getElementById('subscribe-btn');
+    if (subscribeButton && !subscribeButton.hasAttribute('data-listener-attached')) {
+      console.log('Re-attaching subscribe button listener');
+      subscribeButton.addEventListener("click", async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        if (subscribeButton.disabled) return;
+        
+        await subscribeToNotifications();
+      });
+      subscribeButton.setAttribute('data-listener-attached', 'true');
+    }
+  } else {
+    console.error('Notification popup element not found');
+  }
 }
 
 /**
  * Handles the subscription process via OneSignal v16 API.
  */
 async function subscribeToNotifications() {
+    const subscribeBtn = document.getElementById('subscribe-btn');
+    let originalText = '<i class="fas fa-bell"></i> Subscribe';
+    
     try {
+        console.log('Starting subscription process...');
+        
+        if (!subscribeBtn) {
+            console.error('Subscribe button not found');
+            return;
+        }
+
+        // Store original button text
+        originalText = subscribeBtn.innerHTML;
+
+        // Check if OneSignal is available
         if (!window.OneSignal) {
-            console.warn("OneSignal SDK not available.");
-            showNotificationError("Notification service unavailable. Please try again later.");
+            console.warn("OneSignal SDK not available, using fallback method.");
+            await handleFallbackNotificationSubscription();
+            return;
+        }
+
+        // Check if browser supports notifications
+        if (!('Notification' in window)) {
+            console.warn("Browser doesn't support notifications");
+            showNotificationError("Your browser doesn't support notifications.");
             return;
         }
 
         // Show loading state
-        const subscribeBtn = document.getElementById('subscribe-btn');
-        const originalText = subscribeBtn.innerHTML;
         subscribeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subscribing...';
         subscribeBtn.disabled = true;
-
-        // Request notification permission
-        const permission = await OneSignal.Notifications.requestPermission();
         
-        if (permission) {
-            // Subscribe to push notifications
-            await OneSignal.User.PushSubscription.optIn();
+        console.log('Requesting notification permission...');
+
+        // For OneSignal v16, we need to handle this differently
+        let permissionGranted = false;
+        
+        try {
+            // Check current permission status
+            const currentPermission = Notification.permission;
+            console.log('Current notification permission:', currentPermission);
             
-            setCookie("notification_subscribed", "true", 365);
-            notificationPopup.classList.remove("show");
-            trackEvent("notification_subscribed");
+            if (currentPermission === 'granted') {
+                permissionGranted = true;
+            } else if (currentPermission === 'denied') {
+                throw new Error('Notifications are blocked. Please enable them in your browser settings.');
+            } else {
+                // Request permission through OneSignal
+                const result = await OneSignal.Notifications.requestPermission();
+                permissionGranted = result === true;
+                console.log('OneSignal permission result:', result);
+            }
+        } catch (permissionError) {
+            console.error('Permission request failed:', permissionError);
+            throw permissionError;
+        }
+        
+        if (permissionGranted) {
+            console.log('Permission granted, subscribing...');
             
-            // Show success message
-            showNotificationSuccess("🎉 You're now subscribed to notifications!");
+            try {
+                // Subscribe to push notifications
+                await OneSignal.User.PushSubscription.optIn();
+                console.log('Successfully subscribed to notifications');
+                
+                setCookie("notification_subscribed", "true", 365);
+                notificationPopup.classList.remove("show");
+                trackEvent("notification_subscribed");
+                
+                // Show success message
+                showNotificationSuccess("🎉 You're now subscribed to notifications!");
+            } catch (subscribeError) {
+                console.error('Subscription failed:', subscribeError);
+                throw new Error('Failed to complete subscription. Please try again.');
+            }
         } else {
-            showNotificationError("Notification permission denied. You can enable it later in your browser settings.");
+            throw new Error("Notification permission denied. You can enable it later in your browser settings.");
         }
     } catch (error) {
-        console.error('Subscription failed:', error);
-        showNotificationError("Failed to subscribe to notifications. Please try again.");
+        console.error('Subscription process failed:', error);
+        let errorMessage = error.message || "Failed to subscribe to notifications. Please try again.";
+        showNotificationError(errorMessage);
     } finally {
         // Reset button state
-        const subscribeBtn = document.getElementById('subscribe-btn');
         if (subscribeBtn) {
-            subscribeBtn.innerHTML = '<i class="fas fa-bell"></i> Subscribe';
+            subscribeBtn.innerHTML = originalText;
             subscribeBtn.disabled = false;
         }
+        console.log('Subscription process completed');
+    }
+}
+
+/**
+ * Handles fallback notification subscription when OneSignal is not available.
+ */
+async function handleFallbackNotificationSubscription() {
+    try {
+        if (!('Notification' in window)) {
+            throw new Error("Your browser doesn't support notifications.");
+        }
+
+        const permission = await Notification.requestPermission();
+        
+        if (permission === 'granted') {
+            setCookie("notification_subscribed", "true", 365);
+            notificationPopup.classList.remove("show");
+            trackEvent("notification_subscribed_fallback");
+            
+            // Show a test notification
+            new Notification("Shiv Infocom", {
+                body: "You're now subscribed to notifications! We'll keep you updated on new products and deals.",
+                icon: "root_tech_back_remove-removebg-preview.png",
+                badge: "root_tech_back_remove-removebg-preview.png"
+            });
+            
+            showNotificationSuccess("🎉 You're now subscribed to basic notifications!");
+        } else {
+            throw new Error("Notification permission denied. You can enable it later in your browser settings.");
+        }
+    } catch (error) {
+        console.error('Fallback subscription failed:', error);
+        showNotificationError(error.message || "Failed to subscribe to notifications. Please try again.");
     }
 }
 
@@ -702,15 +856,12 @@ function trackEvent(eventName, parameters = {}) {
 }
 
 /**
- * Initializes the OneSignal SDK using v16 API.
+ * Initializes the OneSignal SDK using v16 API with proper waiting.
  */
 async function initOneSignal() {
     try {
-        // Wait for OneSignal to be available
-        if (typeof OneSignal === 'undefined') {
-            console.warn('OneSignal SDK not loaded');
-            return;
-        }
+        // Wait for OneSignal to be available with timeout
+        await waitForOneSignal();
 
         // Initialize OneSignal with v16 API
         await OneSignal.init({
@@ -722,13 +873,42 @@ async function initOneSignal() {
         console.log('OneSignal initialized successfully');
         
         // Check if user is already subscribed
-        const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
-        if (isSubscribed) {
-            setCookie("notification_subscribed", "true", 365);
+        try {
+            const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+            if (isSubscribed) {
+                setCookie("notification_subscribed", "true", 365);
+            }
+        } catch (subscriptionError) {
+            console.log('Could not check subscription status:', subscriptionError);
         }
     } catch (error) {
         console.error('OneSignal initialization failed:', error);
     }
+}
+
+/**
+ * Waits for OneSignal SDK to be available.
+ */
+function waitForOneSignal(timeout = 10000) {
+    return new Promise((resolve, reject) => {
+        let attempts = 0;
+        const maxAttempts = timeout / 100;
+        
+        const checkOneSignal = () => {
+            attempts++;
+            
+            if (typeof OneSignal !== 'undefined' && OneSignal.init) {
+                console.log('OneSignal SDK is ready');
+                resolve();
+            } else if (attempts >= maxAttempts) {
+                reject(new Error('OneSignal SDK failed to load within timeout'));
+            } else {
+                setTimeout(checkOneSignal, 100);
+            }
+        };
+        
+        checkOneSignal();
+    });
 }
 
 /**
