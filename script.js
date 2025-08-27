@@ -579,20 +579,99 @@ function showNotificationPopup() {
 }
 
 /**
- * Handles the subscription process via OneSignal.
+ * Handles the subscription process via OneSignal v16 API.
  */
-function subscribeToNotifications() {
-  if (!window.OneSignal) {
-    console.warn("OneSignal SDK not available.");
-    return;
-  }
-  OneSignal.Notifications.requestPermission().then((permission) => {
-    if (permission === "granted") {
-      setCookie("notification_subscribed", "true", 365);
-      notificationPopup.classList.remove("show");
-      trackEvent("notification_subscribed");
+async function subscribeToNotifications() {
+    try {
+        if (!window.OneSignal) {
+            console.warn("OneSignal SDK not available.");
+            showNotificationError("Notification service unavailable. Please try again later.");
+            return;
+        }
+
+        // Show loading state
+        const subscribeBtn = document.getElementById('subscribe-btn');
+        const originalText = subscribeBtn.innerHTML;
+        subscribeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subscribing...';
+        subscribeBtn.disabled = true;
+
+        // Request notification permission
+        const permission = await OneSignal.Notifications.requestPermission();
+        
+        if (permission) {
+            // Subscribe to push notifications
+            await OneSignal.User.PushSubscription.optIn();
+            
+            setCookie("notification_subscribed", "true", 365);
+            notificationPopup.classList.remove("show");
+            trackEvent("notification_subscribed");
+            
+            // Show success message
+            showNotificationSuccess("🎉 You're now subscribed to notifications!");
+        } else {
+            showNotificationError("Notification permission denied. You can enable it later in your browser settings.");
+        }
+    } catch (error) {
+        console.error('Subscription failed:', error);
+        showNotificationError("Failed to subscribe to notifications. Please try again.");
+    } finally {
+        // Reset button state
+        const subscribeBtn = document.getElementById('subscribe-btn');
+        if (subscribeBtn) {
+            subscribeBtn.innerHTML = '<i class="fas fa-bell"></i> Subscribe';
+            subscribeBtn.disabled = false;
+        }
     }
-  });
+}
+
+/**
+ * Shows a success notification message.
+ */
+function showNotificationSuccess(message) {
+    showNotificationToast(message, 'success');
+}
+
+/**
+ * Shows an error notification message.
+ */
+function showNotificationError(message) {
+    showNotificationToast(message, 'error');
+}
+
+/**
+ * Shows a toast notification.
+ */
+function showNotificationToast(message, type = 'info') {
+    // Remove any existing toasts
+    const existingToast = document.querySelector('.notification-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    const toast = document.createElement('div');
+    toast.className = `notification-toast ${type}`;
+    toast.innerHTML = `
+        <div class="toast-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    document.body.appendChild(toast);
+
+    // Show toast
+    setTimeout(() => toast.classList.add('show'), 100);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, 5000);
 }
 
 
@@ -623,15 +702,33 @@ function trackEvent(eventName, parameters = {}) {
 }
 
 /**
- * Initializes the OneSignal SDK.
+ * Initializes the OneSignal SDK using v16 API.
  */
-function initOneSignal() {
-    window.OneSignal = window.OneSignal || [];
-    OneSignal.push(function() {
-        OneSignal.init({
+async function initOneSignal() {
+    try {
+        // Wait for OneSignal to be available
+        if (typeof OneSignal === 'undefined') {
+            console.warn('OneSignal SDK not loaded');
+            return;
+        }
+
+        // Initialize OneSignal with v16 API
+        await OneSignal.init({
             appId: "ee523d8b-51c0-43d7-ad51-f0cf380f0487",
+            serviceWorkerParam: { scope: "/" },
+            serviceWorkerPath: "OneSignalSDKWorker.js"
         });
-    });
+
+        console.log('OneSignal initialized successfully');
+        
+        // Check if user is already subscribed
+        const isSubscribed = await OneSignal.User.PushSubscription.optedIn;
+        if (isSubscribed) {
+            setCookie("notification_subscribed", "true", 365);
+        }
+    } catch (error) {
+        console.error('OneSignal initialization failed:', error);
+    }
 }
 
 /**
