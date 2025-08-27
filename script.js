@@ -5,6 +5,9 @@ let facebookAdsProducts = [];
 let currentFilter = 'all';
 let searchQuery = '';
 let isSearching = false;
+let itemsToShow = 6;
+let originalStatsParent = null;
+let productIdToProduct = new Map();
 
 // DOM Elements
 const loadingScreen = document.getElementById('loading-screen');
@@ -67,11 +70,13 @@ document.addEventListener('DOMContentLoaded', function() {
   initFilterTabs();
   initAnimations();
   initSearchFunctionality(); // This now handles search and suggestions
+  initRouter();
   initNotificationPopup();
   initAnalytics();
   initOneSignal();
   initServiceWorker();
   initLazyLoading();
+  initMobileStatsPlacement();
 
   // Fetch product data from Google Sheets
   fetchProducts();
@@ -104,7 +109,7 @@ function initSearchFunctionality() {
             return;
         }
 
-        const allAvailableProducts = [...allProducts, ...amazonProducts, ...facebookAdsProducts];
+        const allAvailableProducts = [...allProducts];
         const filtered = allAvailableProducts.filter(product =>
             product.model.toLowerCase().includes(query) ||
             (product.category && product.category.toLowerCase().includes(query)) ||
@@ -113,7 +118,7 @@ function initSearchFunctionality() {
 
         if (filtered.length > 0) {
             suggestionsContainer.innerHTML = filtered.map(product => `
-                <a href="${product.link || 'javascript:void(0)'}" class="suggestion-item" onclick="buyOnWhatsApp('${product.model.replace(/'/g, "\\'")}', '${product.price}')">
+                <a href="#/product/${product.id}" class="suggestion-item">
                     <img src="${product.imageUrl}" alt="${product.model}" onerror="this.src='root_tech_back_remove-removebg-preview.png'">
                     <div class="suggestion-details">
                         <div class="suggestion-name">${product.model}</div>
@@ -148,6 +153,7 @@ function initSearchFunctionality() {
         isSearching = false;
         mainClearBtn.style.display = 'none';
         mainSuggestions.style.display = 'none';
+        itemsToShow = 6;
         filterAndDisplayProducts();
         updateSearchResultsCount();
     });
@@ -195,7 +201,7 @@ async function fetchProducts() {
     data = data.substring(47, data.length - 2);
     const json = JSON.parse(data);
 
-    allProducts = json.table.rows.map(row => ({
+    const rawProducts = json.table.rows.map((row, idx) => ({
       model: row.c[0]?.v || "N/A",
       category: row.c[1]?.v || "Other",
       processor: row.c[2]?.v || "N/A",
@@ -203,12 +209,30 @@ async function fetchProducts() {
       storage: row.c[4]?.v || "N/A",
       price: row.c[5]?.v || "N/A",
       imageUrl: row.c[6]?.v || "",
-      description: row.c[7]?.v || ""
+      description: row.c[7]?.v || "",
+      images: parseImages(row.c[6]?.v, row.c[7]?.v),
+      id: generateProductId(row.c[0]?.v, idx)
     })).filter(p => p.model !== "N/A");
 
+    // Deduplicate by normalized model name
+    const seen = new Set();
+    allProducts = rawProducts.filter(p => {
+      const key = p.model.trim().toLowerCase().replace(/\s+/g, ' ');
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    // Build id -> product map
+    productIdToProduct.clear();
+    allProducts.forEach(p => productIdToProduct.set(p.id, p));
+
     // Initial load - show only first 6 products
+    itemsToShow = 6;
     filterAndDisplayProducts();
     updateSearchResultsCount();
+    // Handle deep-link route if present
+    handleRouteChange();
   } catch (error) {
     console.error("Error fetching products:", error);
     // Show error message to user
@@ -315,42 +339,35 @@ function filterAndDisplayProducts() {
     const viewAllContainer = document.getElementById('view-all-container');
     let filteredProducts = getFilteredProducts();
 
-    // Check if we should apply the 6-item limit (only on initial load)
-    const shouldLimit = !isSearching && currentFilter === 'all';
-
-    if (shouldLimit) {
-        displayProducts(filteredProducts.slice(0, 6)); // Show only the first 6
-        
-        // If there are more than 6 products, show the "View All" button
-        if (filteredProducts.length > 6) {
-            renderViewAllButton(filteredProducts.length);
-        } else {
-            viewAllContainer.innerHTML = ''; // No need for a button if less than 6
-        }
-    } else {
-        displayProducts(filteredProducts); // Show all results when searching or filtering
-        viewAllContainer.innerHTML = ''; // Hide the button
-    }
+    // Reset pagination when filters/search change
+    const shouldPaginate = true;
+    const total = filteredProducts.length;
+    const slice = filteredProducts.slice(0, itemsToShow);
+    displayProducts(slice);
+    renderViewMoreButton(total);
 }
 
 /**
  * Creates and manages the "View All" button.
  * @param {number} totalCount - The total number of products available.
  */
-function renderViewAllButton(totalCount) {
+function renderViewMoreButton(totalCount) {
     const viewAllContainer = document.getElementById('view-all-container');
     if (viewAllContainer) {
-        viewAllContainer.innerHTML = `
-            <button id="view-all-btn" class="btn btn-secondary">View All ${totalCount} Products</button>
-        `;
-        
-        // Add a click listener to the new button
-        document.getElementById('view-all-btn').addEventListener('click', () => {
-            const allProducts = getFilteredProducts();
-            displayProducts(allProducts); // Display all products
-            viewAllContainer.innerHTML = ''; // Remove the button after click
-            trackEvent('view_all_products_click');
-        });
+        if (itemsToShow >= totalCount) {
+            viewAllContainer.innerHTML = '';
+        } else {
+            viewAllContainer.innerHTML = `
+                <button id="view-more-btn" class="btn btn-secondary">View More (${itemsToShow}/${totalCount})</button>
+            `;
+            document.getElementById('view-more-btn').addEventListener('click', () => {
+                itemsToShow += 6;
+                const filtered = getFilteredProducts();
+                displayProducts(filtered.slice(0, itemsToShow));
+                renderViewMoreButton(filtered.length);
+                trackEvent('view_more_products_click');
+            });
+        }
     }
 }
 
@@ -375,8 +392,8 @@ function displayProducts(products) {
         <div class="product-card lazy-load clickable" 
              data-category="${product.category}" 
              style="animation-delay: ${index * 0.1}s"
-             onclick="buyOnWhatsApp('${product.model.replace(/'/g, "\\'")}', '${product.price}')"
-             title="Click to enquire about ${product.model}">
+             onclick="window.location.hash='${`#/product/${product.id}`}'"
+             title="View details for ${product.model}">
             <img src="${product.imageUrl}" alt="${product.model}" loading="lazy" class="lazy-load" onerror="this.src='root_tech_back_remove-removebg-preview.png'">
             <div class="product-card-content">
                 <h3>${product.model}</h3>
@@ -385,9 +402,7 @@ function displayProducts(products) {
                 ${product.storage !== "N/A" ? `<p><strong>Storage:</strong> ${product.storage}</p>` : ""}
                 <div class="price">₹${formatPrice(product.price)}</div>
                 <div class="product-actions">
-                    <button class="btn btn-primary whatsapp-btn">
-                        <i class="fab fa-whatsapp"></i> Enquire Now
-                    </button>
+                    <button class="btn btn-primary">View Details</button>
                 </div>
             </div>
         </div>
@@ -493,6 +508,7 @@ function initFilterTabs() {
       filterTabs.forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentFilter = tab.dataset.filter;
+      itemsToShow = 6;
       filterAndDisplayProducts();
       updateSearchResultsCount();
     });
@@ -547,6 +563,170 @@ function buyOnWhatsApp(productName, price) {
   const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
   window.open(whatsappURL, '_blank');
   trackEvent('whatsapp_inquiry', { product_name: productName });
+}
+
+// --- ROUTING AND DETAIL VIEW ---
+
+function initRouter() {
+  window.addEventListener('hashchange', handleRouteChange);
+}
+
+function handleRouteChange() {
+  const hash = window.location.hash || '';
+  const detailSection = document.getElementById('product-detail-view');
+  const productsSection = document.getElementById('products');
+  if (hash.startsWith('#/product/')) {
+    const id = hash.split('/')[2];
+    const product = getProductById(id);
+    if (product) {
+      renderProductDetail(product);
+      if (productsSection) productsSection.style.display = 'none';
+      if (detailSection) detailSection.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // If not loaded yet, wait for products
+      // Fallback: try after a short delay
+      setTimeout(() => {
+        const p = getProductById(id);
+        if (p) {
+          renderProductDetail(p);
+          if (productsSection) productsSection.style.display = 'none';
+          if (detailSection) detailSection.style.display = 'block';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 500);
+    }
+  } else {
+    if (detailSection) detailSection.style.display = 'none';
+    if (productsSection) productsSection.style.display = 'block';
+  }
+}
+
+function getProductById(id) {
+  if (productIdToProduct.has(id)) return productIdToProduct.get(id);
+  return null;
+}
+
+function renderProductDetail(product) {
+  const container = document.getElementById('product-detail-card');
+  if (!container) return;
+  const priceText = product.price && product.price !== 'N/A' ? `₹${formatPrice(product.price)}` : 'Contact for price';
+  const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.imageUrl].filter(Boolean);
+  const slides = images.map(src => `<img src="${src}" alt="${product.model}" onerror="this.src='root_tech_back_remove-removebg-preview.png'">`).join('');
+  const thumbs = images.map((src, i) => `<img src="${src}" data-index="${i}" alt="${product.model} image ${i+1}">`).join('');
+  container.innerHTML = `
+    <div class="detail-gallery">
+      <div class="slider" data-index="0">
+        <div class="slides">${slides}</div>
+      </div>
+      <div class="slider-nav">
+        <button class="slider-btn" id="slide-prev">Prev</button>
+        <button class="slider-btn" id="slide-next">Next</button>
+      </div>
+      <div class="thumbs">${thumbs}</div>
+    </div>
+    <div class="detail-info">
+      <h1>${product.model}</h1>
+      <div class="detail-meta">Category: ${product.category}</div>
+      <div class="price" style="font-size:1.25rem;margin:0.5rem 0;">${priceText}</div>
+      <div class="specs-list">
+        ${product.processor && product.processor !== 'N/A' ? `<div><strong>Processor:</strong> ${product.processor}</div>` : ''}
+        ${product.ram && product.ram !== 'N/A' ? `<div><strong>RAM:</strong> ${product.ram}</div>` : ''}
+        ${product.storage && product.storage !== 'N/A' ? `<div><strong>Storage:</strong> ${product.storage}</div>` : ''}
+        ${product.condition ? `<div><strong>Condition:</strong> ${product.condition}</div>` : ''}
+        ${product.warranty ? `<div><strong>Warranty:</strong> ${product.warranty}</div>` : ''}
+      </div>
+      ${product.description ? `<p style="margin-bottom:1rem;">${product.description}</p>` : ''}
+      <div class="detail-actions">
+        <button class="btn btn-primary" id="whatsapp-cta"><i class="fab fa-whatsapp"></i> Contact on WhatsApp</button>
+        <button class="btn btn-share" id="share-link">Share Link</button>
+        <a class="btn btn-secondary" href="#products">Back to Products</a>
+      </div>
+    </div>
+  `;
+  initSlider();
+  const waBtn = document.getElementById('whatsapp-cta');
+  if (waBtn) {
+    waBtn.addEventListener('click', () => {
+      const details = `${product.model}${product.processor?` | ${product.processor}`:''}${product.ram?` | ${product.ram}`:''}${product.storage?` | ${product.storage}`:''}`;
+      buyOnWhatsApp(details, product.price);
+    });
+  }
+  const shareBtn = document.getElementById('share-link');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async () => {
+      const shareData = {
+        title: product.model,
+        text: product.description || product.model,
+        url: window.location.href
+      };
+      try {
+        if (navigator.share) {
+          await navigator.share(shareData);
+        } else {
+          await navigator.clipboard.writeText(window.location.href);
+          showNotificationSuccess('Link copied to clipboard');
+        }
+      } catch (e) {
+        await navigator.clipboard.writeText(window.location.href);
+        showNotificationSuccess('Link copied to clipboard');
+      }
+    });
+  }
+}
+
+function initSlider() {
+  const slider = document.querySelector('.detail-gallery .slider');
+  const slides = document.querySelector('.detail-gallery .slides');
+  const thumbs = document.querySelectorAll('.detail-gallery .thumbs img');
+  if (!slider || !slides) return;
+  let index = 0;
+  const update = () => {
+    slides.style.transform = `translateX(-${index * 100}%)`;
+    thumbs.forEach((t, i) => t.classList.toggle('active', i === index));
+  };
+  const next = () => { index = (index + 1) % slides.children.length; update(); };
+  const prev = () => { index = (index - 1 + slides.children.length) % slides.children.length; update(); };
+  const nextBtn = document.getElementById('slide-next');
+  const prevBtn = document.getElementById('slide-prev');
+  if (nextBtn) nextBtn.addEventListener('click', next);
+  if (prevBtn) prevBtn.addEventListener('click', prev);
+  thumbs.forEach(t => t.addEventListener('click', () => { index = parseInt(t.dataset.index, 10) || 0; update(); }));
+  update();
+}
+
+function parseImages(imageUrl, description) {
+  const images = [];
+  if (imageUrl) images.push(imageUrl);
+  if (description && /https?:\/\//i.test(description)) {
+    const urls = description.match(/https?:[^\s,]+/g);
+    if (urls) urls.forEach(u => { if (!images.includes(u)) images.push(u); });
+  }
+  return images;
+}
+
+function generateProductId(model, idx) {
+  const base = (model || 'product').toString().trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return `${base}-${idx}`;
+}
+
+// --- MOBILE STATS PLACEMENT ---
+function initMobileStatsPlacement() {
+  const stats = document.getElementById('stats-section');
+  const products = document.getElementById('products');
+  if (!stats || !products) return;
+  originalStatsParent = stats.parentElement;
+  const reposition = () => {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile) {
+      // Move stats after products section
+      products.parentElement.insertBefore(stats, products.nextSibling);
+    } else if (originalStatsParent && stats.parentElement !== originalStatsParent) {
+      originalStatsParent.appendChild(stats);
+    }
+  };
+  reposition();
+  window.addEventListener('resize', debounce(reposition, 200));
 }
 
 // --- NOTIFICATION POPUP ---
