@@ -220,60 +220,7 @@ body {
   text-align: center;
   color: var(--text-light);
 }
-.header-search {
-  flex: 1;
-  max-width: 400px;
-  margin: 0 2rem;
-}
-
-.header-search .search-box {
-  position: relative;
-  width: 100%;
-}
-
-.header-search .search-input {
-  width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.5rem;
-  border: 2px solid var(--gray-200);
-  border-radius: var(--border-radius);
-  font-size: 0.9rem;
-  transition: var(--transition);
-  background: var(--white);
-}
-
-.header-search .search-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.header-search .search-icon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-light);
-  font-size: 0.9rem;
-}
-
-.header-search .clear-search {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: var(--text-light);
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 50%;
-  transition: var(--transition);
-}
-
-.header-search .clear-search:hover {
-  background: var(--gray-100);
-  color: var(--text-dark);
-}
+/* Header search removed - using only main search section */
 
 .mobile-menu-toggle {
   display: none;
@@ -2363,6 +2310,43 @@ body {
   .search-section {
     padding: 1rem 0;
   }
+}
+
+/* View All Button Styles */
+#view-all-container {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+#view-all-btn {
+  background-color: var(--primary-color);
+  color: var(--white);
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: var(--shadow-sm);
+}
+
+#view-all-btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+#view-all-btn:active {
+  transform: translateY(0);
+}
+
+/* Search Results Count */
+.search-results-count {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin-top: 0.5rem;
+  display: none;
 }
 
 /* Accessibility Improvements */
