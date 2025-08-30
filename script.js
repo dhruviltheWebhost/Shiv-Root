@@ -56,6 +56,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }, 1200);
 
   initMobileMenu();
+  initThemeToggle();
   initScrollEffects();
   initFilterTabs();
   initAnimations();
@@ -612,6 +613,62 @@ function initMobileMenu() {
   }
 }
 
+function initThemeToggle() {
+  const themeToggle = document.getElementById('theme-toggle');
+  const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+
+  if (!themeToggle) return;
+
+  // Get saved theme or default to system preference
+  const currentTheme = localStorage.getItem('theme') ||
+    (prefersDarkScheme.matches ? 'dark' : 'light');
+
+  // Apply initial theme
+  document.documentElement.setAttribute('data-theme', currentTheme);
+  updateThemeIcon(currentTheme);
+
+  // Theme toggle click handler
+  themeToggle.addEventListener('click', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+
+    // Add rotation animation
+    themeToggle.style.transform = 'rotate(360deg)';
+    setTimeout(() => {
+      themeToggle.style.transform = '';
+    }, 300);
+  });
+
+  // Listen for system theme changes
+  prefersDarkScheme.addEventListener('change', (e) => {
+    if (!localStorage.getItem('theme')) {
+      const newTheme = e.matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+  });
+}
+
+function updateThemeIcon(theme) {
+  const themeToggle = document.getElementById('theme-toggle');
+  if (!themeToggle) return;
+  
+  const icon = themeToggle.querySelector('i');
+  if (!icon) return;
+
+  if (theme === 'dark') {
+    icon.className = 'fas fa-sun';
+    icon.setAttribute('aria-label', 'Switch to light mode');
+  } else {
+    icon.className = 'fas fa-moon';
+    icon.setAttribute('aria-label', 'Switch to dark mode');
+  }
+}
+
 function initScrollEffects() {
   window.addEventListener('scroll', () => {
     if (backToTopBtn) {
@@ -731,6 +788,28 @@ function initNotificationPopup() {
 function showNotificationPopup() {
   const dismissed = getCookie("notification_dismissed");
   const subscribed = getCookie("notification_subscribed");
+  
+  // Check if browser supports notifications
+  if (!('Notification' in window)) {
+    return; // Don't show popup if browser doesn't support notifications
+  }
+  
+  // Check if user has already granted or denied permission
+  if (Notification.permission === 'granted' || Notification.permission === 'denied') {
+    return; // Don't show popup if user has already made a decision
+  }
+  
+  // Check if user is already subscribed (OneSignal check)
+  if (window.OneSignal && OneSignal.User && OneSignal.User.PushSubscription) {
+    OneSignal.User.PushSubscription.optedIn.then((optedIn) => {
+      if (optedIn) {
+        return; // Don't show popup if already subscribed
+      }
+    }).catch(() => {
+      // If OneSignal check fails, continue with popup
+    });
+  }
+  
   if (dismissed || subscribed) return;
   if (notificationPopup) notificationPopup.classList.add("show");
 }
@@ -740,6 +819,7 @@ async function subscribeToNotifications() {
   const originalText = btn ? btn.innerHTML : '';
 
   try {
+    // Check browser support first
     if (!('Notification' in window)) {
       showNotificationError("Your browser doesn't support notifications.");
       return;
@@ -753,10 +833,20 @@ async function subscribeToNotifications() {
     // OneSignal path (v16)
     if (window.OneSignal && OneSignal.Notifications && OneSignal.User) {
       let permissionGranted = Notification.permission === 'granted';
+      
+      // Only request permission if not already granted or denied
       if (Notification.permission === 'default') {
-        const result = await OneSignal.Notifications.requestPermission();
-        permissionGranted = result === true;
+        try {
+          const result = await OneSignal.Notifications.requestPermission();
+          permissionGranted = result === true;
+        } catch (error) {
+          console.warn('OneSignal permission request failed:', error);
+          // Fall back to native notification API
+          const perm = await Notification.requestPermission();
+          permissionGranted = perm === 'granted';
+        }
       }
+      
       if (Notification.permission === 'denied' || !permissionGranted) {
         throw new Error('Notifications are blocked. Please enable them in your browser settings.');
       }
@@ -904,104 +994,6 @@ function getCookie(name) {
 
 
 
-// // Global variables
-// let allProducts = [];
-// let amazonProducts = [];
-// let facebookAdsProducts = [];
-// let currentFilter = 'all';
-// let searchQuery = '';
-// let isSearching = false;
-// let itemsToShow = 6;
-// let originalStatsParent = null;
-// let productIdToProduct = new Map();
-
-// // DOM Elements
-// const loadingScreen = document.getElementById('loading-screen');
-// const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
-// const navMenu = document.getElementById('nav-menu');
-// const backToTopBtn = document.getElementById('back-to-top');
-// const productGrid = document.getElementById('product-grid');
-// const productsLoading = document.getElementById('products-loading');
-// const filterTabs = document.querySelectorAll('.filter-tab');
-// const statNumbers = document.querySelectorAll('.stat-number');
-// const notificationPopup = document.getElementById('notification-popup');
-// const closePopupBtn = document.getElementById('close-popup-btn');
-// const subscribeBtn = document.getElementById('subscribe-btn');
-// const notNowBtn = document.getElementById('not-now-btn');
-
-// // --- HELPER FUNCTIONS ---
-
-// /**
-//  * Debounce function to limit the rate at which a function gets called.
-//  * @param {Function} func The function to debounce.
-//  * @param {number} delay The delay in milliseconds.
-//  * @returns {Function} The debounced function.
-//  */
-// function debounce(func, delay = 300) {
-//   let timeoutId;
-//   return function(...args) {
-//     clearTimeout(timeoutId);
-//     timeoutId = setTimeout(() => {
-//       func.apply(this, args);
-//     }, delay);
-//   };
-// }
-
-// /**
-//  * Formats a number as a price string (e.g., 10000 -> "10,000").
-//  * @param {string|number} price The price to format.
-//  * @returns {string} The formatted price string.
-//  */
-// function formatPrice(price) {
-//   if (price === "N/A" || !price) return "N/A";
-//   return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-// }
-
-// // --- INITIALIZATION ---
-
-// document.addEventListener('DOMContentLoaded', function() {
-//   // Hide loading screen gracefully
-//   setTimeout(() => {
-//     if (loadingScreen) {
-//       loadingScreen.style.opacity = '0';
-//       setTimeout(() => {
-//         loadingScreen.style.display = 'none';
-//       }, 500);
-//     }
-//   }, 1500);
-
-//   // Initialize all functionalities
-//   initMobileMenu();
-//   initScrollEffects();
-//   initFilterTabs();
-//   initAnimations();
-//   initSearchFunctionality(); // This now handles search and suggestions
-//   initRouter();
-//   initNotificationPopup();
-//   initAnalytics();
-//   initOneSignal();
-//   initServiceWorker();
-//   initLazyLoading();
-//   initMobileStatsPlacement();
-
-//   // Fetch product data from Google Sheets
-//   fetchProducts();
-//   fetchAmazonProducts();
-//   fetchFacebookAdsProducts();
-
-//   // Show notification popup after a delay
-//   setTimeout(() => {
-//     console.log('Attempting to show notification popup');
-//     showNotificationPopup();
-//   }, 5000);
-// });
-
-
-// // --- SEARCH FUNCTIONALITY ---
-
-// /**
-//  * Initializes the main search input and suggestion dropdown.
-//  */
 // function initSearchFunctionality() {
 //     const mainSearchInput = document.getElementById('product-search');
 //     const mainSuggestions = document.getElementById('search-suggestions');
