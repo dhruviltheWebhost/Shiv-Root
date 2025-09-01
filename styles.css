@@ -132,8 +132,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 1rem;
-  padding-bottom: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 
 .nav-brand {
@@ -142,7 +142,19 @@ body {
   gap: 0.75rem;
   text-decoration: none;
 }
-.logo { height: 40px; }
+
+.logo {
+  height: 42px;
+  width: 42px;
+  padding: 4px;
+  background-color: var(--gray-900);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
 .brand-name { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
 
 .nav-menu {
@@ -236,7 +248,7 @@ section { padding: 4rem 0; }
   position: relative;
   display: flex;
   align-items: center;
-  color: var(--white); /* FIX: Hero text color is always white, independent of theme */
+  color: var(--white);
   padding: 2rem 0;
 }
 .hero-background { position: absolute; inset: 0; background: linear-gradient(135deg, #0f172a, #1e293b); z-index: -2; }
@@ -290,7 +302,7 @@ section { padding: 4rem 0; }
 .btn-primary:hover { background-color: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-2px); }
 .btn-secondary { background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-color); }
 .btn-secondary:hover { background-color: var(--gray-100); border-color: var(--gray-200); }
-[data-theme="dark"] .btn-secondary:hover { background-color: var(--gray-800); border-color: var(--gray-900); }
+[data-theme="dark"] .btn-secondary:hover { background-color: #334155; border-color: #475569; }
 .btn-amazon { background-color: var(--amazon-orange); color: var(--white); border-color: var(--amazon-orange); }
 .btn-amazon:hover { background-color: #e68900; border-color: #e68900; transform: translateY(-2px); }
 
@@ -301,14 +313,21 @@ section { padding: 4rem 0; }
 
 .products-loading { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 0; }
 .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
-.product-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); display: flex; flex-direction: column; }
+.product-card { position: relative; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); display: flex; flex-direction: column; }
 .product-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--primary-color); }
 .product-card.clickable { cursor: pointer; }
 .product-card img { width: 100%; height: 220px; object-fit: cover; background-color: var(--bg-secondary); }
 .product-card-content { padding: 1.25rem; flex-grow: 1; display: flex; flex-direction: column; }
-.product-card-content h3 { font-size: 1.15rem; margin-bottom: 0.5rem; flex-grow: 1; }
+.product-card-content h3 { font-size: 1.15rem; margin-bottom: 0.5rem; margin-top: 0; flex-grow: 1; padding-right: 80px; } /* Add padding to avoid overlap with badge */
 .price { font-size: 1.5rem; font-weight: 700; color: var(--secondary-color); margin: 1rem 0; }
 .product-card .btn { width: 100%; margin-top: 1rem; }
+.status-badge { position: absolute; top: 1rem; right: 1rem; padding: 0.25rem 0.6rem; font-size: 0.75rem; font-weight: 600; border-radius: 999px; text-transform: uppercase; letter-spacing: 0.5px; }
+.status-badge.ready-to-dispatch { background-color: color-mix(in srgb, var(--secondary-color) 20%, transparent); color: var(--secondary-color); }
+.status-badge.on-order { background-color: color-mix(in srgb, var(--amazon-orange) 20%, transparent); color: var(--amazon-orange); }
+.product-grid-separator { grid-column: 1 / -1; display: flex; align-items: center; text-align: center; margin: 2rem 0 1rem; color: var(--text-secondary); }
+.product-grid-separator::before, .product-grid-separator::after { content: ''; flex: 1; border-bottom: 1px solid var(--border-color); }
+.product-grid-separator span { padding: 0 1rem; font-weight: 600; text-transform: uppercase; font-size: 0.9rem; }
+
 
 /* Product Detail View */
 .product-detail-section { padding: 2rem 0; }
@@ -316,12 +335,14 @@ section { padding: 4rem 0; }
 .detail-gallery .slider { overflow: hidden; border-radius: var(--border-radius); margin-bottom: 1rem; }
 .detail-gallery .slides { display: flex; transition: transform 0.3s ease; }
 .detail-gallery .slides img { width: 100%; height: auto; aspect-ratio: 4/3; object-fit: cover; flex: 0 0 100%; }
-.slider-nav { display: none; }
 .thumbs { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 .thumbs img { width: 70px; height: 70px; object-fit: cover; border: 2px solid var(--border-color); border-radius: var(--border-radius); cursor: pointer; transition: var(--transition); }
 .thumbs img.active, .thumbs img:hover { border-color: var(--primary-color); }
 .detail-info h1 { font-size: 2.25rem; font-weight: 800; }
-.detail-meta { color: var(--text-secondary); margin-bottom: 1.5rem; }
+.detail-meta { color: var(--text-secondary); margin-bottom: 1rem; }
+.detail-status { display: inline-block; padding: 0.4rem 1rem; font-weight: 600; border-radius: 999px; margin-bottom: 1rem; font-size: 0.9rem; }
+.detail-status.ready-to-dispatch { background-color: color-mix(in srgb, var(--secondary-color) 20%, transparent); color: var(--secondary-color); }
+.detail-status.on-order { background-color: color-mix(in srgb, var(--amazon-orange) 20%, transparent); color: var(--amazon-orange); }
 .specs-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 1.5rem 0; }
 .specs-list div { padding: 0.75rem; background-color: var(--bg-secondary); border-radius: var(--border-radius); }
 .detail-actions { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
@@ -346,7 +367,7 @@ section { padding: 4rem 0; }
 .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
 .footer-section h3, .footer-section h4 { color: var(--white); }
 .footer-brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-.footer-logo { height: 40px; }
+.footer-logo { height: 40px; width: 40px; }
 .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
 .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: #334155; color: var(--white); border-radius: 50%; text-decoration: none; transition: var(--transition); }
 .social-links a:hover { background-color: var(--primary-color); transform: translateY(-2px); }
@@ -408,10 +429,10 @@ img.lazy-load.loaded { opacity: 1; transition: opacity 0.5s; }
     top: 100%;
     left: 0;
     width: 100%;
-    background-color: var(--bg-card);
+    background-color: var(--bg-secondary);
     flex-direction: column;
     align-items: stretch;
-    padding: 0 1rem 1rem;
+    padding: 0;
     box-shadow: var(--shadow-lg);
     max-height: 0;
     overflow: hidden;
@@ -423,26 +444,18 @@ img.lazy-load.loaded { opacity: 1; transition: opacity 0.5s; }
   .nav-link:last-child { border-bottom: none; }
   .mobile-menu-toggle { display: flex; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .quick-contact .container { justify-content: space-around; }
 }
 
 @media (max-width: 480px) {
   .container { padding: 0 1rem; }
   .stats-grid { grid-template-columns: 1fr; }
   .product-grid { grid-template-columns: 1fr; }
-  .contact-items { gap: 0.5rem; justify-content: space-between; }
+  .contact-items { gap: 0.5rem; justify-content: space-around; }
   .contact-item span { display: none; }
   .hero-features { flex-direction: column; gap: 1rem; }
   .footer-content { grid-template-columns: 1fr; text-align: center; }
   .social-links { justify-content: center; }
-  /* FIX: Constrain footer logo size on small screens */
-  .footer-logo {
-    max-width: 150px;
-    height: auto;
-    margin: 0 auto; /* Center it if parent is a block */
-  }
-  .footer-brand {
-    justify-content: center;
-  }
+  .footer-logo { margin: 0 auto; }
+  .footer-brand { justify-content: center; }
 }
 
