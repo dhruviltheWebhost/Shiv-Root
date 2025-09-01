@@ -126,7 +126,7 @@ function parseImagesFromRow(row) {
 
 
 async function fetchProducts() {
-  const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=Products";
+  const sheetURL = "https://docs.google.com/spreadsheets/d/11DuYsqp24FEs-7Jo17-mI4aft-v6B1hpTZQIE8edUls/edit?usp=sharing";
   const json = await fetchSheetData(sheetURL);
   if (!json.table || !json.table.rows) return;
 
