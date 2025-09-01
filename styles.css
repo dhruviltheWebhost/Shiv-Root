@@ -219,7 +219,7 @@ body {
    ================== */
 section { padding: 4rem 0; }
 .section-header { text-align: center; margin-bottom: 3rem; }
-.section-title { font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 800; margin-bottom: 1rem; }
+.section-title { font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 800; margin-bottom: 1rem; color: var(--text-primary); }
 .section-subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
 
 .quick-contact {
@@ -236,7 +236,7 @@ section { padding: 4rem 0; }
   position: relative;
   display: flex;
   align-items: center;
-  color: var(--white);
+  color: var(--white); /* FIX: Hero text color is always white, independent of theme */
   padding: 2rem 0;
 }
 .hero-background { position: absolute; inset: 0; background: linear-gradient(135deg, #0f172a, #1e293b); z-index: -2; }
@@ -316,7 +316,7 @@ section { padding: 4rem 0; }
 .detail-gallery .slider { overflow: hidden; border-radius: var(--border-radius); margin-bottom: 1rem; }
 .detail-gallery .slides { display: flex; transition: transform 0.3s ease; }
 .detail-gallery .slides img { width: 100%; height: auto; aspect-ratio: 4/3; object-fit: cover; flex: 0 0 100%; }
-.slider-nav { display: none; } /* Simplified: hiding buttons for thumb navigation */
+.slider-nav { display: none; }
 .thumbs { display: flex; gap: 0.75rem; flex-wrap: wrap; }
 .thumbs img { width: 70px; height: 70px; object-fit: cover; border: 2px solid var(--border-color); border-radius: var(--border-radius); cursor: pointer; transition: var(--transition); }
 .thumbs img.active, .thumbs img:hover { border-color: var(--primary-color); }
@@ -346,6 +346,7 @@ section { padding: 4rem 0; }
 .footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
 .footer-section h3, .footer-section h4 { color: var(--white); }
 .footer-brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.footer-logo { height: 40px; }
 .social-links { display: flex; gap: 1rem; margin-top: 1rem; }
 .social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: #334155; color: var(--white); border-radius: 50%; text-decoration: none; transition: var(--transition); }
 .social-links a:hover { background-color: var(--primary-color); transform: translateY(-2px); }
@@ -357,10 +358,10 @@ section { padding: 4rem 0; }
 /* ==================
    8. Floating Elements & Popups
    ================== */
-.back-to-top, .whatsapp-float { position: fixed; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-xl); z-index: 998; border: none; color: var(--white); cursor: pointer; transition: var(--transition); }
+.back-to-top, .whatsapp-float { position: fixed; width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: var(--shadow-xl); z-index: 998; border: none; color: var(--white); cursor: pointer; transition: var(--transition); }
 .back-to-top { right: 1.5rem; bottom: 1.5rem; background-color: var(--primary-color); }
 .back-to-top:hover { background-color: var(--primary-dark); transform: translateY(-3px); }
-.whatsapp-float { left: 1.5rem; bottom: 1.5rem; background-color: var(--whatsapp-green); font-size: 1.5rem; text-decoration: none; animation: pulse 2s infinite; }
+.whatsapp-float { left: 1.5rem; bottom: 1.5rem; background-color: var(--whatsapp-green); font-size: 1.5rem; text-decoration: none; animation: pulse 2s infinite; display: flex; }
 .whatsapp-float:hover { transform: scale(1.1); animation: none; }
 
 .notification-popup { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
@@ -422,6 +423,7 @@ img.lazy-load.loaded { opacity: 1; transition: opacity 0.5s; }
   .nav-link:last-child { border-bottom: none; }
   .mobile-menu-toggle { display: flex; }
   .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .quick-contact .container { justify-content: space-around; }
 }
 
 @media (max-width: 480px) {
@@ -433,5 +435,14 @@ img.lazy-load.loaded { opacity: 1; transition: opacity 0.5s; }
   .hero-features { flex-direction: column; gap: 1rem; }
   .footer-content { grid-template-columns: 1fr; text-align: center; }
   .social-links { justify-content: center; }
+  /* FIX: Constrain footer logo size on small screens */
+  .footer-logo {
+    max-width: 150px;
+    height: auto;
+    margin: 0 auto; /* Center it if parent is a block */
+  }
+  .footer-brand {
+    justify-content: center;
+  }
 }
 
