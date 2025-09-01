@@ -1,6 +1,6 @@
 /*******************************
  * Shiv Infocom — script.js
- * CORRECTED AND REFACTORED
+ * FINAL CORRECTED VERSION
  *******************************/
 
 /* ================== Global ================== */
@@ -134,25 +134,23 @@ async function fetchProducts() {
   if (!json.table || !json.table.rows) return;
 
   const rawProducts = json.table.rows.map((row, idx) => {
-    // CORRECTED LOGIC: Reads from column L (index 11) for availability status.
+    // FINAL FIX: Reads from column L (index 11) for availability status.
     const statusValue = row.c[11]?.v?.trim().toLowerCase();
     const status = statusValue && statusValue.includes('ready') ? 'Ready to Dispatch' : 'On Order';
-    
-    // NOTE: Category is hardcoded as 'Other' since it's not in the sheet.
-    // To enable filtering, please add a 'Category' column to your sheet.
+
+    // To enable filtering, add a 'Category' column to your sheet and assign it an index.
     return {
-        model: row.c[0]?.v ?? "N/A",
-        processor: row.c[1]?.v ?? "N/A",
-        ram: row.c[2]?.v ?? "N/A",
-        storage: row.c[3]?.v ?? "N/A",
-        price: row.c[4]?.v ?? "N/A",
-        imageUrl: row.c[5]?.v ?? "",
-        // The product link from column G (index 6) is not used on cards, but available for future use.
-        productLink: row.c[6]?.v ?? "", 
-        status: status,
-        images: parseImagesFromRow(row), // Use the new function to get all images
-        id: generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
-        category: 'Other' // Hardcoded category
+        model:       row.c[0]?.v ?? "N/A",      // Column A
+        processor:   row.c[1]?.v ?? "N/A",      // Column B
+        ram:         row.c[2]?.v ?? "N/A",      // Column C
+        storage:     row.c[3]?.v ?? "N/A",      // Column D
+        price:       row.c[4]?.v ?? "N/A",      // Column E
+        imageUrl:    row.c[5]?.v ?? "",         // Column F (Main Thumbnail)
+        productLink: row.c[6]?.v ?? "",         // Column G
+        status:      status,                    // Column L
+        images:      parseImagesFromRow(row),   // Gets all images
+        id:          generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
+        category:    'Other' // Hardcoded category, add a column in your sheet to make this dynamic
     };
   }).filter(p => p.model !== "N/A");
 
@@ -261,12 +259,14 @@ function displayProducts(products) {
 
 function createProductCardHTML(product, index) {
     const statusClass = product.status.toLowerCase().replace(/ /g, '-');
+    // FINAL FIX: Use product.imageUrl which is now correctly set to your main image.
+    const thumbnailUrl = product.imageUrl || 'logo.png'; 
     return `
     <div class="product-card lazy-load clickable"
          style="animation-delay: ${index * 0.05}s"
          onclick="window.location.hash='#/product/${product.id}'"
          title="View details for ${product.model}">
-      <img data-src="${product.imageUrl}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${product.model}" loading="lazy" class="lazy-load"
+      <img data-src="${thumbnailUrl}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${product.model}" loading="lazy" class="lazy-load"
            onerror="this.onerror=null;this.src='logo.png';">
       <div class="product-card-content">
         <span class="status-badge ${statusClass}">${product.status}</span>
@@ -543,20 +543,29 @@ async function subscribeToNotifications() {
     btn.disabled = true;
 
     try {
-        if (!window.OneSignal) throw new Error("OneSignal not loaded.");
-        await OneSignal.Notifications.requestPermission();
+        if (!window.OneSignal) throw new Error("OneSignal has not loaded yet.");
+        
+        const permission = await OneSignal.Notifications.requestPermission();
+        if (permission !== true) { // Note: OneSignal returns boolean `true` for granted
+             throw new Error("Notification permission was not granted.");
+        }
+        
         await OneSignal.User.PushSubscription.optIn();
+        
         setCookie("notification_subscribed", "true", 365);
         notificationPopup.classList.remove("show");
         showNotificationToast("You're subscribed to notifications!", "success");
         trackEvent("notification_subscribed");
+
     } catch (e) {
+        console.error("OneSignal Subscription Error:", e);
         showNotificationToast("Subscription failed. Please enable notifications in your browser settings.", "error");
     } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
     }
 }
+
 
 function showNotificationToast(message, type = 'info') {
     document.querySelector('.notification-toast')?.remove();
