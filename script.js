@@ -1,6 +1,6 @@
 /*******************************
  * Shiv Infocom — script.js
- * FINAL CORRECTED VERSION V6
+ * FINAL CORRECTED VERSION V7
  *******************************/
 
 /* ================== Global ================== */
@@ -113,18 +113,19 @@ async function fetchSheetData(sheetURL) {
     return JSON.parse(jsonText);
 }
 
+// FINAL FIX: This function now correctly reads ALL image columns
 function parseImagesFromRow(row) {
     const images = new Set();
     if (row.c[5]?.v) images.add(row.c[5].v); // Column F: Image URL
-    for (let i = 7; i <= 10; i++) { // Columns H-K: Image 2-5
-        if (row.c[i]?.v) images.add(row.c[i].v);
-    }
+    if (row.c[7]?.v) images.add(row.c[7].v); // Column H: Image 2
+    if (row.c[8]?.v) images.add(row.c[8].v); // Column I: Image 3
+    if (row.c[9]?.v) images.add(row.c[9].v); // Column J: Image 4
+    if (row.c[10]?.v) images.add(row.c[10].v); // Column K: Image 5
     return Array.from(images);
 }
 
 
 async function fetchProducts() {
-  // FINAL FIX: Pointing to your main "Facebook ads" spreadsheet
   const sheetURL = "https://docs.google.com/spreadsheets/d/11DuYsqp24FEs-7Jo17-mI4aft-v6B1hpTZQIE8edUls/gviz/tq?tqx=out:json&sheet=Sheet1";
   try {
     const json = await fetchSheetData(sheetURL);
