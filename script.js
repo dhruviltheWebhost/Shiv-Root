@@ -136,18 +136,18 @@ async function fetchProducts() {
   const rawProducts = json.table.rows.map((row, idx) => {
     // FINAL FIX: Reads from column L (index 11) for availability status.
     const statusValue = row.c[11]?.v?.trim().toLowerCase();
-    const status = statusValue && statusValue.includes('ready') ? 'Ready to Dispatch' : 'On Order';
+    const status = statusValue && (statusValue.includes('ready') || statusValue.includes('dispetch')) ? 'Ready to Dispatch' : 'On Order';
 
     // To enable filtering, add a 'Category' column to your sheet and assign it an index.
     return {
-        model:       row.c[0]?.v ?? "N/A",      // Column A
-        processor:   row.c[1]?.v ?? "N/A",      // Column B
-        ram:         row.c[2]?.v ?? "N/A",      // Column C
-        storage:     row.c[3]?.v ?? "N/A",      // Column D
-        price:       row.c[4]?.v ?? "N/A",      // Column E
-        imageUrl:    row.c[5]?.v ?? "",         // Column F (Main Thumbnail)
-        productLink: row.c[6]?.v ?? "",         // Column G
-        status:      status,                    // Column L
+        model:       row.c[0]?.v ?? "N/A",      // Column A: Model Name
+        processor:   row.c[1]?.v ?? "N/A",      // Column B: Processor
+        ram:         row.c[2]?.v ?? "N/A",      // Column C: RAM
+        storage:     row.c[3]?.v ?? "N/A",      // Column D: Storage
+        price:       row.c[4]?.v ?? "N/A",      // Column E: Price
+        imageUrl:    row.c[5]?.v ?? "",         // Column F: Image URL (Main Thumbnail)
+        productLink: row.c[6]?.v ?? "",         // Column G: Product Link
+        status:      status,                    // Column L: Available
         images:      parseImagesFromRow(row),   // Gets all images
         id:          generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
         category:    'Other' // Hardcoded category, add a column in your sheet to make this dynamic
@@ -395,7 +395,6 @@ function renderProductDetail(product) {
                 ${product.ram !== "N/A" ? `<div><strong>RAM:</strong> ${product.ram}</div>` : ''}
                 ${product.storage !== "N/A" ? `<div><strong>Storage:</strong> ${product.storage}</div>` : ''}
             </div>
-            ${product.description ? `<p class="description">${product.description.replace(/https?:\/\/[^\s,]+/g, '')}</p>` : ''}
             <div class="detail-actions">
                 <button id="whatsapp-cta" class="btn btn-primary"><i class="fab fa-whatsapp"></i> Contact on WhatsApp</button>
                 <a class="btn btn-secondary" href="#products">Back to Products</a>
@@ -546,7 +545,7 @@ async function subscribeToNotifications() {
         if (!window.OneSignal) throw new Error("OneSignal has not loaded yet.");
         
         const permission = await OneSignal.Notifications.requestPermission();
-        if (permission !== true) { // Note: OneSignal returns boolean `true` for granted
+        if (permission !== true) { // OneSignal returns boolean `true` for granted
              throw new Error("Notification permission was not granted.");
         }
         
