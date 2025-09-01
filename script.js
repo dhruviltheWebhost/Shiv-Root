@@ -1,6 +1,6 @@
 /*******************************
  * Shiv Infocom — script.js
- * FINAL CORRECTED VERSION V2
+ * FINAL CORRECTED VERSION V3
  *******************************/
 
 /* ================== Global ================== */
@@ -115,13 +115,10 @@ async function fetchSheetData(sheetURL) {
     return JSON.parse(jsonText);
 }
 
-// Gathers all image URLs from the new sheet structure
 function parseImagesFromRow(row) {
     const images = new Set();
-    // Main Image URL (Column F, index 5)
-    if (row.c[5]?.v) images.add(row.c[5].v);
-    // Additional Images (Columns H to K, indices 7 to 10)
-    for (let i = 7; i <= 10; i++) {
+    if (row.c[5]?.v) images.add(row.c[5].v); // Column F: Image URL
+    for (let i = 7; i <= 10; i++) { // Columns H-K: Image 2-5
         if (row.c[i]?.v) images.add(row.c[i].v);
     }
     return Array.from(images);
@@ -143,7 +140,7 @@ async function fetchProducts() {
         ram:         row.c[2]?.v ?? "N/A",
         storage:     row.c[3]?.v ?? "N/A",
         price:       row.c[4]?.v ?? "N/A",
-        imageUrl:    row.c[5]?.v ?? "",
+        imageUrl:    row.c[5]?.v ?? "", // This is the main thumbnail
         productLink: row.c[6]?.v ?? "",
         status:      status,
         images:      parseImagesFromRow(row),
@@ -211,7 +208,7 @@ function filterAndDisplayProducts() {
 
 function getFilteredProducts() {
     let filtered = [...allProducts];
-    if (currentFilter !== 'all') {
+    if (currentFilter !== 'all' && currentFilter !== 'Other') {
         filtered = filtered.filter(p => p.category.toLowerCase() === currentFilter.toLowerCase());
     }
     if (isSearching && searchQuery) {
