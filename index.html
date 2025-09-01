@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Buy Refurbished Laptops & Accessories in Ahmedabad | Shiv Infocom</title>
+  <title>Shiv Infocom | Refurbished Laptops & Accessories in Ahmedabad</title>
 
-  <meta name="description" content="Shiv Infocom Ahmedabad specializes in premium refurbished laptops, desktops, projectors, and IT accessories with warranty and best prices. Explore top deals today!">
+  <!-- SEO + Social -->
+  <meta name="description" content="Shiv Infocom in Ahmedabad specializes in premium refurbished laptops, desktops, projectors, and IT accessories with warranty and the best prices. Explore top deals today!">
   <meta name="robots" content="index, follow">
   <meta name="author" content="Shiv Infocom">
   <meta property="og:title" content="Shiv Infocom | Refurbished Laptops & Accessories in Ahmedabad">
@@ -18,11 +19,16 @@
   <meta name="theme-color" content="#2563eb">
   <link rel="icon" href="root_tech_back_remove-removebg-preview.png" type="image/x-icon">
 
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Preload Assets -->
   <link rel="preload" href="styles.css" as="style">
   <link rel="preload" href="script.js" as="script">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+  <!-- Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-X5PEJQZPD6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -30,10 +36,11 @@
     gtag('js', new Date()); gtag('config', 'G-X5PEJQZPD6');
   </script>
 
+  <!-- OneSignal v16 -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" async></script>
 </head>
-
 <body>
+  <!-- Loading Screen -->
   <div id="loading-screen">
     <div class="loader">
       <div class="spinner"></div>
@@ -41,12 +48,13 @@
     </div>
   </div>
 
+  <!-- Header -->
   <header class="header">
     <div class="container">
-      <div class="nav-brand">
+      <a href="#" class="nav-brand">
         <img src="root_tech_back_remove-removebg-preview.png" alt="Shiv Infocom Logo" class="logo">
         <h1 class="brand-name">Shiv Infocom</h1>
-      </div>
+      </a>
 
       <nav class="nav-menu" id="nav-menu">
         <a href="#home" class="nav-link">Home</a>
@@ -68,18 +76,21 @@
   </header>
 
   <main>
+    <!-- Quick Actions -->
     <div class="quick-contact">
       <div class="container">
         <div class="contact-items">
           <a href="tel:916351541231" class="contact-item"><i class="fas fa-phone"></i><span>Call Now</span></a>
           <a href="https://wa.me/916351541231?text=Hello!%20I'm%20interested%20in%20your%20products" target="_blank" class="contact-item whatsapp">
             <i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
+          <!-- IMPORTANT: Replace '#' with your actual Google Maps directions link! -->
           <a href="#" target="_blank" class="contact-item"><i class="fas fa-map-marker-alt"></i><span>Get Directions</span></a>
           <a href="mailto:digital.roottechnology@gmail.com" class="contact-item"><i class="fas fa-envelope"></i><span>Email Us</span></a>
         </div>
       </div>
     </div>
 
+    <!-- Hero -->
     <section id="home" class="hero">
       <div class="hero-background"><div class="hero-overlay"></div></div>
       <div class="container">
@@ -101,11 +112,12 @@
       </div>
     </section>
 
+    <!-- Search -->
     <section class="search-section">
       <div class="container">
         <div class="search-container">
           <div class="search-box">
-            <label for="product-search" class="visually-hidden">Search for products</label>
+            <label for="product-search" class="visually-hidden">Search for laptops, processors, accessories</label>
             <i class="fas fa-search search-icon"></i>
             <input type="text" id="product-search" class="search-input" placeholder="Search for laptops, processors, accessories..." autocomplete="off">
             <button id="clear-search" class="clear-search" style="display:none;" aria-label="Clear search input">
@@ -118,6 +130,7 @@
       </div>
     </section>
 
+    <!-- Local Products -->
     <section id="products" class="products-section">
       <div class="container">
         <div class="section-header">
@@ -141,14 +154,18 @@
         </div>
 
         <div id="product-grid" class="product-grid"></div>
-        <div id="view-all-container" style="text-align:center;margin-top:2rem;"></div>
+        <div id="view-all-container" class="view-all-container"></div>
       </div>
     </section>
 
-    <section id="product-detail-view" class="product-detail-section" aria-live="polite" style="display:none;">
-      <div class="container"><div id="product-detail-card" class="product-detail-card"></div></div>
+    <!-- Product Detail View -->
+    <section id="product-detail-view" class="product-detail-section" style="display:none;">
+      <div class="container" id="product-detail-card-container">
+          <!-- Product details will be rendered here by JavaScript -->
+      </div>
     </section>
 
+    <!-- Amazon Picks -->
     <section id="amazon" class="amazon-section">
       <div class="container">
         <div class="amazon-content">
@@ -180,6 +197,7 @@
       </div>
     </section>
 
+    <!-- Stats -->
     <section class="stats" id="stats-section">
       <div class="container">
         <div class="stats-grid">
@@ -191,6 +209,7 @@
       </div>
     </section>
 
+    <!-- Why Choose Us -->
     <section class="why-choose-us">
       <div class="container">
         <div class="section-header">
@@ -206,6 +225,7 @@
       </div>
     </section>
 
+    <!-- Location -->
     <section id="location" class="location-section">
       <div class="container">
         <div class="section-header">
@@ -219,6 +239,7 @@
             <div class="info-item"><i class="fas fa-phone"></i><div><h4>Phone</h4><p><a href="tel:916351541231">+91 63515 41231</a></p></div></div>
           </div>
           <div class="location-map">
+             <!-- IMPORTANT: Replace '#' with your Google Maps embed SRC link! -->
             <iframe src="#" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
         </div>
@@ -226,6 +247,7 @@
     </section>
   </main>
 
+  <!-- Footer -->
   <footer id="contact" class="footer">
     <div class="container">
       <div class="footer-content">
@@ -256,7 +278,7 @@
             <li><a href="#products">Laptops</a></li>
             <li><a href="#products">Desktops</a></li>
             <li><a href="#products">Accessories</a></li>
-            <li><a href="#amazon" target="_blank">Amazon Store</a></li>
+            <li><a href="#amazon">Amazon Store</a></li>
           </ul>
         </div>
         <div class="footer-section">
@@ -275,14 +297,15 @@
     </div>
   </footer>
 
-  <button id="back-to-top" class="back-to-top" aria-label="Back to top" style="display: none;">
+  <!-- Floating Elements -->
+  <button id="back-to-top" class="back-to-top" aria-label="Back to top">
     <i class="fas fa-arrow-up"></i>
   </button>
-
   <a href="https://wa.me/916351541231?text=Hello!%20I'm%20interested%20in%20your%20products" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
     <i class="fab fa-whatsapp"></i>
   </a>
 
+  <!-- Notification Popup -->
   <div id="notification-popup" class="notification-popup">
     <div class="popup-content">
       <div class="popup-header">
@@ -300,6 +323,7 @@
     </div>
   </div>
 
+  <!-- Scripts -->
   <script src="script.js"></script>
 </body>
 </html>
