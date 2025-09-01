@@ -162,7 +162,7 @@ async function fetchProducts() {
 }
 
 async function fetchAmazonProducts() {
-    const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=Amazon";
+    const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/edit?usp=sharing";
     const json = await fetchSheetData(sheetURL);
      if (!json.table || !json.table.rows) return;
 
