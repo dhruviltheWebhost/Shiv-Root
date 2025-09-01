@@ -121,7 +121,10 @@ async function fetchProducts() {
   if (!json.table || !json.table.rows) return;
 
   const rawProducts = json.table.rows.map((row, idx) => {
-    const statusValue = row.c[8]?.v?.toLowerCase() || 'ready';
+    // CORRECTED LOGIC: Default to 'on order' if the cell is empty or doesn't say 'ready'.
+    const statusValue = row.c[8]?.v?.trim().toLowerCase();
+    const status = statusValue && statusValue.includes('ready') ? 'Ready to Dispatch' : 'On Order';
+    
     return {
         model: row.c[0]?.v ?? "N/A",
         category: row.c[1]?.v ?? "Other",
@@ -131,8 +134,7 @@ async function fetchProducts() {
         price: row.c[5]?.v ?? "N/A",
         imageUrl: row.c[6]?.v ?? "",
         description: row.c[7]?.v ?? "",
-        // Read the new "Available" column (index 8)
-        status: statusValue.includes('ready') ? 'Ready to Dispatch' : 'On Order',
+        status: status,
         images: parseImages(row.c[6]?.v, row.c[7]?.v),
         id: generateStableId(row.c[0]?.v, row.c[2]?.v, 'local', idx)
     };
@@ -227,8 +229,9 @@ function displayProducts(products) {
     let separatorRendered = false;
     const productsHTML = products.map((product, index) => {
         let separatorHTML = '';
-        if (product.status === 'On Order' && !separatorRendered) {
-            separatorHTML = `<div class="product-grid-separator"><span>On Order</span></div>`;
+        // CORRECTED: Separator logic to only show when moving from "Ready" to "On Order"
+        if (product.status === 'On Order' && !separatorRendered && products.some(p => p.status === 'Ready to Dispatch')) {
+            separatorHTML = `<div class="product-grid-separator"><span>-- On Order Products --</span></div>`;
             separatorRendered = true;
         }
         return separatorHTML + createProductCardHTML(product, index);
