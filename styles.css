@@ -22,7 +22,7 @@
   --border-radius: 0.5rem;
   --border-radius-lg: 1rem;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   /* Theme-specific variables */
   --bg-primary: var(--white);
   --bg-secondary: var(--gray-50);
@@ -67,7 +67,7 @@ body {
   color: var(--text-primary);
   background-color: var(--bg-primary);
   overflow-x: hidden;
-  transition: var(--transition);
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
@@ -75,6 +75,19 @@ body {
   margin: 0 auto;
   padding: 0 1rem;
 }
+
+/* Visually Hidden Class for Accessibility */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
 
 /* Loading Screen */
 #loading-screen {
@@ -93,32 +106,32 @@ body {
 
 .loader {
   text-align: center;
-  color: var(--white);
+}
+
+.loader p {
+  color: #fff;
 }
 
 .spinner {
   width: 50px;
   height: 50px;
   border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid var(--white);
+  border-top: 4px solid #fff;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 1rem;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
 /* Header Styles */
 .header {
   background: var(--bg-card);
   box-shadow: var(--shadow-md);
-  position: fixed;
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 1000;
   transition: var(--transition);
 }
@@ -128,7 +141,6 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 2rem;
-  justify-content: space-between;
   padding: 1rem;
 }
 
@@ -149,8 +161,8 @@ body {
   color: var(--primary-color);
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .nav-menu {
@@ -187,68 +199,6 @@ body {
   width: 100%;
 }
 
-/* Header Search Bar */
-/* Search Suggestions Dropdown */
-.search-suggestions {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-top: none;
-  border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
-  max-height: 400px;
-  overflow-y: auto;
-  z-index: 999;
-}
-
-.suggestion-item {
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  text-decoration: none;
-  color: var(--text-dark);
-}
-
-.suggestion-item:hover {
-  background-color: var(--gray-50);
-}
-
-.suggestion-item img {
-  width: 50px;
-  height: 50px;
-  object-fit: cover;
-  margin-right: 1rem;
-  border-radius: var(--border-radius);
-}
-
-.suggestion-details {
-  display: flex;
-  flex-direction: column;
-}
-
-.suggestion-name {
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.suggestion-price {
-  color: var(--secondary-color);
-  font-size: 0.9rem;
-}
-
-.no-results {
-  padding: 1rem;
-  text-align: center;
-  color: var(--text-light);
-}
-/* Header search removed - using only main search section */
-
 .header-actions {
   display: flex;
   align-items: center;
@@ -283,6 +233,7 @@ body {
   border: none;
   cursor: pointer;
   padding: 0.5rem;
+  z-index: 1001; /* Ensure it's on top */
 }
 
 .mobile-menu-toggle span {
@@ -293,11 +244,22 @@ body {
   transition: var(--transition);
 }
 
+/* Mobile Menu Toggle Animation */
+.mobile-menu-toggle.active span:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 6px);
+}
+.mobile-menu-toggle.active span:nth-child(2) {
+  opacity: 0;
+}
+.mobile-menu-toggle.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+
 /* Quick Contact Bar */
 .quick-contact {
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   padding: 0.75rem 0;
-  margin-top: 70px;
 }
 
 .contact-items {
@@ -311,7 +273,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--white);
+  color: #fff;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
@@ -332,7 +294,7 @@ body {
 /* Hero Section */
 .hero {
   position: relative;
-  min-height: 80vh;
+  min-height: 70vh;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -340,27 +302,23 @@ body {
 
 .hero-background {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
-  z-index: -2;
+  z-index: 1;
 }
 
 .hero-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   background: rgba(0, 0, 0, 0.1);
-  z-index: -1;
+  z-index: 2;
 }
 
 .hero-content {
+  position: relative;
+  z-index: 3;
   text-align: center;
-  color: var(--white);
+  color: #fff;
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem 0;
@@ -413,6 +371,7 @@ body {
 .btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.75rem 2rem;
   border: none;
@@ -425,135 +384,33 @@ body {
 }
 
 .btn-primary {
-  background: var(--white);
+  background: #fff;
   color: var(--primary-color);
+  border: 2px solid #fff;
 }
 
 .btn-primary:hover {
-  background: var(--gray-100);
+  background: transparent;
+  color: #fff;
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
 }
 
 .btn-secondary {
   background: transparent;
-  color: var(--white);
-  border: 2px solid var(--white);
+  color: #fff;
+  border: 2px solid #fff;
 }
 
 .btn-secondary:hover {
-  background: var(--white);
+  background: #fff;
   color: var(--primary-color);
   transform: translateY(-2px);
 }
 
 .btn-amazon {
   background: var(--amazon-orange);
-  color: var(--white);
-}
-
-/* Product detail page */
-.product-detail-section {
-  padding: 4rem 0;
-}
-
-.product-detail-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: 1.5rem;
-}
-
-.detail-gallery {
-  position: relative;
-}
-.detail-gallery .slider {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--border-radius);
-}
-.detail-gallery .slides {
-  display: flex;
-  transition: transform 0.3s ease;
-}
-.detail-gallery .slides img {
-  width: 100%;
-  height: 380px;
-  object-fit: cover;
-  flex: 0 0 100%;
-}
-.slider-nav {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 0.5rem;
-}
-.slider-btn {
-  background: var(--gray-900);
-  color: var(--white);
-  border: none;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-}
-.thumbs {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 0.75rem;
-}
-.thumbs img {
-  width: 60px;
-  height: 60px;
-  object-fit: cover;
-  border: 2px solid transparent;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-}
-.thumbs img.active {
-  border-color: var(--primary-color);
-}
-
-.detail-info h1 {
-  font-size: 1.75rem;
-  margin-bottom: 0.5rem;
-}
-.detail-meta {
-  color: var(--text-light);
-  margin-bottom: 1rem;
-}
-.specs-list {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem 1rem;
-  margin: 1rem 0 1.5rem;
-}
-.specs-list div {
-  padding: 0.5rem 0.75rem;
-  background: var(--gray-100);
-  border-radius: var(--border-radius);
-  font-size: 0.95rem;
-}
-.detail-actions {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-}
-.btn-share {
-  background: var(--gray-900);
-  color: var(--white);
-}
-
-/* Mobile: move stats below products by default, then reposition via JS if needed */
-@media (max-width: 768px) {
-  .product-detail-card {
-    grid-template-columns: 1fr;
-  }
-  .stats {
-    order: 3;
-  }
+  color: #fff;
 }
 
 .btn-amazon:hover {
@@ -562,45 +419,132 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
-/* Stats Section */
-.stats {
-  padding: 4rem 0;
-  background: var(--gray-50);
+
+/* Search Section */
+.search-section {
+  background: var(--bg-secondary);
+  padding: 2rem 0;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
+.search-container {
+  max-width: 700px;
+  margin: 0 auto;
 }
 
-.stat-item {
-  text-align: center;
-  padding: 2rem 1rem;
-  background: var(--white);
+.search-box {
+  position: relative;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1rem 3.5rem 1rem 1.5rem;
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  outline: none;
   transition: var(--transition);
 }
 
-.stat-item:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-xl);
+.search-input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.stat-number {
-  font-size: 3rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin-bottom: 0.5rem;
+.search-icon {
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-secondary);
+  pointer-events: none;
 }
 
-.stat-label {
-  color: var(--text-light);
-  font-weight: 500;
+.clear-search {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 1.2rem;
 }
 
-/* Section Headers */
+/* Search Suggestions */
+.search-suggestions {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 999;
+}
+
+.suggestion-item {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+  color: var(--text-primary);
+  gap: 1rem;
+}
+
+.suggestion-item:hover {
+  background-color: var(--bg-secondary);
+}
+
+.suggestion-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+}
+
+.suggestion-details {
+  flex: 1;
+}
+
+.suggestion-name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.suggestion-price {
+  color: var(--secondary-color);
+  font-size: 0.9rem;
+}
+
+.no-results {
+  padding: 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.search-results-count {
+  margin-top: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+
+/* Section General Styles */
+.products-section, .amazon-section, .stats, .why-choose-us, .location-section, .product-detail-section {
+  padding: 4rem 0;
+}
+
 .section-header {
   text-align: center;
   margin-bottom: 3rem;
@@ -609,22 +553,18 @@ body {
 .section-title {
   font-size: clamp(2rem, 4vw, 3rem);
   font-weight: 700;
-  color: var(--text-dark);
   margin-bottom: 1rem;
 }
 
 .section-subtitle {
   font-size: 1.1rem;
-  color: var(--text-light);
+  color: var(--text-secondary);
   max-width: 600px;
   margin: 0 auto;
 }
 
-/* Products Section */
-.products-section {
-  padding: 5rem 0;
-}
 
+/* Filter Tabs */
 .filter-tabs {
   display: flex;
   justify-content: center;
@@ -635,9 +575,9 @@ body {
 
 .filter-tab {
   padding: 0.75rem 1.5rem;
-  border: 2px solid var(--gray-200);
-  background: var(--white);
-  color: var(--text-dark);
+  border: 2px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
   border-radius: var(--border-radius);
   font-weight: 500;
   cursor: pointer;
@@ -647,20 +587,22 @@ body {
 .filter-tab:hover,
 .filter-tab.active {
   background: var(--primary-color);
-  color: var(--white);
+  color: #fff;
   border-color: var(--primary-color);
 }
 
+
+/* Product Grid & Cards */
 .products-loading {
   text-align: center;
   padding: 3rem 0;
-  display: none;
+  display: none; /* Controlled by JS */
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid var(--gray-200);
+  border: 4px solid var(--border-color);
   border-top: 4px solid var(--primary-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -671,21 +613,26 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
-  margin-top: 2rem;
 }
 
 .product-card {
-  background: var(--white);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-md);
   transition: var(--transition);
-  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .product-card:hover {
   transform: translateY(-8px);
   box-shadow: var(--shadow-xl);
+}
+
+.product-card.clickable {
+  cursor: pointer;
 }
 
 .product-card img {
@@ -701,22 +648,24 @@ body {
 
 .product-card-content {
   padding: 1.5rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
-.product-card h3 {
+.product-card-content h3 {
   font-size: 1.25rem;
-  font-weight: 600;
   margin-bottom: 0.75rem;
-  color: var(--text-dark);
+  flex-grow: 1;
 }
 
-.product-card p {
-  color: var(--text-light);
+.product-card-content p {
+  color: var(--text-secondary);
   margin-bottom: 0.5rem;
   font-size: 0.9rem;
 }
 
-.product-card .price {
+.price {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--secondary-color);
@@ -725,2118 +674,120 @@ body {
 
 .product-card .btn {
   width: 100%;
-  justify-content: center;
-  margin-top: 1rem;
 }
 
-/* Additional product card styles for better compatibility */
-.product-card:not(:has(.product-card-content)) {
-  padding: 1.5rem;
-  text-align: center;
-}
 
-.product-card:not(:has(.product-card-content)) h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: var(--text-dark);
-}
+/* All other sections... (Stats, Why Choose Us, Location, Footer, etc.) remain largely the same */
+/* Adding them here for completeness */
 
-.product-card:not(:has(.product-card-content)) p {
-  color: var(--text-light);
-  margin-bottom: 0.5rem;
-  font-size: 0.9rem;
-}
+.stats { background: var(--bg-secondary); }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
+.stat-item { text-align: center; padding: 2rem 1rem; background: var(--bg-card); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); transition: var(--transition); }
+.stat-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); }
+.stat-number { font-size: 3rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem; }
+.stat-label { color: var(--text-secondary); font-weight: 500; }
 
-.product-card:not(:has(.product-card-content)) .btn {
-  margin-top: 1rem;
-}
+.why-choose-us { padding: 5rem 0; }
+.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
+.feature-card { text-align: center; padding: 2rem; background: var(--bg-card); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); transition: var(--transition); }
+.feature-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); }
+.feature-icon { width: 80px; height: 80px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem; color: #fff; }
+.feature-card h3 { font-size: 1.25rem; margin-bottom: 1rem; }
+.feature-card p { color: var(--text-secondary); }
 
-/* Amazon Section */
-.amazon-section {
-  padding: 5rem 0;
-  background: var(--gray-50);
-}
 
-.amazon-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: center;
-  margin-bottom: 4rem;
-}
+.location-section { background: var(--bg-secondary); }
+.location-content { display: grid; grid-template-columns: 1fr 1.5fr; gap: 3rem; align-items: center; }
+.location-info { display: flex; flex-direction: column; gap: 1.5rem; }
+.info-item { display: flex; align-items: flex-start; gap: 1rem; }
+.info-item i { font-size: 1.5rem; color: var(--primary-color); margin-top: 0.25rem; }
+.info-item h4 { margin-bottom: 0.5rem; }
+.info-item a { color: var(--primary-color); text-decoration: none; }
+.location-map { border-radius: var(--border-radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); height: 450px; }
+.location-map iframe { width: 100%; height: 100%; border: none; }
 
-.amazon-text h2 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--text-dark);
-}
+.footer { background: var(--gray-900); color: var(--gray-200); padding: 4rem 0 2rem; }
+.footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
+.footer-section h3, .footer-section h4 { color: #fff; }
+.footer-brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+.footer-logo { height: 40px; }
+.social-links { display: flex; gap: 1rem; margin-top: 1rem; }
+.social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: rgba(255, 255, 255, 0.1); color: #fff; border-radius: 50%; text-decoration: none; transition: var(--transition); }
+.social-links a:hover { background: var(--primary-color); transform: translateY(-2px); }
+.footer-section ul { list-style: none; }
+.footer-section ul li { margin-bottom: 0.5rem; }
+.footer-section ul a { text-decoration: none; color: var(--gray-200); transition: var(--transition); }
+.footer-section ul a:hover { color: #fff; }
+.footer-bottom { border-top: 1px solid var(--border-color); padding-top: 2rem; text-align: center; }
 
-.amazon-text p {
-  font-size: 1.1rem;
-  color: var(--text-light);
-  margin-bottom: 2rem;
-}
-
-.amazon-banner img {
-  width: 100%;
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-lg);
-}
-
-.amazon-categories {
-  margin-top: 3rem;
-}
-
-.category-section {
-  margin-bottom: 3rem;
-}
-
-.category-section h4 {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.amazon-grid {
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-}
-
-/* Why Choose Us Section */
-.why-choose-us {
-  padding: 5rem 0;
-}
-
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-}
-
-.feature-card {
-  text-align: center;
-  padding: 2rem;
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
-  transition: var(--transition);
-}
-
-.feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-xl);
-}
-
-.feature-icon {
-  width: 80px;
-  height: 80px;
-  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 1.5rem;
-  font-size: 2rem;
-  color: var(--white);
-}
-
-.feature-card h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: var(--text-dark);
-}
-
-.feature-card p {
-  color: var(--text-light);
-  line-height: 1.6;
-}
-
-/* Location Section */
-.location-section {
-  padding: 5rem 0;
-  background: var(--gray-50);
-}
-
-.location-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  align-items: start;
-}
-
-.location-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.info-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
-  padding: 1.5rem;
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
-}
-
-.info-item i {
-  font-size: 1.5rem;
-  color: var(--primary-color);
-  margin-top: 0.25rem;
-}
-
-.info-item h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: var(--text-dark);
-}
-
-.info-item p {
-  color: var(--text-light);
-  line-height: 1.5;
-}
-
-.info-item a {
-  color: var(--primary-color);
-  text-decoration: none;
-}
-
-.location-map {
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-  height: 400px;
-}
-
-.location-map iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-/* Footer */
-.footer {
-  background: var(--gray-900);
-  color: var(--white);
-  padding: 3rem 0 1rem;
-}
-
-.footer-content {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-
-.footer-section h3,
-.footer-section h4 {
-  margin-bottom: 1rem;
-  color: var(--white);
-}
-
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
-}
-
-.footer-logo {
-  height: 40px;
-  width: auto;
-}
-
-.footer-section p {
-  color: var(--gray-200);
-  line-height: 1.6;
-  margin-bottom: 1rem;
-}
-
-.social-links {
-  display: flex;
-  gap: 1rem;
-}
-
-.social-links a {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  background: var(--primary-color);
-  color: var(--white);
-  border-radius: 50%;
-  text-decoration: none;
-  transition: var(--transition);
-}
-
-.social-links a:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
-}
-
-.footer-section ul {
-  list-style: none;
-}
-
-.footer-section ul li {
-  margin-bottom: 0.5rem;
-}
-
-.footer-section ul li a {
-  color: var(--gray-200);
-  text-decoration: none;
-  transition: var(--transition);
-}
-
-.footer-section ul li a:hover {
-  color: var(--white);
-}
-
-.contact-info p {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.footer-bottom {
-  border-top: 1px solid var(--gray-800);
-  padding-top: 2rem;
-  text-align: center;
-  color: var(--gray-200);
-}
-
-.footer-bottom p {
-  margin-bottom: 0.5rem;
-}
-
-.footer-bottom i {
-  color: #ef4444;
-}
-
-/* Floating Elements */
-.back-to-top {
-  position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 50px;
-  height: 50px;
-  background: var(--primary-color);
-  color: var(--white);
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: none;
-  align-items: center;
-  justify-content: center;
-  transition: var(--transition);
-  z-index: 999;
-  box-shadow: var(--shadow-lg);
-}
-
-.back-to-top:hover {
-  background: var(--primary-dark);
-  transform: translateY(-2px);
-}
-
-.whatsapp-float {
-  position: fixed;
-  bottom: 2rem;
-  left: 2rem;
-  width: 60px;
-  height: 60px;
-  background: var(--whatsapp-green);
-  color: var(--white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  font-size: 1.5rem;
-  box-shadow: var(--shadow-xl);
-  transition: var(--transition);
-  z-index: 999;
-  animation: pulse 2s infinite;
-  overflow: hidden;
-}
-
-.whatsapp-float:hover {
-  transform: scale(1.1);
-  background: #128c7e;
-  animation: none;
-}
-
-.whatsapp-float::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 70%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.whatsapp-float:hover::before {
-  opacity: 1;
-}
-
-/* WhatsApp tooltip */
-.whatsapp-float::after {
-  content: 'Chat with us on WhatsApp';
-  position: absolute;
-  left: 70px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--gray-900);
-  color: var(--white);
-  padding: 0.5rem 1rem;
-  border-radius: var(--border-radius);
-  font-size: 0.875rem;
-  white-space: nowrap;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-md);
-  z-index: 1000;
-  pointer-events: none;
-}
-
-.whatsapp-float:hover::after {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(-50%) translateX(5px);
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
-  }
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .header .container {
-    flex-wrap: wrap;
-  }
-  
-  .nav-brand {
-    order: 1;
-  }
-  
-  .header-actions {
-    order: 2;
-    margin-left: auto;
-  }
-  
-  .nav-menu {
-    order: 3;
-    flex-basis: 100%;
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-  
-  .nav-menu.active {
-    max-height: 300px;
-  }
-  
-  .mobile-menu-toggle {
-    display: flex;
-  }
-  
-  .header-search {
-    order: 4;
-    max-width: 100%;
-    margin: 0.5rem 0 0 0;
-    flex-basis: 100%;
-  }
-  
-  .header-search .search-input {
-    font-size: 1rem;
-    padding: 0.875rem 1rem 0.875rem 2.75rem;
-  }
-  
-  .header-search .search-icon {
-    font-size: 1rem;
-    left: 0.875rem;
-  }
-  
-  .header-search .clear-search {
-    font-size: 1rem;
-    padding: 0.375rem;
-  }
-  
-  .header-search .clear-search:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-  }
-  
-  .header-search .clear-search:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active {
-    transform: scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover {
-    background: var(--gray-100);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:focus-visible:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus:hover:active:hover:focus {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .mobile-menu-toggle {
-    display: flex;
-    order: 2;
-  }
-  
-  .notification-popup .popup-content {
-    max-width: 90%;
-    margin: 1rem;
-  }
-  
-  .notification-popup .popup-buttons {
-    flex-direction: column;
-  }
-  
-  .notification-popup .popup-buttons .btn {
-    min-width: auto;
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-  
-  .notification-popup .popup-buttons .btn:last-child {
-    margin-bottom: 0;
-  }
-  
-  .nav-menu {
+.back-to-top, .whatsapp-float {
     position: fixed;
-    top: 70px;
-    left: -100%;
-    width: 100%;
-    height: calc(100vh - 70px);
-    background: var(--white);
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 2rem;
-    transition: var(--transition);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .nav-menu.active {
-    left: 0;
-  }
-
-  .nav-link {
-    padding: 1rem 0;
-    width: 100%;
-    text-align: center;
-    border-bottom: 1px solid var(--gray-200);
-  }
-
-  .contact-items {
-    gap: 1rem;
-  }
-
-  .contact-item {
-    font-size: 0.8rem;
-    padding: 0.4rem 0.8rem;
-  }
-
-  .hero-features {
-    gap: 1rem;
-  }
-
-  .hero-cta {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-
-  .filter-tabs {
-    gap: 0.5rem;
-  }
-
-  .filter-tab {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-  }
-
-  .product-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .amazon-content {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .amazon-text {
-    text-align: center;
-  }
-
-  .features-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .location-content {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-
-  .location-map {
-    height: 300px;
-  }
-
-  .footer-content {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  .whatsapp-float {
-    bottom: 1rem;
-    left: 1rem;
     width: 50px;
     height: 50px;
-    font-size: 1.2rem;
-  }
-
-  .back-to-top {
-    bottom: 1rem;
-    right: 1rem;
-    width: 45px;
-    height: 45px;
-  }
-}
-
-@media (max-width: 480px) {
-  .container {
-    padding: 0 0.75rem;
-  }
-  
-  .header-actions {
-    gap: 0.5rem;
-  }
-  
-  .theme-toggle {
-    width: 35px;
-    height: 35px;
-  }
-  
-  .mobile-menu-toggle {
-    padding: 0.25rem;
-  }
-  
-  .mobile-menu-toggle span {
-    width: 20px;
-    height: 2px;
-  }
-
-  .hero-title {
-    font-size: 2rem;
-  }
-
-  .hero-subtitle {
-    font-size: 1rem;
-  }
-
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .stat-number {
-    font-size: 2rem;
-  }
-
-  .section-title {
-    font-size: 1.75rem;
-  }
-
-  .product-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .product-card {
-    margin: 0 0.5rem;
-  }
-
-  .feature-icon {
-    width: 60px;
-    height: 60px;
-    font-size: 1.5rem;
-  }
-}
-
-/* Print Styles */
-@media print {
-  .header,
-  .quick-contact,
-  .whatsapp-float,
-  .back-to-top,
-  .mobile-menu-toggle {
-    display: none;
-  }
-
-  body {
-    font-size: 12pt;
-    line-height: 1.4;
-  }
-
-  .hero {
-    min-height: auto;
-    padding: 2rem 0;
-  }
-
-  .section-title {
-    font-size: 18pt;
-  }
-}
-
-/* Search Section Styles */
-.search-section {
-  background: var(--gray-50);
-  padding: 2rem 0;
-  border-bottom: 1px solid var(--gray-200);
-}
-
-.search-container {
-  max-width: 600px;
-  margin: 0 auto;
-  text-align: center;
-}
-
-.search-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
-  box-shadow: var(--shadow-md);
-  overflow: hidden;
-  transition: var(--transition);
-}
-
-.search-box:focus-within {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-
-.search-icon {
-  padding: 1rem 1.5rem;
-  color: var(--text-light);
-  font-size: 1.2rem;
-}
-
-.search-input {
-  flex: 1;
-  padding: 1rem 0;
-  border: none;
-  outline: none;
-  font-size: 1.1rem;
-  color: var(--text-dark);
-  background: transparent;
-}
-
-.search-input::placeholder {
-  color: var(--text-light);
-}
-
-.clear-search {
-  padding: 1rem 1.5rem;
-  background: none;
-  border: none;
-  color: var(--text-light);
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: var(--transition);
-}
-
-.clear-search:hover {
-  color: var(--primary-color);
-}
-
-.search-results-count {
-  margin-top: 1rem;
-  color: var(--text-light);
-  font-size: 0.9rem;
-}
-
-/* Notification Popup Styles */
-.notification-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.notification-popup.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-.popup-content {
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
-  max-width: 400px;
-  width: 90%;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-xl);
-  transform: scale(0.8);
-  transition: transform 0.3s ease;
-  padding: 0;
-}
-
-.notification-popup.show .popup-content {
-  transform: scale(1);
-}
-
-.popup-header {
-  display: flex;
-  align-items: center;
-  padding: 1.5rem;
-  border-bottom: 1px solid var(--gray-200);
-  position: relative;
-  justify-content: space-between;
-}
-
-.popup-header i {
-  font-size: 1.5rem;
-  color: var(--primary-color);
-  margin-right: 0;
-}
-
-.popup-header h3 {
-  flex: 1;
-  margin: 0;
-  color: var(--text-dark);
-  text-align: center;
-}
-
-.close-popup {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  color: var(--text-light);
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 50%;
-  transition: var(--transition);
-}
-
-.close-popup:hover {
-  background: var(--gray-100);
-  color: var(--text-dark);
-}
-
-.popup-body {
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.popup-body p {
-  margin-bottom: 1.5rem;
-  color: var(--text-light);
-  line-height: 1.6;
-  text-align: center;
-}
-
-.popup-buttons {
-  display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.popup-buttons .btn {
-  flex: 1;
-  min-width: 120px;
-  margin: 0;
-  justify-content: center;
-}
-
-/* Toast Notifications */
-.notification-toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: var(--white);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
-  border-left: 4px solid var(--primary-color);
-  min-width: 300px;
-  max-width: 500px;
-  z-index: 10001;
-  transform: translateX(100%);
-  opacity: 0;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-}
-
-.notification-toast.show {
-  transform: translateX(0);
-  opacity: 1;
-}
-
-.notification-toast.success {
-  border-left-color: var(--secondary-color);
-}
-
-.notification-toast.error {
-  border-left-color: #ef4444;
-}
-
-.toast-content {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex: 1;
-}
-
-.toast-content i {
-  font-size: 1.25rem;
-}
-
-.notification-toast.success .toast-content i {
-  color: var(--secondary-color);
-}
-
-.notification-toast.error .toast-content i {
-  color: #ef4444;
-}
-
-.notification-toast.info .toast-content i {
-  color: var(--primary-color);
-}
-
-.toast-content span {
-  color: var(--text-dark);
-  font-weight: 500;
-}
-
-.toast-close {
-  background: none;
-  border: none;
-  color: var(--text-light);
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 50%;
-  transition: var(--transition);
-  margin-left: 0.5rem;
-}
-
-.toast-close:hover {
-  background: var(--gray-100);
-  color: var(--text-dark);
-}
-
-/* Mobile responsiveness for toast notifications */
-@media (max-width: 768px) {
-  .notification-toast {
-    top: 10px;
-    right: 10px;
-    left: 10px;
-    min-width: auto;
-    max-width: none;
-    transform: translateY(-100%);
-  }
-  
-  .notification-toast.show {
-    transform: translateY(0);
-  }
-  
-  .toast-content {
-    flex-wrap: wrap;
-  }
-  
-  .toast-content span {
-    font-size: 0.9rem;
-  }
-}
-
-/* Improved popup button states */
-.popup-buttons .btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none !important;
-}
-
-.popup-buttons .btn:disabled:hover {
-  transform: none !important;
-  box-shadow: var(--shadow-sm) !important;
-}
-
-/* Enhanced Filter Tabs */
-.filter-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 0.5rem;
-  margin: 2rem 0;
-  flex-wrap: wrap;
-}
-
-.filter-tab {
-  padding: 0.75rem 1.5rem;
-  border: 2px solid var(--gray-200);
-  background: var(--white);
-  color: var(--text-light);
-  border-radius: var(--border-radius-lg);
-  cursor: pointer;
-  transition: var(--transition);
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.filter-tab:hover {
-  border-color: var(--primary-color);
-  color: var(--primary-color);
-  transform: translateY(-2px);
-}
-
-.filter-tab.active {
-  background: var(--primary-color);
-  border-color: var(--primary-color);
-  color: var(--white);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-/* Enhanced Product Cards */
-.product-card {
-  background: var(--white);
-  border-radius: var(--border-radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  transition: var(--transition);
-  border: 1px solid var(--gray-200);
-}
-
-.product-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--primary-color);
-}
-
-/* Clickable Product Cards */
-.product-card.clickable {
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.product-card.clickable:hover {
-  transform: translateY(-8px) scale(1.02);
-  box-shadow: var(--shadow-2xl);
-}
-
-.product-card.clickable:active {
-  transform: translateY(-4px) scale(0.98);
-}
-
-.product-card.clickable::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.product-card.clickable:hover::before {
-  opacity: 1;
-}
-
-.product-card.clickable .product-actions {
-  position: relative;
-  z-index: 2;
-}
-
-.product-card.clickable .click-hint {
-  font-size: 0.8rem;
-  color: var(--text-light);
-  text-align: center;
-  margin-top: 0.5rem;
-  opacity: 0.7;
-  transition: opacity 0.3s ease;
-}
-
-.product-card.clickable:hover .click-hint {
-  opacity: 1;
-  color: var(--primary-color);
-}
-
-.product-card.clickable .whatsapp-btn {
-  position: relative;
-  z-index: 2;
-  transition: all 0.3s ease;
-}
-
-.product-card.clickable:hover .whatsapp-btn {
-  background: var(--primary-color);
-  color: var(--white);
-  transform: scale(1.05);
-}
-
-.product-card img {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  transition: var(--transition);
-}
-
-.product-card:hover img {
-  transform: scale(1.05);
-}
-
-.product-card-content {
-  padding: 1.5rem;
-}
-
-.product-card-content h3 {
-  margin-bottom: 1rem;
-  color: var(--text-dark);
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.product-card-content p {
-  margin-bottom: 0.5rem;
-  color: var(--text-light);
-  font-size: 0.9rem;
-}
-
-.price {
-  font-size: 1.3rem;
-  font-weight: 700;
-  color: var(--primary-color);
-  margin: 1rem 0;
-}
-
-/* Lazy Loading Animation */
-.lazy-load {
-  opacity: 0;
-  transform: translateY(20px);
-  transition: all 0.6s ease-out;
-}
-
-.lazy-load.loaded {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Performance Optimizations */
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 2rem;
-  margin: 2rem 0;
-}
-
-/* Mobile Responsiveness Enhancements */
-@media (max-width: 768px) {
-  .header .container {
-    flex-wrap: wrap;
-  }
-  
-  .nav-brand { 
-    order: 1; 
-  }
-  
-  .header-search {
-    order: 3;
-    max-width: 100%;
-    margin: 0.5rem 0 0 0;
-    flex-basis: 100%;
-  }
-  
-  .mobile-menu-toggle {
-    display: flex;
-    order: 2;
-  }
-  
-  .header-search .search-box {
-    border-radius: var(--border-radius);
-    background: var(--white);
-    border: 2px solid var(--gray-200);
-  }
-  
-  .header-search .search-input {
-    font-size: 1rem;
-    padding: 0.75rem 1rem 0.75rem 2.5rem;
-    background: transparent;
-    border: none;
-    outline: none;
-    width: 100%;
-    color: var(--text-dark);
-  }
-  
-  .header-search .search-input::placeholder {
-    color: var(--text-light);
-  }
-  
-  .header-search .search-icon {
-    position: absolute;
-    left: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-light);
-    font-size: 1rem;
-    pointer-events: none;
-  }
-  
-  .header-search .clear-search {
-    position: absolute;
-    right: 0.5rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: var(--gray-100);
-    border: none;
     border-radius: 50%;
-    width: 24px;
-    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
+    box-shadow: var(--shadow-xl);
+    z-index: 998;
+    border: none;
+    color: #fff;
     cursor: pointer;
     transition: var(--transition);
-    color: var(--text-light);
-  }
-  
-  .header-search .clear-search:hover {
-    background: var(--gray-200);
-    color: var(--text-dark);
-  }
-  
-  .header-search .clear-search:active {
-    transform: translateY(-50%) scale(0.95);
-  }
-  
-  .header-search .clear-search:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
-  
-  .search-container {
-    padding: 0 1rem;
-  }
-  
-  .search-box {
-    border-radius: var(--border-radius);
-  }
-  
-  .search-input {
-    font-size: 1rem;
-  }
-  
-  .filter-tabs {
-    gap: 0.25rem;
-    margin: 1rem 0;
-  }
-  
-  .filter-tab {
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .product-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 1rem;
-  }
-  
-  .popup-content {
-    margin: 1rem;
-    width: calc(100% - 2rem);
-  }
-  
-  .popup-buttons {
-    flex-direction: column;
-  }
-  
-  .popup-buttons .btn {
+}
+.back-to-top { right: 2rem; bottom: 2rem; background: var(--primary-color); }
+.back-to-top:hover { background: var(--primary-dark); transform: translateY(-3px); }
+.whatsapp-float { left: 2rem; bottom: 2rem; background: var(--whatsapp-green); font-size: 1.5rem; text-decoration: none; animation: pulse 2s infinite; }
+.whatsapp-float:hover { transform: scale(1.1); animation: none; }
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(37, 211, 102, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
     width: 100%;
+    background: var(--bg-card);
+    flex-direction: column;
+    align-items: stretch;
+    padding: 1rem;
+    box-shadow: var(--shadow-lg);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
   }
+  .nav-menu.active {
+    max-height: 500px; /* Or a large enough value */
+  }
+  .nav-link {
+    text-align: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+  .nav-link:last-child {
+    border-bottom: none;
+  }
+  .mobile-menu-toggle {
+    display: flex;
+  }
+  
+  /* other responsive adjustments */
+  .location-content, .amazon-content { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 480px) {
-  .filter-tabs {
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-  }
-  
-  .filter-tab {
-    flex-shrink: 0;
-  }
-  
-  .product-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .search-section {
-    padding: 1rem 0;
-  }
+  .stats-grid { grid-template-columns: 1fr; }
+  .product-grid { grid-template-columns: 1fr; }
 }
-
-/* View All Button Styles */
-#view-all-container {
-  margin-top: 2rem;
-  text-align: center;
-}
-
-#view-all-btn {
-  background-color: var(--primary-color);
-  color: var(--white);
-  border: none;
-  padding: 0.75rem 2rem;
-  border-radius: var(--border-radius);
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  box-shadow: var(--shadow-sm);
-}
-
-#view-all-btn:hover {
-  background-color: var(--primary-dark);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-#view-all-btn:active {
-  transform: translateY(0);
-}
-
-/* Search Results Count */
-.search-results-count {
-  font-size: 0.875rem;
-  color: var(--text-light);
-  margin-top: 0.5rem;
-  display: none;
-}
-
-/* Accessibility Improvements */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .filter-tab {
-    border-width: 3px;
-  }
-  
-  .product-card {
-    border-width: 2px;
-  }
-}
-
-/* Dark mode support preparation */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text-dark: #f9fafb;
-    --text-light: #d1d5db;
-    --white: #1f2937;
-    --gray-50: #111827;
-    --gray-100: #1f2937;
-    --gray-200: #374151;
-  }
-}
-
-/* Base */
-*{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;background:#f6f8fb;color:#0f172a}
-a{text-decoration:none;color:inherit}
-
-/* Header */
-.header{position:sticky;top:0;z-index:50;background:#0b1220;color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.header .container{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:1100px;margin:auto}
-.nav-brand{display:flex;align-items:center;gap:10px}
-.logo{height:38px;width:auto}
-.brand-name{font-size:1.2rem;margin:0}
-.nav-menu{display:flex;gap:16px}
-.nav-link{padding:8px 10px;border-radius:8px;opacity:.9}
-.nav-link:hover{background:#14213d;opacity:1}
-.mobile-menu-toggle{display:none;background:none;border:none;cursor:pointer}
-.mobile-menu-toggle span{display:block;width:22px;height:2px;background:#fff;margin:5px 0;border-radius:2px}
-
-/* Quick contact */
-.quick-contact{background:#0f172a;color:#fff}
-.quick-contact .container{max-width:1100px;margin:auto}
-.contact-items{display:flex;gap:10px;padding:10px;flex-wrap:wrap}
-.contact-item{display:flex;align-items:center;gap:8px;background:#111827;padding:8px 12px;border-radius:10px}
-.contact-item.whatsapp{background:#0a7c2f}
-
-/* Hero */
-.hero{position:relative;background:linear-gradient(135deg,#0b1220,#1e293b);color:#fff}
-.hero .container{max-width:1100px;margin:auto;padding:40px 16px}
-.hero-title{margin:0 0 8px;font-size:2rem}
-.hero-subtitle{margin:0 0 16px;opacity:.9}
-.hero-features{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
-.feature{background:#111827;padding:8px 12px;border-radius:10px}
-.btn{display:inline-flex;align-items:center;gap:8px;border:none;border-radius:10px;padding:10px 14px;cursor:pointer}
-.btn-primary{background:#2563eb;color:#fff}
-.btn-secondary{background:#334155;color:#fff}
-.btn-amazon{background:#ff9900;color:#111}
-
-/* Search */
-.search-section .container{max-width:1100px;margin:auto;padding:16px}
-.search-container{display:flex;flex-direction:column;gap:8px}
-.search-box{position:relative;display:flex;align-items:center;background:#fff;border:1px solid #e2e8f0;border-radius:12px;padding:8px 12px}
-.search-icon{color:#64748b;margin-right:8px}
-.search-input{flex:1;border:none;outline:none;font-size:1rem;padding:8px}
-.clear-search{background:transparent;border:none;color:#64748b;cursor:pointer}
-.search-suggestions{display:none;position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 10px 20px rgba(0,0,0,.08);max-height:360px;overflow:auto;z-index:20}
-.suggestion-item{display:flex;gap:10px;padding:10px;border-bottom:1px solid #f1f5f9}
-.suggestion-item:hover{background:#f8fafc}
-.suggestion-item img{width:48px;height:48px;object-fit:cover;border-radius:8px;background:#f1f5f9}
-.suggestion-details{display:flex;flex-direction:column}
-.suggestion-name{font-weight:600}
-.suggestion-price{font-size:.9rem;color:#475569}
-.suggestion-badge{margin-left:auto;background:#e2e8f0;color:#0f172a;font-size:.75rem;padding:2px 6px;border-radius:999px;height:fit-content}
-
-.search-results-count{font-size:.95rem;color:#334155}
-
-/* Products grid */
-.products-section .container{max-width:1100px;margin:auto;padding:16px}
-.section-header{text-align:center;margin:16px 0}
-.section-title{margin:0 0 6px}
-.section-subtitle{margin:0;color:#475569}
-.filter-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin:8px 0 16px}
-.filter-tab{background:#e2e8f0;color:#0f172a;border:none;border-radius:999px;padding:8px 12px;cursor:pointer}
-.filter-tab.active{background:#0f172a;color:#fff}
-
-.products-loading{display:none;text-align:center;margin:24px 0;color:#475569}
-.loading-spinner{width:26px;height:26px;border:3px solid #e2e8f0;border-top-color:#2563eb;border-radius:50%;margin:0 auto 8px;animation:spin 0.9s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
-.product-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;overflow:hidden;cursor:pointer;transition:transform .12s ease, box-shadow .12s ease}
-.product-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.08)}
-.product-card img{width:100%;height:160px;object-fit:cover;background:#f8fafc}
-.product-card-content{padding:12px}
-.product-card h3{margin:0 0 6px;font-size:1rem}
-.product-card p{margin:2px 0;color:#475569;font-size:.92rem}
-.price{margin-top:8px;font-weight:700}
-.product-actions{margin-top:10px}
-.source-chip{display:inline-block;margin-top:8px;font-size:.75rem;padding:3px 8px;border-radius:999px;background:#e2e8f0;color:#0f172a}
-
-/* Detail view */
-.product-detail-section .container{max-width:1100px;margin:auto;padding:16px}
-.product-detail-card{display:grid;grid-template-columns:1.1fr 1fr;gap:18px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:16px}
-.detail-gallery .slider{overflow:hidden;border-radius:12px;border:1px solid #f1f5f9}
-.detail-gallery .slides{display:flex;transition:transform .25s ease}
-.detail-gallery .slides img{width:100%;height:440px;object-fit:cover;background:#f8fafc}
-.slider-nav{display:flex;gap:8px;justify-content:center;margin:8px 0}
-.slider-btn{border:none;background:#e2e8f0;color:#0f172a;border-radius:8px;padding:8px 12px;cursor:pointer}
-.thumbs{display:flex;gap:8px;overflow:auto}
-.thumbs img{width:64px;height:64px;object-fit:cover;border-radius:8px;border:2px solid transparent;cursor:pointer;background:#f8fafc}
-.thumbs img.active{border-color:#2563eb}
-.detail-info h1{margin:0 0 6px}
-.detail-meta{color:#475569;margin-bottom:6px}
-
-/* Amazon section */
-.amazon-section .container{max-width:1100px;margin:auto;padding:16px}
-.amazon-content{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:center}
-.amazon-banner img{width:100%;border-radius:12px}
-.category-section h4{margin:8px 0}
-
-/* Stats */
-.stats .container{max-width:1100px;margin:auto;padding:16px}
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.stat-item{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;text-align:center}
-.stat-number{font-size:1.6rem;font-weight:800}
-
-/* Why choose */
-.why-choose-us .container{max-width:1100px;margin:auto;padding:16px}
-.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-.feature-card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:16px;text-align:left}
-.feature-icon{font-size:1.4rem;margin-bottom:6px}
-
-/* Footer */
-.footer{background:#0b1220;color:#cbd5e1}
-.footer .container{max-width:1100px;margin:auto;padding:20px 16px}
-.footer-content{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:16px}
-.footer-logo{height:36px}
-.footer-bottom{border-top:1px solid #1f2937;margin-top:14px;padding-top:10px;text-align:center}
-
-/* Floating buttons */
-.back-to-top{position:fixed;right:14px;bottom:14px;background:#0f172a;color:#fff;border:none;border-radius:999px;width:44px;height:44px;display:none;align-items:center;justify-content:center;box-shadow:0 10px 20px rgba(0,0,0,.2);cursor:pointer}
-.whatsapp-float{position:fixed;left:14px;bottom:14px;background:#25d366;color:#fff;border-radius:999px;width:50px;height:50px;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 20px rgba(0,0,0,.2)}
-
-/* Notification popup */
-.notification-popup{position:fixed;inset:0;background:rgba(2,8,23,.5);display:none;align-items:center;justify-content:center;z-index:60}
-.notification-popup.show{display:flex}
-.popup-content{background:#fff;border-radius:16px;max-width:420px;width:92%;padding:16px;border:1px solid #e2e8f0}
-.popup-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.close-popup{margin-left:auto;background:transparent;border:none;cursor:pointer}
-.popup-buttons{display:flex;gap:10px}
-
-/* Toast */
-.notification-toast{position:fixed;right:16px;bottom:16px;background:#0f172a;color:#fff;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px;opacity:0;transform:translateY(10px);transition:.2s;z-index:70}
-.notification-toast.show{opacity:1;transform:none}
-.notification-toast.success{background:#0a7c2f}
-.notification-toast.error{background:#7c0a0a}
-.toast-close{background:transparent;border:none;color:#fff;cursor:pointer}
-
-/* Utils */
-.no-products{text-align:center;background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px}
-.container{padding:0 16px}
-
-/* Mobile */
-@media (max-width:768px){
-  .nav-menu{display:none;position:absolute;left:0;right:0;top:56px;background:#0b1220;padding:10px 16px}
-  .nav-menu.active{display:flex;flex-direction:column}
-  .mobile-menu-toggle{display:block}
-  .amazon-content{grid-template-columns:1fr}
-  .product-detail-card{grid-template-columns:1fr}
-}
-
