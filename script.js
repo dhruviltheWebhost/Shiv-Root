@@ -1,6 +1,6 @@
 /*******************************
  * Shiv Infocom — script.js
- * FINAL CORRECTED VERSION V3
+ * FINAL CORRECTED VERSION V5
  *******************************/
 
 /* ================== Global ================== */
@@ -126,66 +126,76 @@ function parseImagesFromRow(row) {
 
 
 async function fetchProducts() {
-  const sheetURL = "https://docs.google.com/spreadsheets/d/11DuYsqp24FEs-7Jo17-mI4aft-v6B1hpTZQIE8edUls/edit?usp=sharing";
-  const json = await fetchSheetData(sheetURL);
-  if (!json.table || !json.table.rows) return;
-
-  const rawProducts = json.table.rows.map((row, idx) => {
-    const statusValue = row.c[11]?.v?.trim().toLowerCase();
-    const status = statusValue && (statusValue.includes('ready') || statusValue.includes('dispetch')) ? 'Ready to Dispatch' : 'On Order';
-
-    return {
-        model:       row.c[0]?.v ?? "N/A",
-        processor:   row.c[1]?.v ?? "N/A",
-        ram:         row.c[2]?.v ?? "N/A",
-        storage:     row.c[3]?.v ?? "N/A",
-        price:       row.c[4]?.v ?? "N/A",
-        imageUrl:    row.c[5]?.v ?? "", // This is the main thumbnail
-        productLink: row.c[6]?.v ?? "",
-        status:      status,
-        images:      parseImagesFromRow(row),
-        id:          generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
-        category:    'Other'
-    };
-  }).filter(p => p.model !== "N/A");
-
-  const seen = new Set();
-  allProducts = rawProducts.filter(p => {
-    const key = `${p.model.trim().toLowerCase()}|${(p.processor || '').trim().toLowerCase()}`;
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-
-  productIdToProduct.clear();
-  allProducts.forEach(p => productIdToProduct.set(p.id, p));
-}
-
-async function fetchAmazonProducts() {
-    const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/edit?usp=sharing";
+  const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=Products";
+  try {
     const json = await fetchSheetData(sheetURL);
-     if (!json.table || !json.table.rows) return;
+    if (!json.table || !json.table.rows) return;
 
-    const raw = json.table.rows.map((row, idx) => ({
-        model: row.c[0]?.v ?? "N/A",
-        category: row.c[1]?.v ?? "Other",
-        price: row.c[5]?.v ?? "N/A",
-        imageUrl: row.c[6]?.v ?? "",
-        link: row.c[7]?.v ?? "#",
-        id: generateStableId(row.c[0]?.v, null, 'amazon', idx)
-    })).filter(p => p.model !== "N/A");
+    const rawProducts = json.table.rows.map((row, idx) => {
+        const statusValue = row.c[11]?.v?.trim().toLowerCase();
+        const status = statusValue && (statusValue.includes('ready') || statusValue.includes('dispetch')) ? 'Ready to Dispatch' : 'On Order';
+
+        return {
+            model:       row.c[0]?.v ?? "N/A",
+            processor:   row.c[1]?.v ?? "N/A",
+            ram:         row.c[2]?.v ?? "N/A",
+            storage:     row.c[3]?.v ?? "N/A",
+            price:       row.c[4]?.v ?? "N/A",
+            imageUrl:    row.c[5]?.v ?? "",
+            productLink: row.c[6]?.v ?? "",
+            status:      status,
+            images:      parseImagesFromRow(row),
+            id:          generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
+            category:    row.c[12]?.v ?? 'Other' // Assuming Category is in Column M (index 12)
+        };
+    }).filter(p => p.model !== "N/A");
 
     const seen = new Set();
-    amazonProducts = raw.filter(p => {
-        const key = `${p.model.trim().toLowerCase()}|${p.link.trim().toLowerCase()}`;
+    allProducts = rawProducts.filter(p => {
+        const key = `${p.model.trim().toLowerCase()}|${(p.processor || '').trim().toLowerCase()}`;
         if (seen.has(key)) return false;
         seen.add(key);
         return true;
     });
+
+    productIdToProduct.clear();
+    allProducts.forEach(p => productIdToProduct.set(p.id, p));
+  } catch (error) {
+      console.error("Failed to fetch 'Products' sheet. Please ensure it exists and is public.", error);
+  }
+}
+
+async function fetchAmazonProducts() {
+    // FINAL FIX: Using the correct API URL for your Amazon sheet
+    const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=Amazon";
+    try {
+        const json = await fetchSheetData(sheetURL);
+        if (!json.table || !json.table.rows) return;
+
+        const raw = json.table.rows.map((row, idx) => ({
+            model: row.c[0]?.v ?? "N/A",
+            category: row.c[1]?.v ?? "Other",
+            price: row.c[5]?.v ?? "N/A",
+            imageUrl: row.c[6]?.v ?? "",
+            link: row.c[7]?.v ?? "#",
+            id: generateStableId(row.c[0]?.v, null, 'amazon', idx)
+        })).filter(p => p.model !== "N/A");
+
+        const seen = new Set();
+        amazonProducts = raw.filter(p => {
+            const key = `${p.model.trim().toLowerCase()}|${p.link.trim().toLowerCase()}`;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+    } catch (error) {
+        console.error("Failed to fetch 'Amazon' sheet. Please ensure it exists and is public.", error);
+    }
 }
 
 async function fetchFacebookAdsProducts() {
-    const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=FacebookAds";
+    // FINAL FIX: Using the correct spreadsheet ID and API URL for your Facebook Ads sheet
+    const sheetURL = "https://docs.google.com/spreadsheets/d/11DuYsqp24FEs-7Jo17-mI4aft-v6B1hpTZQIE8edUls/gviz/tq?tqx=out:json&sheet=Sheet1";
     try {
         const json = await fetchSheetData(sheetURL);
         if (!json.table || !json.table.rows) return;
@@ -208,7 +218,7 @@ function filterAndDisplayProducts() {
 
 function getFilteredProducts() {
     let filtered = [...allProducts];
-    if (currentFilter !== 'all' && currentFilter !== 'Other') {
+    if (currentFilter !== 'all') {
         filtered = filtered.filter(p => p.category.toLowerCase() === currentFilter.toLowerCase());
     }
     if (isSearching && searchQuery) {
@@ -536,7 +546,7 @@ async function subscribeToNotifications() {
         if (!window.OneSignal) throw new Error("OneSignal has not loaded yet.");
         
         const permission = await OneSignal.Notifications.requestPermission();
-        if (permission !== true) { // OneSignal returns boolean `true` for granted
+        if (permission !== true) { 
              throw new Error("Notification permission was not granted.");
         }
         
