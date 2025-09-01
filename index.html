@@ -5,41 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Shiv Infocom | Refurbished Laptops & Accessories in Ahmedabad</title>
 
-  <!-- SEO + Social -->
-  <meta name="description" content="Shiv Infocom in Ahmedabad specializes in premium refurbished laptops, desktops, projectors, and IT accessories with warranty and the best prices. Explore top deals today!">
+  <!-- SEO, Meta Tags, etc. -->
+  <meta name="description" content="Shiv Infocom specializes in premium refurbished laptops, desktops, and IT accessories with warranty and best prices in Ahmedabad.">
   <meta name="author" content="Shiv Infocom">
-  <meta property="og:title" content="Shiv Infocom | Refurbished Laptops & Accessories in Ahmedabad">
-  <meta property="og:description" content="Best deals on refurbished laptops, desktops, projectors & accessories in Ahmedabad. Shop with Shiv Infocom for reliable and affordable IT solutions.">
+  <meta property="og:title" content="Shiv Infocom | Refurbished Laptops & Accessories">
+  <meta property="og:description" content="Best deals on refurbished laptops, desktops, projectors & accessories in Ahmedabad.">
   <meta property="og:url" content="https://dhruvilthewebhost.github.io/Shiv-Root/">
   <meta property="og:image" content="https://dhruvilthewebhost.github.io/Shiv-Root/logo.png">
   <meta name="twitter:card" content="summary_large_image">
-
   <meta name="theme-color" content="#2563eb">
-  <link rel="icon" href="logo.png" type="image/x-icon">
+  <link rel="icon" href="logo.png" type="image/png">
 
-  <!-- Fonts & Icons -->
-  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <!-- Styles & Fonts -->
+  <link rel="stylesheet" href="styles.css?v=2.3">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  
-  <!-- CORRECTED: This ensures the browser treats the file as a stylesheet -->
-  <!-- The "?v=2.2" part forces the browser to load the new version -->
-  <link rel="stylesheet" href="styles.css?v=2.2">
-
-  <!-- Preload Assets for faster loading -->
-  <link rel="preload" href="styles.css?v=2.2" as="style">
-  <link rel="preload" href="script.js?v=2.2" as="script">
 
   <!-- Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-X5PEJQZPD6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date()); gtag('config', 'G-X5PEJQZPD6');
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-X5PEJQZPD6');
   </script>
 
-  <!-- OneSignal v16 -->
+  <!-- OneSignal -->
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" async></script>
 </head>
+
 <body>
   <!-- Loading Screen -->
   <div id="loading-screen">
@@ -53,10 +46,11 @@
   <header class="header">
     <div class="container">
       <a href="#" class="nav-brand">
-        <img src="logo.png" alt="Shiv Infocom Logo" class="logo">
+        <div class="logo">
+            <img src="logo.png" alt="Shiv Infocom Logo">
+        </div>
         <h1 class="brand-name">Shiv Infocom</h1>
       </a>
-
       <nav class="nav-menu" id="nav-menu">
         <a href="#home" class="nav-link">Home</a>
         <a href="#products" class="nav-link">Products</a>
@@ -64,13 +58,14 @@
         <a href="#contact" class="nav-link">Contact</a>
         <a href="#location" class="nav-link">Location</a>
       </nav>
-
       <div class="header-actions">
         <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
           <i class="fas fa-moon"></i>
         </button>
-        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu" aria-expanded="false">
-          <span></span><span></span><span></span>
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle menu" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
         </button>
       </div>
     </div>
@@ -78,21 +73,21 @@
 
   <main>
     <!-- Quick Actions -->
-    <div class="quick-contact">
+    <section class="quick-contact">
       <div class="container">
         <div class="contact-items">
           <a href="tel:916351541231" class="contact-item"><i class="fas fa-phone"></i><span>Call Now</span></a>
-          <a href="https://wa.me/916351541231?text=Hello!%20I'm%20interested%20in%20your%20products" target="_blank" class="contact-item whatsapp">
-            <i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
-          <a href="#" target="_blank" class="contact-item"><i class="fas fa-map-marker-alt"></i><span>Get Directions</span></a>
+          <a href="https://wa.me/916351541231?text=Hello!%20I'm%20interested%20in%20your%20products" target="_blank" class="contact-item"><i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
+          <a href="https://maps.app.goo.gl/your-google-maps-link" target="_blank" class="contact-item"><i class="fas fa-map-marker-alt"></i><span>Get Directions</span></a>
           <a href="mailto:digital.roottechnology@gmail.com" class="contact-item"><i class="fas fa-envelope"></i><span>Email Us</span></a>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- Hero -->
     <section id="home" class="hero">
-      <div class="hero-background"><div class="hero-overlay"></div></div>
+      <div class="hero-background"></div>
+      <div class="hero-overlay"></div>
       <div class="container">
         <div class="hero-content">
           <h2 class="hero-title">Premium Refurbished Technology</h2>
@@ -100,7 +95,7 @@
           <div class="hero-features">
             <div class="feature"><i class="fas fa-shield-alt"></i><span>Quality Guaranteed</span></div>
             <div class="feature"><i class="fas fa-truck"></i><span>Fast Delivery</span></div>
-            <div class="feature"><i class="fas fa-headset"></i><span>24/7 Support</span></div>
+            <div class="feature"><i class="fas fa-headset"></i><span>Expert Support</span></div>
           </div>
           <div class="hero-cta">
             <a href="#products" class="btn btn-primary">Shop Now</a>
@@ -112,99 +107,84 @@
       </div>
     </section>
 
-    <!-- Search -->
+    <!-- Search Section -->
     <section class="search-section">
       <div class="container">
         <div class="search-container">
           <div class="search-box">
-            <label for="product-search" class="visually-hidden">Search for laptops, processors, accessories</label>
-            <i class="fas fa-search search-icon"></i>
+             <i class="fas fa-search search-icon"></i>
             <input type="text" id="product-search" class="search-input" placeholder="Search for laptops, processors, accessories..." autocomplete="off">
-            <button id="clear-search" class="clear-search" style="display:none;" aria-label="Clear search input">
-              <i class="fas fa-times"></i>
-            </button>
-            <div id="search-suggestions" class="search-suggestions"></div>
+            <button id="clear-search" class="clear-search" style="display:none;" aria-label="Clear search"><i class="fas fa-times"></i></button>
           </div>
-          <div id="search-results-count" class="search-results-count"></div>
+          <div id="search-suggestions" class="search-suggestions"></div>
+          <div id="search-results-count" class="search-results-count" style="display: none;"></div>
         </div>
       </div>
     </section>
 
-    <!-- Local Products -->
+    <!-- Products Section -->
     <section id="products" class="products-section">
       <div class="container">
         <div class="section-header">
           <h2 class="section-title">Our Products</h2>
           <p class="section-subtitle">Carefully refurbished and tested for optimal performance</p>
         </div>
-
         <div class="filter-tabs">
-          <button class="filter-tab active" data-filter="all">All Products</button>
+          <button class="filter-tab active" data-filter="all">All</button>
           <button class="filter-tab" data-filter="laptop">Laptops</button>
-          <button class="filter-tab" data-filter="processor">Processors</button>
           <button class="filter-tab" data-filter="desktop">Desktops</button>
-          <button class="filter-tab" data-filter="hdd">HDDs</button>
-          <button class="filter-tab" data-filter="printer">Printers</button>
-          <button class="filter-tab" data-filter="accessory">Components</button>
+          <button class="filter-tab" data-filter="accessory">Accessories</button>
         </div>
-
         <div id="products-loading" class="products-loading">
-          <div class="loading-spinner"></div>
-          <p>Loading products...</p>
+            <div class="spinner"></div>
+            <p>Loading Products...</p>
         </div>
-
         <div id="product-grid" class="product-grid"></div>
         <div id="view-all-container" class="view-all-container"></div>
       </div>
     </section>
 
-    <!-- Product Detail View -->
-    <section id="product-detail-view" class="product-detail-section" style="display:none;">
-      <div class="container" id="product-detail-card-container">
-          <!-- Product details will be rendered here by JavaScript -->
-      </div>
+    <!-- Product Detail View (Dynamically Filled) -->
+    <section id="product-detail-view" style="display: none;">
+        <div class="container">
+            <div id="product-detail-card-container"></div>
+        </div>
     </section>
 
-    <!-- Amazon Picks -->
+    <!-- Amazon Section -->
     <section id="amazon" class="amazon-section">
-      <div class="container">
-        <div class="amazon-content">
-          <div class="amazon-text">
-            <h2>Visit Our Amazon Store</h2>
-            <p>Browse our complete collection on Amazon with fast delivery and easy returns</p>
-            <a href="https://www.amazon.in/storefront?me=A3C7K3S9Z34M7A&ref_=ssf_share" target="_blank" class="btn btn-amazon">
-              <i class="fab fa-amazon"></i> Shop on Amazon
-            </a>
-          </div>
-          <div class="amazon-banner">
-            <img src="Amazon Banner.jpg" alt="Amazon Store Banner" loading="lazy">
-          </div>
-        </div>
-
-        <div class="amazon-products">
-          <div class="section-header"><h3>Featured Amazon Products</h3></div>
-          <div class="amazon-categories">
-            <div class="category-section">
-              <h4><i class="fas fa-laptop"></i> Laptops</h4>
-              <div id="amazon-laptop-grid" class="product-grid amazon-grid"></div>
+        <div class="container">
+            <div class="amazon-content">
+                <div class="amazon-text">
+                    <h2 class="section-title">Visit Our Amazon Store</h2>
+                    <p class="section-subtitle">Browse our complete collection on Amazon with fast delivery and easy returns.</p>
+                    <a href="https://www.amazon.in/storefront?me=A3C7K3S9Z34M7A&ref_=ssf_share" target="_blank" rel="noopener" class="btn btn-amazon"><i class="fab fa-amazon"></i> Shop on Amazon</a>
+                </div>
+                <div class="amazon-banner">
+                    <img src="Amazon Banner.jpg" alt="Amazon Store Banner" loading="lazy">
+                </div>
             </div>
-            <div class="category-section">
-              <h4><i class="fas fa-mouse"></i> Accessories</h4>
-              <div id="amazon-accessory-grid" class="product-grid amazon-grid"></div>
+             <div class="amazon-products">
+                <div class="category-section">
+                    <h4><i class="fas fa-laptop"></i> Laptops</h4>
+                    <div id="amazon-laptop-grid" class="product-grid"></div>
+                </div>
+                <div class="category-section">
+                    <h4><i class="fas fa-mouse"></i> Accessories</h4>
+                    <div id="amazon-accessory-grid" class="product-grid"></div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </section>
 
-    <!-- Stats -->
-    <section class="stats" id="stats-section">
+    <!-- Stats Section -->
+    <section id="stats-section" class="stats">
       <div class="container">
         <div class="stats-grid">
-          <div class="stat-item"><div class="stat-number" data-target="500">0</div><div class="stat-label">Happy Customers</div></div>
-          <div class="stat-item"><div class="stat-number" data-target="50">0</div><div class="stat-label">Products Available</div></div>
-          <div class="stat-item"><div class="stat-number" data-target="99">0</div><div class="stat-label">Satisfaction Rate</div></div>
-          <div class="stat-item"><div class="stat-number" data-target="24">0</div><div class="stat-label">Hours Support</div></div>
+          <div class="stat-item"><div class="stat-number" data-target="500">0</div><p>Happy Customers</p></div>
+          <div class="stat-item"><div class="stat-number" data-target="50">0</div><p>Products Available</p></div>
+          <div class="stat-item"><div class="stat-number" data-target="99">0</div><p>Satisfaction Rate</p></div>
+          <div class="stat-item"><div class="stat-number" data-target="24">0</div><p>Hours Support</p></div>
         </div>
       </div>
     </section>
@@ -213,14 +193,14 @@
     <section class="why-choose-us">
       <div class="container">
         <div class="section-header">
-          <h2>Why Choose Shiv Infocom?</h2>
-          <p>We're committed to providing the best refurbished technology solutions</p>
+          <h2 class="section-title">Why Choose Shiv Infocom?</h2>
+          <p class="section-subtitle">We're committed to providing the best refurbished technology solutions.</p>
         </div>
         <div class="features-grid">
-          <div class="feature-card"><div class="feature-icon"><i class="fas fa-certificate"></i></div><h3>Quality Assured</h3><p>Every product undergoes rigorous testing and quality checks</p></div>
-          <div class="feature-card"><div class="feature-icon"><i class="fas fa-tags"></i></div><h3>Best Prices</h3><p>Premium tech at unbeatable refurbished prices</p></div>
-          <div class="feature-card"><div class="feature-icon"><i class="fas fa-shipping-fast"></i></div><h3>Fast Delivery</h3><p>Quick, secure delivery with tracking</p></div>
-          <div class="feature-card"><div class="feature-icon"><i class="fas fa-handshake"></i></div><h3>Expert Support</h3><p>We help you choose the right device</p></div>
+          <div class="feature-card"><div class="feature-icon"><i class="fas fa-certificate"></i></div><h3>Quality Assured</h3><p>Every product undergoes rigorous testing and quality checks.</p></div>
+          <div class="feature-card"><div class="feature-icon"><i class="fas fa-tags"></i></div><h3>Best Prices</h3><p>Premium tech at unbeatable refurbished prices.</p></div>
+          <div class="feature-card"><div class="feature-icon"><i class="fas fa-shipping-fast"></i></div><h3>Fast Delivery</h3><p>Quick, secure delivery with tracking.</p></div>
+          <div class="feature-card"><div class="feature-icon"><i class="fas fa-handshake"></i></div><h3>Expert Support</h3><p>We help you choose the right device for your needs.</p></div>
         </div>
       </div>
     </section>
@@ -229,17 +209,18 @@
     <section id="location" class="location-section">
       <div class="container">
         <div class="section-header">
-          <h2>Visit Our Store</h2>
-          <p>Come see our products in person at our physical location</p>
+          <h2 class="section-title">Visit Our Store</h2>
+          <p class="section-subtitle">Come see our products in person at our physical location.</p>
         </div>
         <div class="location-content">
           <div class="location-info">
             <div class="info-item"><i class="fas fa-map-marker-alt"></i><div><h4>Address</h4><p>SHIVWAY, Ahmedabad, Gujarat, India</p></div></div>
-            <div class="info-item"><i class="fas fa-clock"></i><div><h4>Business Hours</h4><p>Mon - Sat: 10:00–20:00<br>Sunday: 11:00–18:00</p></div></div>
+            <div class="info-item"><i class="fas fa-clock"></i><div><h4>Business Hours</h4><p>Mon - Sat: 10:00 AM – 8:00 PM<br>Sunday: 11:00 AM – 6:00 PM</p></div></div>
             <div class="info-item"><i class="fas fa-phone"></i><div><h4>Phone</h4><p><a href="tel:916351541231">+91 63515 41231</a></p></div></div>
           </div>
           <div class="location-map">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d235014.2577610217!2d72.41492570143827!3d23.02018175404986!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e848aba5bd449%3A0x4fcedd11614f6516!2sAhmedabad%2C%20Gujarat%2C%20India!5e0!3m2!1sen!2sus!4v1693570000000!5m2!1sen!2sus" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3671.936553839213!2d72.583353314968!3d23.02664398495142!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e84f33a8b4b7b%3A0x9b5d3b6b6b1b6b5b!2sSHIVWAY!5e0!3m2!1sen!2sin!4v1630490010688!5m2!1sen!2sin"
+              allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
         </div>
       </div>
@@ -259,7 +240,7 @@
           <div class="social-links">
             <a href="https://wa.me/916351541231" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
             <a href="mailto:digital.roottechnology@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
-            <a href="https://www.amazon.in/storefront?me=A3C7K3S9Z34M7A&ref_=ssf_share" target="_blank" aria-label="Amazon Store"><i class="fab fa-amazon"></i></a>
+            <a href="https://www.amazon.in/storefront?me=A3C7K3S9Z34M7A&ref_=ssf_share" target="_blank" aria-label="Amazon"><i class="fab fa-amazon"></i></a>
           </div>
         </div>
         <div class="footer-section">
@@ -277,32 +258,24 @@
             <li><a href="#products">Laptops</a></li>
             <li><a href="#products">Desktops</a></li>
             <li><a href="#products">Accessories</a></li>
-            <li><a href="#amazon">Amazon Store</a></li>
           </ul>
         </div>
         <div class="footer-section">
           <h4>Contact Info</h4>
-          <div class="contact-info">
-            <p><i class="fas fa-phone"></i> +91 63515 41231</p>
-            <p><i class="fas fa-envelope"></i> digital.roottechnology@gmail.com</p>
-            <p><i class="fas fa-map-marker-alt"></i> SHIVWAY, Ahmedabad, Gujarat</p>
-          </div>
+          <p><i class="fas fa-phone"></i> <a href="tel:916351541231">+91 63515 41231</a></p>
+          <p><i class="fas fa-envelope"></i> <a href="mailto:digital.roottechnology@gmail.com">digital.roottechnology@gmail.com</a></p>
+          <p><i class="fas fa-map-marker-alt"></i> SHIVWAY, Ahmedabad</p>
         </div>
       </div>
       <div class="footer-bottom">
         <p>© 2025 Shiv Infocom. All rights reserved.</p>
-        <p>Made with <i class="fas fa-heart" style="color:#ef4444;"></i></p>
       </div>
     </div>
   </footer>
 
   <!-- Floating Elements -->
-  <button id="back-to-top" class="back-to-top" aria-label="Back to top">
-    <i class="fas fa-arrow-up"></i>
-  </button>
-  <a href="https://wa.me/916351541231?text=Hello!%20I'm%20interested%20in%20your%20products" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
-    <i class="fab fa-whatsapp"></i>
-  </a>
+  <a href="https://wa.me/916351541231?text=Hello!%20I'm%20interested%20in%20your%20products" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp"><i class="fab fa-whatsapp"></i></a>
+  <button id="back-to-top" class="back-to-top" aria-label="Back to top"><i class="fas fa-arrow-up"></i></button>
 
   <!-- Notification Popup -->
   <div id="notification-popup" class="notification-popup">
@@ -323,21 +296,22 @@
   </div>
 
   <!-- Scripts -->
-  <script src="script.js?v=2.2"></script>
-</body>
+  <script src="script.js?v=2.3"></script>
+  
   <!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/67d7be9df538fb190aa3ee3e/1imhc1667';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of Tawk.to Script-->
-</html>
+  <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/67d7be9df538fb190aa3ee3e/1imhc1667';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+  </script>
+  <!--End of Tawk.to Script-->
 
+</body>
+</html>
 
