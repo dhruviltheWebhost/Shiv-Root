@@ -1,6 +1,6 @@
 /*******************************
  * Shiv Infocom — script.js
- * FINAL CORRECTED VERSION
+ * FINAL CORRECTED VERSION V2
  *******************************/
 
 /* ================== Global ================== */
@@ -134,23 +134,21 @@ async function fetchProducts() {
   if (!json.table || !json.table.rows) return;
 
   const rawProducts = json.table.rows.map((row, idx) => {
-    // FINAL FIX: Reads from column L (index 11) for availability status.
     const statusValue = row.c[11]?.v?.trim().toLowerCase();
     const status = statusValue && (statusValue.includes('ready') || statusValue.includes('dispetch')) ? 'Ready to Dispatch' : 'On Order';
 
-    // To enable filtering, add a 'Category' column to your sheet and assign it an index.
     return {
-        model:       row.c[0]?.v ?? "N/A",      // Column A: Model Name
-        processor:   row.c[1]?.v ?? "N/A",      // Column B: Processor
-        ram:         row.c[2]?.v ?? "N/A",      // Column C: RAM
-        storage:     row.c[3]?.v ?? "N/A",      // Column D: Storage
-        price:       row.c[4]?.v ?? "N/A",      // Column E: Price
-        imageUrl:    row.c[5]?.v ?? "",         // Column F: Image URL (Main Thumbnail)
-        productLink: row.c[6]?.v ?? "",         // Column G: Product Link
-        status:      status,                    // Column L: Available
-        images:      parseImagesFromRow(row),   // Gets all images
+        model:       row.c[0]?.v ?? "N/A",
+        processor:   row.c[1]?.v ?? "N/A",
+        ram:         row.c[2]?.v ?? "N/A",
+        storage:     row.c[3]?.v ?? "N/A",
+        price:       row.c[4]?.v ?? "N/A",
+        imageUrl:    row.c[5]?.v ?? "",
+        productLink: row.c[6]?.v ?? "",
+        status:      status,
+        images:      parseImagesFromRow(row),
         id:          generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
-        category:    'Other' // Hardcoded category, add a column in your sheet to make this dynamic
+        category:    'Other'
     };
   }).filter(p => p.model !== "N/A");
 
@@ -214,7 +212,6 @@ function filterAndDisplayProducts() {
 function getFilteredProducts() {
     let filtered = [...allProducts];
     if (currentFilter !== 'all') {
-        // NOTE: This filter will not work until a 'Category' column is added to the sheet.
         filtered = filtered.filter(p => p.category.toLowerCase() === currentFilter.toLowerCase());
     }
     if (isSearching && searchQuery) {
@@ -224,7 +221,6 @@ function getFilteredProducts() {
         );
     }
     
-    // Sort by status: "Ready to Dispatch" first
     filtered.sort((a, b) => {
         if (a.status === 'Ready to Dispatch' && b.status !== 'Ready to Dispatch') return -1;
         if (a.status !== 'Ready to Dispatch' && b.status === 'Ready to Dispatch') return 1;
@@ -244,7 +240,6 @@ function displayProducts(products) {
     let separatorRendered = false;
     const productsHTML = products.map((product, index) => {
         let separatorHTML = '';
-        // Separator logic to only show when moving from "Ready" to "On Order"
         if (product.status === 'On Order' && !separatorRendered && products.some(p => p.status === 'Ready to Dispatch')) {
             separatorHTML = `<div class="product-grid-separator"><span>-- On Order Products --</span></div>`;
             separatorRendered = true;
@@ -259,7 +254,6 @@ function displayProducts(products) {
 
 function createProductCardHTML(product, index) {
     const statusClass = product.status.toLowerCase().replace(/ /g, '-');
-    // FINAL FIX: Use product.imageUrl which is now correctly set to your main image.
     const thumbnailUrl = product.imageUrl || 'logo.png'; 
     return `
     <div class="product-card lazy-load clickable"
@@ -267,7 +261,7 @@ function createProductCardHTML(product, index) {
          onclick="window.location.hash='#/product/${product.id}'"
          title="View details for ${product.model}">
       <img data-src="${thumbnailUrl}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${product.model}" loading="lazy" class="lazy-load"
-           onerror="this.onerror=null;this.src='logo.png';">
+           onerror="this.onerror=null;this.src='logo.png';" referrerpolicy="no-referrer">
       <div class="product-card-content">
         <span class="status-badge ${statusClass}">${product.status}</span>
         <h3>${product.model}</h3>
@@ -326,7 +320,7 @@ function displayAmazonProducts() {
 function createAmazonProductCard(product) {
     return `
     <div class="product-card lazy-load">
-      <img data-src="${product.imageUrl}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${product.model}" class="lazy-load" onerror="this.onerror=null;this.src='logo.png';">
+      <img data-src="${product.imageUrl}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${product.model}" class="lazy-load" onerror="this.onerror=null;this.src='logo.png';" referrerpolicy="no-referrer">
       <div class="product-card-content">
         <h3>${product.model}</h3>
         <div class="price">${formatPrice(product.price)}</div>
@@ -377,8 +371,8 @@ function renderProductDetail(product) {
     if (!container) return;
     const statusClass = product.status.toLowerCase().replace(/ /g, '-');
     const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.imageUrl].filter(Boolean);
-    const slides = images.map(src => `<img src="${src}" alt="${product.model}" onerror="this.onerror=null;this.src='logo.png';">`).join('');
-    const thumbs = images.map((src, i) => `<img src="${src}" data-index="${i}" alt="Thumbnail ${i + 1}" class="${i === 0 ? 'active' : ''}">`).join('');
+    const slides = images.map(src => `<img src="${src}" alt="${product.model}" onerror="this.onerror=null;this.src='logo.png';" referrerpolicy="no-referrer">`).join('');
+    const thumbs = images.map((src, i) => `<img src="${src}" data-index="${i}" alt="Thumbnail ${i + 1}" class="${i === 0 ? 'active' : ''}" referrerpolicy="no-referrer">`).join('');
     container.innerHTML = `
     <div class="product-detail-card">
         <div class="detail-gallery">
@@ -672,7 +666,7 @@ function handleSuggestions(query, container) {
     const amazonMatches = amazonProducts.filter(p => p.model.toLowerCase().includes(q)).slice(0, 3);
     const merged = [
         ...localMatches.map(p => ({ ...p, _src: 'local' })),
-        ...amazonMatches.map(p => ({ ...p, _src: 'amazon' }))
+        ...amazonProducts.map(p => ({ ...p, _src: 'amazon' }))
     ];
 
     if (merged.length > 0) {
