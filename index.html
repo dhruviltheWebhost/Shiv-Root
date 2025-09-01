@@ -7,7 +7,6 @@
 
   <!-- SEO + Social -->
   <meta name="description" content="Shiv Infocom in Ahmedabad specializes in premium refurbished laptops, desktops, projectors, and IT accessories with warranty and the best prices. Explore top deals today!">
-  <meta name="robots" content="index, follow">
   <meta name="author" content="Shiv Infocom">
   <meta property="og:title" content="Shiv Infocom | Refurbished Laptops & Accessories in Ahmedabad">
   <meta property="og:description" content="Best deals on refurbished laptops, desktops, projectors & accessories in Ahmedabad. Shop with Shiv Infocom for reliable and affordable IT solutions.">
@@ -22,11 +21,13 @@
   <!-- Fonts & Icons -->
   <link rel="preconnect" href="https://cdnjs.cloudflare.com">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-  <link rel="stylesheet" href="styles.css">
+  
+  <!-- CACHE BUSTING: Added ?v=2.0 to force browsers to load the new file -->
+  <link rel="stylesheet" href="styles.css?v=2.0">
 
   <!-- Preload Assets -->
-  <link rel="preload" href="styles.css" as="style">
-  <link rel="preload" href="script.js" as="script">
+  <link rel="preload" href="styles.css?v=2.0" as="style">
+  <link rel="preload" href="script.js?v=2.0" as="script">
 
   <!-- Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-X5PEJQZPD6"></script>
@@ -68,7 +69,7 @@
         <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
           <i class="fas fa-moon"></i>
         </button>
-        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu">
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu" aria-expanded="false">
           <span></span><span></span><span></span>
         </button>
       </div>
@@ -239,8 +240,8 @@
             <div class="info-item"><i class="fas fa-phone"></i><div><h4>Phone</h4><p><a href="tel:916351541231">+91 63515 41231</a></p></div></div>
           </div>
           <div class="location-map">
-             <!-- IMPORTANT: Replace '#' with your Google Maps embed SRC link! -->
-            <iframe src="#" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+             <!-- CORRECTED IFRAME: This now points to Ahmedabad. Replace with your specific location's embed URL from Google Maps. -->
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d235014.2577610217!2d72.41492570143827!3d23.02018175404986!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e848aba5bd449%3A0x4fcedd11614f6516!2sAhmedabad%2C%20Gujarat%2C%20India!5e0!3m2!1sen!2sus!4v1693570000000!5m2!1sen!2sus" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
           </div>
         </div>
       </div>
@@ -324,6 +325,8 @@
   </div>
 
   <!-- Scripts -->
-  <script src="script.js"></script>
+  <!-- CACHE BUSTING: Added ?v=2.0 to force browsers to load the new file -->
+  <script src="script.js?v=2.0"></script>
 </body>
 </html>
+
