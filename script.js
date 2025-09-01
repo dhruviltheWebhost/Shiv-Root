@@ -1,12 +1,11 @@
 /*******************************
  * Shiv Infocom — script.js
- * FINAL CORRECTED VERSION V5
+ * FINAL CORRECTED VERSION V6
  *******************************/
 
 /* ================== Global ================== */
 let allProducts = [];
 let amazonProducts = [];
-let facebookAdsProducts = [];
 let currentFilter = 'all';
 let searchQuery = '';
 let isSearching = false;
@@ -82,8 +81,7 @@ async function fetchAllProducts() {
     try {
         await Promise.all([
             fetchProducts(),
-            fetchAmazonProducts(),
-            fetchFacebookAdsProducts()
+            fetchAmazonProducts()
         ]);
         filterAndDisplayProducts();
         displayAmazonProducts();
@@ -126,7 +124,8 @@ function parseImagesFromRow(row) {
 
 
 async function fetchProducts() {
-  const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=Products";
+  // FINAL FIX: Pointing to your main "Facebook ads" spreadsheet
+  const sheetURL = "https://docs.google.com/spreadsheets/d/11DuYsqp24FEs-7Jo17-mI4aft-v6B1hpTZQIE8edUls/gviz/tq?tqx=out:json&sheet=Sheet1";
   try {
     const json = await fetchSheetData(sheetURL);
     if (!json.table || !json.table.rows) return;
@@ -146,7 +145,7 @@ async function fetchProducts() {
             status:      status,
             images:      parseImagesFromRow(row),
             id:          generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
-            category:    row.c[12]?.v ?? 'Other' // Assuming Category is in Column M (index 12)
+            category:    'Other'
         };
     }).filter(p => p.model !== "N/A");
 
@@ -161,12 +160,11 @@ async function fetchProducts() {
     productIdToProduct.clear();
     allProducts.forEach(p => productIdToProduct.set(p.id, p));
   } catch (error) {
-      console.error("Failed to fetch 'Products' sheet. Please ensure it exists and is public.", error);
+      console.error("Failed to fetch main 'Products' sheet. Please ensure it exists and is public.", error);
   }
 }
 
 async function fetchAmazonProducts() {
-    // FINAL FIX: Using the correct API URL for your Amazon sheet
     const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=Amazon";
     try {
         const json = await fetchSheetData(sheetURL);
@@ -193,20 +191,6 @@ async function fetchAmazonProducts() {
     }
 }
 
-async function fetchFacebookAdsProducts() {
-    // FINAL FIX: Using the correct spreadsheet ID and API URL for your Facebook Ads sheet
-    const sheetURL = "https://docs.google.com/spreadsheets/d/11DuYsqp24FEs-7Jo17-mI4aft-v6B1hpTZQIE8edUls/gviz/tq?tqx=out:json&sheet=Sheet1";
-    try {
-        const json = await fetchSheetData(sheetURL);
-        if (!json.table || !json.table.rows) return;
-        facebookAdsProducts = json.table.rows.map(row => ({
-            model: row.c[0]?.v ?? "N/A",
-            category: row.c[1]?.v ?? "Other",
-        })).filter(p => p.model !== "N/A");
-    } catch (error) {
-        console.warn("Could not fetch Facebook Ads products.", error);
-    }
-}
 
 /* ================== Product Display & Filtering ================== */
 
