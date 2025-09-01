@@ -1,454 +1,329 @@
-/* ==================
-   1. CSS Variables & Theming
-   ================== */
-:root {
-  --primary-color: #2563eb;
-  --primary-dark: #1d4ed8;
-  --secondary-color: #10b981;
-  --text-dark: #111827;
-  --text-light: #6b7280;
-  --white: #ffffff;
-  --gray-50: #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-800: #1f2937;
-  --gray-900: #111827;
-  --whatsapp-green: #25d366;
-  --amazon-orange: #ff9900;
-  --danger-color: #ef4444;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
-  --border-radius: 0.5rem;
-  --border-radius-lg: 1rem;
-  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shiv Infocom | Refurbished Laptops & Accessories in Ahmedabad</title>
 
-  /* Light Theme Defaults */
-  --bg-primary: var(--white);
-  --bg-secondary: var(--gray-50);
-  --bg-card: var(--white);
-  --border-color: var(--gray-200);
-  --text-primary: var(--text-dark);
-  --text-secondary: var(--text-light);
-}
+  <!-- SEO + Social -->
+  <meta name="description" content="Shiv Infocom in Ahmedabad specializes in premium refurbished laptops, desktops, projectors, and IT accessories with warranty and the best prices. Explore top deals today!">
+  <meta name="author" content="Shiv Infocom">
+  <meta property="og:title" content="Shiv Infocom | Refurbished Laptops & Accessories in Ahmedabad">
+  <meta property="og:description" content="Best deals on refurbished laptops, desktops, projectors & accessories in Ahmedabad. Shop with Shiv Infocom for reliable and affordable IT solutions.">
+  <meta property="og:url" content="https://dhruvilthewebhost.github.io/Shiv-Root/">
+  <meta property="og:image" content="https://dhruvilthewebhost.github.io/Shiv-Root/logo.png">
+  <meta name="twitter:card" content="summary_large_image">
 
-[data-theme="dark"] {
-  --bg-primary: #0f172a;
-  --bg-secondary: #1e293b;
-  --bg-card: #1e293b;
-  --border-color: #334155;
-  --text-primary: #f1f5f9;
-  --text-secondary: #94a3b8;
-}
+  <meta name="theme-color" content="#2563eb">
+  <link rel="icon" href="logo.png" type="image/x-icon">
 
-/* ==================
-   2. Base & Reset Styles
-   ================== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  
+  <!-- CORRECTED: This ensures the browser treats the file as a stylesheet -->
+  <!-- The "?v=2.2" part forces the browser to load the new version -->
+  <link rel="stylesheet" href="styles.css?v=2.2">
 
-html {
-  scroll-behavior: smooth;
-  font-size: 16px;
-}
+  <!-- Preload Assets for faster loading -->
+  <link rel="preload" href="styles.css?v=2.2" as="style">
+  <link rel="preload" href="script.js?v=2.2" as="script">
 
-body {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.6;
-  color: var(--text-primary);
-  background-color: var(--bg-primary);
-  overflow-x: hidden;
-  transition: background-color 0.3s, color 0.3s;
-}
+  <!-- Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-X5PEJQZPD6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date()); gtag('config', 'G-X5PEJQZPD6');
+  </script>
 
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
+  <!-- OneSignal v16 -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" async></script>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <div class="loader">
+      <div class="spinner"></div>
+      <p>Shiv Infocom</p>
+    </div>
+  </div>
 
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  border: 0;
-}
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <a href="#" class="nav-brand">
+        <img src="logo.png" alt="Shiv Infocom Logo" class="logo">
+        <h1 class="brand-name">Shiv Infocom</h1>
+      </a>
 
-.info-text {
-    padding: 2rem;
-    text-align: center;
-    color: var(--text-secondary);
-}
+      <nav class="nav-menu" id="nav-menu">
+        <a href="#home" class="nav-link">Home</a>
+        <a href="#products" class="nav-link">Products</a>
+        <a href="#amazon" class="nav-link">Amazon Picks</a>
+        <a href="#contact" class="nav-link">Contact</a>
+        <a href="#location" class="nav-link">Location</a>
+      </nav>
 
-/* ==================
-   3. Loading Screen
-   ================== */
-#loading-screen {
-  position: fixed;
-  inset: 0;
-  background: #111827;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  transition: opacity 0.5s ease-out;
-}
+      <div class="header-actions">
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle mobile menu" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
 
-.loader { text-align: center; }
-.loader p { color: var(--gray-100); }
-.spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid var(--gray-800);
-  border-top-color: var(--primary-color);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin: 0 auto 1rem;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+  <main>
+    <!-- Quick Actions -->
+    <div class="quick-contact">
+      <div class="container">
+        <div class="contact-items">
+          <a href="tel:916351541231" class="contact-item"><i class="fas fa-phone"></i><span>Call Now</span></a>
+          <a href="https://wa.me/916351541231?text=Hello!%20I'm%20interested%20in%20your%20products" target="_blank" class="contact-item whatsapp">
+            <i class="fab fa-whatsapp"></i><span>WhatsApp</span></a>
+          <a href="#" target="_blank" class="contact-item"><i class="fas fa-map-marker-alt"></i><span>Get Directions</span></a>
+          <a href="mailto:digital.roottechnology@gmail.com" class="contact-item"><i class="fas fa-envelope"></i><span>Email Us</span></a>
+        </div>
+      </div>
+    </div>
 
+    <!-- Hero -->
+    <section id="home" class="hero">
+      <div class="hero-background"><div class="hero-overlay"></div></div>
+      <div class="container">
+        <div class="hero-content">
+          <h2 class="hero-title">Premium Refurbished Technology</h2>
+          <p class="hero-subtitle">Discover unbeatable deals on quality laptops, desktops, and accessories</p>
+          <div class="hero-features">
+            <div class="feature"><i class="fas fa-shield-alt"></i><span>Quality Guaranteed</span></div>
+            <div class="feature"><i class="fas fa-truck"></i><span>Fast Delivery</span></div>
+            <div class="feature"><i class="fas fa-headset"></i><span>24/7 Support</span></div>
+          </div>
+          <div class="hero-cta">
+            <a href="#products" class="btn btn-primary">Shop Now</a>
+            <a href="https://wa.me/916351541231?text=Hello!%20I%20need%20help%20choosing%20a%20product" target="_blank" class="btn btn-secondary">
+              <i class="fab fa-whatsapp"></i> Get Help
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
 
-/* ==================
-   4. Header & Navigation
-   ================== */
-.header {
-  background-color: var(--bg-card);
-  box-shadow: var(--shadow-md);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  transition: background-color 0.3s, box-shadow 0.3s;
-}
+    <!-- Search -->
+    <section class="search-section">
+      <div class="container">
+        <div class="search-container">
+          <div class="search-box">
+            <label for="product-search" class="visually-hidden">Search for laptops, processors, accessories</label>
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="product-search" class="search-input" placeholder="Search for laptops, processors, accessories..." autocomplete="off">
+            <button id="clear-search" class="clear-search" style="display:none;" aria-label="Clear search input">
+              <i class="fas fa-times"></i>
+            </button>
+            <div id="search-suggestions" class="search-suggestions"></div>
+          </div>
+          <div id="search-results-count" class="search-results-count"></div>
+        </div>
+      </div>
+    </section>
 
-.header .container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
-}
+    <!-- Local Products -->
+    <section id="products" class="products-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">Our Products</h2>
+          <p class="section-subtitle">Carefully refurbished and tested for optimal performance</p>
+        </div>
 
-.nav-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-}
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="all">All Products</button>
+          <button class="filter-tab" data-filter="laptop">Laptops</button>
+          <button class="filter-tab" data-filter="processor">Processors</button>
+          <button class="filter-tab" data-filter="desktop">Desktops</button>
+          <button class="filter-tab" data-filter="hdd">HDDs</button>
+          <button class="filter-tab" data-filter="printer">Printers</button>
+          <button class="filter-tab" data-filter="accessory">Components</button>
+        </div>
 
-/* CORRECTED: Logo background styling */
-.logo {
-  height: 42px;
-  width: 42px;
-  padding: 4px;
-  background-color: var(--gray-900);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
+        <div id="products-loading" class="products-loading">
+          <div class="loading-spinner"></div>
+          <p>Loading products...</p>
+        </div>
 
-.brand-name { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); }
+        <div id="product-grid" class="product-grid"></div>
+        <div id="view-all-container" class="view-all-container"></div>
+      </div>
+    </section>
 
-.nav-menu {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-}
+    <!-- Product Detail View -->
+    <section id="product-detail-view" class="product-detail-section" style="display:none;">
+      <div class="container" id="product-detail-card-container">
+          <!-- Product details will be rendered here by JavaScript -->
+      </div>
+    </section>
 
-.nav-link {
-  text-decoration: none;
-  color: var(--text-primary);
-  font-weight: 500;
-  position: relative;
-  padding: 0.5rem 0;
-  transition: color 0.3s;
-}
-.nav-link:hover { color: var(--primary-color); }
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background-color: var(--primary-color);
-  transition: width 0.3s ease;
-}
-.nav-link:hover::after { width: 100%; }
+    <!-- Amazon Picks -->
+    <section id="amazon" class="amazon-section">
+      <div class="container">
+        <div class="amazon-content">
+          <div class="amazon-text">
+            <h2>Visit Our Amazon Store</h2>
+            <p>Browse our complete collection on Amazon with fast delivery and easy returns</p>
+            <a href="https://www.amazon.in/storefront?me=A3C7K3S9Z34M7A&ref_=ssf_share" target="_blank" class="btn btn-amazon">
+              <i class="fab fa-amazon"></i> Shop on Amazon
+            </a>
+          </div>
+          <div class="amazon-banner">
+            <img src="Amazon Banner.jpg" alt="Amazon Store Banner" loading="lazy">
+          </div>
+        </div>
 
-.header-actions { display: flex; align-items: center; gap: 1rem; }
-.theme-toggle {
-  background: none;
-  border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: var(--transition);
-}
-.theme-toggle:hover { color: var(--primary-color); transform: rotate(180deg); }
+        <div class="amazon-products">
+          <div class="section-header"><h3>Featured Amazon Products</h3></div>
+          <div class="amazon-categories">
+            <div class="category-section">
+              <h4><i class="fas fa-laptop"></i> Laptops</h4>
+              <div id="amazon-laptop-grid" class="product-grid amazon-grid"></div>
+            </div>
+            <div class="category-section">
+              <h4><i class="fas fa-mouse"></i> Accessories</h4>
+              <div id="amazon-accessory-grid" class="product-grid amazon-grid"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-.mobile-menu-toggle {
-  display: none;
-  flex-direction: column;
-  justify-content: space-around;
-  width: 28px;
-  height: 28px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  z-index: 1001;
-}
-.mobile-menu-toggle span {
-  width: 25px;
-  height: 3px;
-  background-color: var(--text-primary);
-  border-radius: 2px;
-  transition: all 0.3s ease-in-out;
-  position: relative;
-  transform-origin: 1px;
-}
-.mobile-menu-toggle.active span:nth-child(1) { transform: rotate(45deg); }
-.mobile-menu-toggle.active span:nth-child(2) { opacity: 0; transform: translateX(20px); }
-.mobile-menu-toggle.active span:nth-child(3) { transform: rotate(-45deg); }
+    <!-- Stats -->
+    <section class="stats" id="stats-section">
+      <div class="container">
+        <div class="stats-grid">
+          <div class="stat-item"><div class="stat-number" data-target="500">0</div><div class="stat-label">Happy Customers</div></div>
+          <div class="stat-item"><div class="stat-number" data-target="50">0</div><div class="stat-label">Products Available</div></div>
+          <div class="stat-item"><div class="stat-number" data-target="99">0</div><div class="stat-label">Satisfaction Rate</div></div>
+          <div class="stat-item"><div class="stat-number" data-target="24">0</div><div class="stat-label">Hours Support</div></div>
+        </div>
+      </div>
+    </section>
 
+    <!-- Why Choose Us -->
+    <section class="why-choose-us">
+      <div class="container">
+        <div class="section-header">
+          <h2>Why Choose Shiv Infocom?</h2>
+          <p>We're committed to providing the best refurbished technology solutions</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card"><div class="feature-icon"><i class="fas fa-certificate"></i></div><h3>Quality Assured</h3><p>Every product undergoes rigorous testing and quality checks</p></div>
+          <div class="feature-card"><div class="feature-icon"><i class="fas fa-tags"></i></div><h3>Best Prices</h3><p>Premium tech at unbeatable refurbished prices</p></div>
+          <div class="feature-card"><div class="feature-icon"><i class="fas fa-shipping-fast"></i></div><h3>Fast Delivery</h3><p>Quick, secure delivery with tracking</p></div>
+          <div class="feature-card"><div class="feature-icon"><i class="fas fa-handshake"></i></div><h3>Expert Support</h3><p>We help you choose the right device</p></div>
+        </div>
+      </div>
+    </section>
 
-/* ==================
-   5. Sections & General Layout
-   ================== */
-section { padding: 4rem 0; }
-.section-header { text-align: center; margin-bottom: 3rem; }
-.section-title { font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 800; margin-bottom: 1rem; color: var(--text-primary); }
-.section-subtitle { font-size: 1.1rem; color: var(--text-secondary); max-width: 600px; margin: 0 auto; }
+    <!-- Location -->
+    <section id="location" class="location-section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Visit Our Store</h2>
+          <p>Come see our products in person at our physical location</p>
+        </div>
+        <div class="location-content">
+          <div class="location-info">
+            <div class="info-item"><i class="fas fa-map-marker-alt"></i><div><h4>Address</h4><p>SHIVWAY, Ahmedabad, Gujarat, India</p></div></div>
+            <div class="info-item"><i class="fas fa-clock"></i><div><h4>Business Hours</h4><p>Mon - Sat: 10:00–20:00<br>Sunday: 11:00–18:00</p></div></div>
+            <div class="info-item"><i class="fas fa-phone"></i><div><h4>Phone</h4><p><a href="tel:916351541231">+91 63515 41231</a></p></div></div>
+          </div>
+          <div class="location-map">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d235014.2577610217!2d72.41492570143827!3d23.02018175404986!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e848aba5bd449%3A0x4fcedd11614f6516!2sAhmedabad%2C%20Gujarat%2C%20India!5e0!3m2!1sen!2sus!4v1693570000000!5m2!1sen!2sus" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-.quick-contact {
-  background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
-  padding: 0.75rem 0;
-  color: var(--white);
-}
-.contact-items { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
-.contact-item { display: flex; align-items: center; gap: 0.5rem; text-decoration: none; font-weight: 500; padding: 0.5rem 1rem; border-radius: var(--border-radius); transition: var(--transition); }
-.contact-item:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+  <!-- Footer -->
+  <footer id="contact" class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <div class="footer-brand">
+            <img src="logo.png" alt="Shiv Infocom Logo" class="footer-logo">
+            <h3>Shiv Infocom</h3>
+          </div>
+          <p>Your trusted partner for quality refurbished technology solutions.</p>
+          <div class="social-links">
+            <a href="https://wa.me/916351541231" target="_blank" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+            <a href="mailto:digital.roottechnology@gmail.com" aria-label="Email"><i class="fas fa-envelope"></i></a>
+            <a href="https://www.amazon.in/storefront?me=A3C7K3S9Z34M7A&ref_=ssf_share" target="_blank" aria-label="Amazon Store"><i class="fab fa-amazon"></i></a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#products">Products</a></li>
+            <li><a href="#location">Location</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Categories</h4>
+          <ul>
+            <li><a href="#products">Laptops</a></li>
+            <li><a href="#products">Desktops</a></li>
+            <li><a href="#products">Accessories</a></li>
+            <li><a href="#amazon">Amazon Store</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h4>Contact Info</h4>
+          <div class="contact-info">
+            <p><i class="fas fa-phone"></i> +91 63515 41231</p>
+            <p><i class="fas fa-envelope"></i> digital.roottechnology@gmail.com</p>
+            <p><i class="fas fa-map-marker-alt"></i> SHIVWAY, Ahmedabad, Gujarat</p>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© 2025 Shiv Infocom. All rights reserved.</p>
+        <p>Made with <i class="fas fa-heart" style="color:#ef4444;"></i></p>
+      </div>
+    </div>
+  </footer>
 
-.hero {
-  min-height: 70vh;
-  position: relative;
-  display: flex;
-  align-items: center;
-  color: var(--white);
-  padding: 2rem 0;
-}
-.hero-background { position: absolute; inset: 0; background: linear-gradient(135deg, #0f172a, #1e293b); z-index: -2; }
-.hero-overlay { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.2); z-index: -1; }
-.hero-content { text-align: center; max-width: 800px; margin: auto; }
-.hero-title { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 800; margin-bottom: 1rem; animation: fadeInUp 0.8s ease-out; }
-.hero-subtitle { font-size: clamp(1.1rem, 2vw, 1.5rem); margin-bottom: 2rem; opacity: 0.9; animation: fadeInUp 0.8s ease-out 0.2s both; }
-.hero-features { display: flex; justify-content: center; gap: 2rem; margin-bottom: 2rem; flex-wrap: wrap; animation: fadeInUp 0.8s ease-out 0.4s both; }
-.hero-cta { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; animation: fadeInUp 0.8s ease-out 0.6s both; }
+  <!-- Floating Elements -->
+  <button id="back-to-top" class="back-to-top" aria-label="Back to top">
+    <i class="fas fa-arrow-up"></i>
+  </button>
+  <a href="https://wa.me/916351541231?text=Hello!%20I'm%20interested%20in%20your%20products" target="_blank" class="whatsapp-float" aria-label="Chat on WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
 
-.search-section { background-color: var(--bg-secondary); padding: 2.5rem 0; }
-.search-container { max-width: 700px; margin: auto; }
-.search-box { position: relative; }
-.search-input { width: 100%; padding: 1rem 3.5rem 1rem 3.5rem; border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); font-size: 1.1rem; background-color: var(--bg-primary); outline: none; transition: var(--transition); }
-.search-input:focus { border-color: var(--primary-color); box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary-color) 15%, transparent); }
-.search-icon { position: absolute; left: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--text-secondary); font-size: 1.2rem; }
-.clear-search { position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.2rem; }
-.search-results-count { margin-top: 1rem; text-align: center; color: var(--text-secondary); }
+  <!-- Notification Popup -->
+  <div id="notification-popup" class="notification-popup">
+    <div class="popup-content">
+      <div class="popup-header">
+        <i class="fas fa-bell"></i>
+        <h3>Stay Updated!</h3>
+        <button id="close-popup-btn" class="close-popup" aria-label="Close"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="popup-body">
+        <p>Get notified about new arrivals, special offers, and exclusive deals.</p>
+        <div class="popup-buttons">
+          <button id="subscribe-btn" class="btn btn-primary"><i class="fas fa-bell"></i> Subscribe</button>
+          <button id="not-now-btn" class="btn btn-secondary">Not Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-.stats { background-color: var(--bg-secondary); }
-.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
-.stat-item { text-align: center; padding: 2rem 1rem; background-color: var(--bg-card); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); transition: var(--transition); }
-.stat-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); }
-.stat-number { font-size: 3rem; font-weight: 700; color: var(--primary-color); margin-bottom: 0.5rem; }
-
-.why-choose-us { background-color: var(--bg-primary); }
-.features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; }
-.feature-card { text-align: center; padding: 2rem; background-color: var(--bg-card); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-md); transition: var(--transition); }
-.feature-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); }
-.feature-icon { width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; font-size: 2rem; color: var(--white); }
-
-.location-section { background-color: var(--bg-secondary); }
-.location-content { display: grid; grid-template-columns: 1fr 1.5fr; gap: 3rem; align-items: center; }
-.location-info { display: flex; flex-direction: column; gap: 1.5rem; }
-.info-item { display: flex; align-items: flex-start; gap: 1rem; }
-.info-item i { font-size: 1.5rem; color: var(--primary-color); margin-top: 0.25rem; }
-.info-item h4 { margin-bottom: 0.25rem; }
-.location-map { border-radius: var(--border-radius-lg); overflow: hidden; box-shadow: var(--shadow-lg); height: 450px; }
-.location-map iframe { width: 100%; height: 100%; border: none; }
-
-.amazon-section { background-color: var(--bg-secondary); }
-.amazon-content { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: center; margin-bottom: 4rem; }
-.amazon-banner img { width: 100%; border-radius: var(--border-radius-lg); box-shadow: var(--shadow-lg); object-fit: cover; }
-.category-section h4 { font-size: 1.5rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
-
-/* ==================
-   6. Components (Buttons, Cards, Popups)
-   ================== */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1.5rem; border-radius: var(--border-radius); font-weight: 600; text-decoration: none; transition: var(--transition); cursor: pointer; border: 2px solid transparent; }
-.btn-primary { background-color: var(--primary-color); color: var(--white); border-color: var(--primary-color); }
-.btn-primary:hover { background-color: var(--primary-dark); border-color: var(--primary-dark); transform: translateY(-2px); }
-.btn-secondary { background-color: var(--bg-card); color: var(--text-primary); border-color: var(--border-color); }
-.btn-secondary:hover { background-color: var(--gray-100); border-color: var(--gray-200); }
-[data-theme="dark"] .btn-secondary:hover { background-color: #334155; border-color: #475569; }
-.btn-amazon { background-color: var(--amazon-orange); color: var(--white); border-color: var(--amazon-orange); }
-.btn-amazon:hover { background-color: #e68900; border-color: #e68900; transform: translateY(-2px); }
-
-.filter-tabs { display: flex; justify-content: center; gap: 0.75rem; margin-bottom: 3rem; flex-wrap: wrap; }
-.filter-tab { padding: 0.6rem 1.2rem; border: 2px solid var(--border-color); background-color: var(--bg-card); border-radius: 999px; font-weight: 500; cursor: pointer; transition: var(--transition); }
-.filter-tab:hover { border-color: var(--primary-color); color: var(--primary-color); }
-.filter-tab.active { background-color: var(--primary-color); color: var(--white); border-color: var(--primary-color); }
-
-.products-loading { display: none; flex-direction: column; align-items: center; justify-content: center; padding: 4rem 0; }
-.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 2rem; }
-.product-card { background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); transition: var(--transition); display: flex; flex-direction: column; }
-.product-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); border-color: var(--primary-color); }
-.product-card.clickable { cursor: pointer; }
-.product-card img { width: 100%; height: 220px; object-fit: cover; background-color: var(--bg-secondary); }
-.product-card-content { padding: 1.25rem; flex-grow: 1; display: flex; flex-direction: column; }
-.product-card-content h3 { font-size: 1.15rem; margin-bottom: 0.5rem; flex-grow: 1; }
-.price { font-size: 1.5rem; font-weight: 700; color: var(--secondary-color); margin: 1rem 0; }
-.product-card .btn { width: 100%; margin-top: 1rem; }
-
-/* Product Detail View */
-.product-detail-section { padding: 2rem 0; }
-.product-detail-card { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; background-color: var(--bg-card); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-lg); padding: 2.5rem; }
-.detail-gallery .slider { overflow: hidden; border-radius: var(--border-radius); margin-bottom: 1rem; }
-.detail-gallery .slides { display: flex; transition: transform 0.3s ease; }
-.detail-gallery .slides img { width: 100%; height: auto; aspect-ratio: 4/3; object-fit: cover; flex: 0 0 100%; }
-.thumbs { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-.thumbs img { width: 70px; height: 70px; object-fit: cover; border: 2px solid var(--border-color); border-radius: var(--border-radius); cursor: pointer; transition: var(--transition); }
-.thumbs img.active, .thumbs img:hover { border-color: var(--primary-color); }
-.detail-info h1 { font-size: 2.25rem; font-weight: 800; }
-.detail-meta { color: var(--text-secondary); margin-bottom: 1.5rem; }
-.specs-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.75rem; margin: 1.5rem 0; }
-.specs-list div { padding: 0.75rem; background-color: var(--bg-secondary); border-radius: var(--border-radius); }
-.detail-actions { display: flex; gap: 1rem; margin-top: 2rem; flex-wrap: wrap; }
-
-/* Search Suggestions */
-.search-suggestions { display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); box-shadow: var(--shadow-lg); max-height: 400px; overflow-y: auto; z-index: 999; }
-.suggestion-item { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; cursor: pointer; transition: background-color 0.2s ease; text-decoration: none; color: var(--text-primary); }
-.suggestion-item:hover { background-color: var(--bg-secondary); }
-.suggestion-img { width: 50px; height: 50px; object-fit: cover; border-radius: var(--border-radius); }
-.suggestion-details { flex-grow: 1; }
-.suggestion-name { font-weight: 600; }
-.suggestion-price { font-size: 0.9rem; color: var(--secondary-color); }
-.suggestion-badge { font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 999px; color: var(--text-primary); text-transform: capitalize; }
-.suggestion-badge.local { background-color: color-mix(in srgb, var(--primary-color) 20%, transparent); }
-.suggestion-badge.amazon { background-color: color-mix(in srgb, var(--amazon-orange) 20%, transparent); }
-.no-results { padding: 1rem; text-align: center; color: var(--text-secondary); }
-
-/* ==================
-   7. Footer
-   ================== */
-.footer { background: var(--gray-900); color: var(--gray-200); padding: 4rem 0 2rem; }
-.footer-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; margin-bottom: 3rem; }
-.footer-section h3, .footer-section h4 { color: var(--white); }
-.footer-brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
-/* CORRECTED: Footer logo size */
-.footer-logo { height: 40px; width: 40px; }
-.social-links { display: flex; gap: 1rem; margin-top: 1rem; }
-.social-links a { display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: #334155; color: var(--white); border-radius: 50%; text-decoration: none; transition: var(--transition); }
-.social-links a:hover { background-color: var(--primary-color); transform: translateY(-2px); }
-.footer-section ul { list-style: none; }
-.footer-section ul a { text-decoration: none; color: var(--gray-200); transition: var(--transition); }
-.footer-section ul a:hover { color: var(--white); }
-.footer-bottom { border-top: 1px solid #334155; padding-top: 2rem; text-align: center; }
-
-/* ==================
-   8. Floating Elements & Popups
-   ================== */
-.back-to-top, .whatsapp-float { position: fixed; width: 50px; height: 50px; border-radius: 50%; display: none; align-items: center; justify-content: center; box-shadow: var(--shadow-xl); z-index: 998; border: none; color: var(--white); cursor: pointer; transition: var(--transition); }
-.back-to-top { right: 1.5rem; bottom: 1.5rem; background-color: var(--primary-color); }
-.back-to-top:hover { background-color: var(--primary-dark); transform: translateY(-3px); }
-.whatsapp-float { left: 1.5rem; bottom: 1.5rem; background-color: var(--whatsapp-green); font-size: 1.5rem; text-decoration: none; animation: pulse 2s infinite; display: flex; }
-.whatsapp-float:hover { transform: scale(1.1); animation: none; }
-
-.notification-popup { position: fixed; inset: 0; background-color: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 10000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-.notification-popup.show { opacity: 1; visibility: visible; }
-.popup-content { background-color: var(--bg-card); border-radius: var(--border-radius-lg); max-width: 400px; width: 90%; box-shadow: var(--shadow-xl); transform: scale(0.9); transition: transform 0.3s ease; }
-.notification-popup.show .popup-content { transform: scale(1); }
-.popup-header { display: flex; align-items: center; padding: 1.5rem; border-bottom: 1px solid var(--border-color); gap: 1rem; }
-.popup-header i { font-size: 1.5rem; color: var(--primary-color); }
-.close-popup { margin-left: auto; background: none; border: none; font-size: 1.2rem; color: var(--text-secondary); cursor: pointer; }
-.popup-body { padding: 1.5rem; text-align: center; }
-.popup-buttons { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; }
-
-.notification-toast { position: fixed; bottom: 20px; right: 20px; background-color: var(--gray-900); color: var(--white); border-radius: var(--border-radius); padding: 1rem; display: flex; align-items: center; gap: 0.75rem; z-index: 10001; opacity: 0; transform: translateY(20px); transition: all 0.3s ease; }
-.notification-toast.show { opacity: 1; transform: translateY(0); }
-.notification-toast.success { background-color: var(--secondary-color); }
-.notification-toast.error { background-color: var(--danger-color); }
-
-/* ==================
-   9. Animations & Transitions
-   ================== */
-@keyframes pulse {
-  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--whatsapp-green) 70%, transparent); }
-  70% { box-shadow: 0 0 0 10px color-mix(in srgb, var(--whatsapp-green) 0%, transparent); }
-  100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--whatsapp-green) 0%, transparent); }
-}
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-img.lazy-load { opacity: 0; }
-img.lazy-load.loaded { opacity: 1; transition: opacity 0.5s; }
-
-/* ==================
-   10. Responsive Design
-   ================== */
-@media (max-width: 992px) {
-    .location-content, .amazon-content { grid-template-columns: 1fr; }
-    .product-detail-card { grid-template-columns: 1fr; }
-}
-
-@media (max-width: 768px) {
-  /* CORRECTED: Mobile menu styling */
-  .nav-menu {
-    position: absolute;
-    top: 100%; /* Position it right below the header */
-    left: 0;
-    width: 100%;
-    background-color: var(--bg-secondary); /* Use a slightly different background */
-    flex-direction: column;
-    align-items: stretch;
-    padding: 0; /* Remove padding for full-width links */
-    box-shadow: var(--shadow-lg);
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.3s ease-in-out;
-    border-top: 1px solid var(--border-color);
-  }
-  .nav-menu.active { max-height: 500px; }
-  .nav-link { text-align: center; padding: 1rem; border-bottom: 1px solid var(--border-color); }
-  .nav-link:last-child { border-bottom: none; }
-  .mobile-menu-toggle { display: flex; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 480px) {
-  .container { padding: 0 1rem; }
-  .stats-grid { grid-template-columns: 1fr; }
-  .product-grid { grid-template-columns: 1fr; }
-  .contact-items { gap: 0.5rem; justify-content: space-around; }
-  .contact-item span { display: none; }
-  .hero-features { flex-direction: column; gap: 1rem; }
-  .footer-content { grid-template-columns: 1fr; text-align: center; }
-  .social-links { justify-content: center; }
-  .footer-logo { margin: 0 auto; }
-  .footer-brand { justify-content: center; }
-}
+  <!-- Scripts -->
+  <script src="script.js?v=2.2"></script>
+</body>
+</html>
 
