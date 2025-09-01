@@ -281,7 +281,7 @@ async function fetchAmazonProducts() {
 
 // Keep for completeness (not shown on main grid)
 async function fetchFacebookAdsProducts() {
-  const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=FacebookAds";
+  const sheetURL = "https://docs.google.com/spreadsheets/d/11DuYsqp24FEs-7Jo17-mI4aft-v6B1hpTZQIE8edUls/edit?usp=sharing";
   try {
     const response = await fetch(sheetURL);
     let data = await response.text();
