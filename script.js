@@ -59,10 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initServiceWorker();
   initMobileStatsPlacement();
 
-  // Fetch all data
   fetchAllProducts();
 
-  // Show notification prompt after a delay
   setTimeout(showNotificationPopup, 8000);
 });
 
@@ -87,7 +85,6 @@ async function fetchAllProducts() {
             fetchAmazonProducts(),
             fetchFacebookAdsProducts()
         ]);
-        // Initial render after all data is fetched
         filterAndDisplayProducts();
         displayAmazonProducts();
         updateSearchResultsCount();
@@ -123,18 +120,23 @@ async function fetchProducts() {
   const json = await fetchSheetData(sheetURL);
   if (!json.table || !json.table.rows) return;
 
-  const rawProducts = json.table.rows.map((row, idx) => ({
-    model: row.c[0]?.v ?? "N/A",
-    category: row.c[1]?.v ?? "Other",
-    processor: row.c[2]?.v ?? "N/A",
-    ram: row.c[3]?.v ?? "N/A",
-    storage: row.c[4]?.v ?? "N/A",
-    price: row.c[5]?.v ?? "N/A",
-    imageUrl: row.c[6]?.v ?? "",
-    description: row.c[7]?.v ?? "",
-    images: parseImages(row.c[6]?.v, row.c[7]?.v),
-    id: generateStableId(row.c[0]?.v, row.c[2]?.v, 'local', idx)
-  })).filter(p => p.model !== "N/A");
+  const rawProducts = json.table.rows.map((row, idx) => {
+    const statusValue = row.c[8]?.v?.toLowerCase() || 'ready';
+    return {
+        model: row.c[0]?.v ?? "N/A",
+        category: row.c[1]?.v ?? "Other",
+        processor: row.c[2]?.v ?? "N/A",
+        ram: row.c[3]?.v ?? "N/A",
+        storage: row.c[4]?.v ?? "N/A",
+        price: row.c[5]?.v ?? "N/A",
+        imageUrl: row.c[6]?.v ?? "",
+        description: row.c[7]?.v ?? "",
+        // Read the new "Available" column (index 8)
+        status: statusValue.includes('ready') ? 'Ready to Dispatch' : 'On Order',
+        images: parseImages(row.c[6]?.v, row.c[7]?.v),
+        id: generateStableId(row.c[0]?.v, row.c[2]?.v, 'local', idx)
+    };
+  }).filter(p => p.model !== "N/A");
 
   const seen = new Set();
   allProducts = rawProducts.filter(p => {
@@ -204,31 +206,50 @@ function getFilteredProducts() {
             `${p.model} ${p.processor} ${p.ram} ${p.storage} ${p.category}`.toLowerCase().includes(q)
         );
     }
+    
+    // Sort by status: "Ready to Dispatch" first
+    filtered.sort((a, b) => {
+        if (a.status === 'Ready to Dispatch' && b.status !== 'Ready to Dispatch') return -1;
+        if (a.status !== 'Ready to Dispatch' && b.status === 'Ready to Dispatch') return 1;
+        return 0;
+    });
+
     return filtered;
 }
 
 function displayProducts(products) {
     if (!productGrid) return;
-    if (products.length === 0 && isSearching) {
-        productGrid.innerHTML = `<div class="no-products"><h3>No products found for "${searchQuery}"</h3></div>`;
-    } else if (products.length === 0) {
-        productGrid.innerHTML = `<div class="no-products"><h3>No products found in this category.</h3></div>`;
+    if (products.length === 0) {
+        productGrid.innerHTML = `<div class="no-products"><h3>No products found.</h3></div>`;
+        return;
     }
-    else {
-        productGrid.innerHTML = products.map((p, index) => createProductCardHTML(p, index)).join('');
-    }
+
+    let separatorRendered = false;
+    const productsHTML = products.map((product, index) => {
+        let separatorHTML = '';
+        if (product.status === 'On Order' && !separatorRendered) {
+            separatorHTML = `<div class="product-grid-separator"><span>On Order</span></div>`;
+            separatorRendered = true;
+        }
+        return separatorHTML + createProductCardHTML(product, index);
+    }).join('');
+
+    productGrid.innerHTML = productsHTML;
     initLazyLoading();
 }
 
+
 function createProductCardHTML(product, index) {
+    const statusClass = product.status.toLowerCase().replace(/ /g, '-');
     return `
     <div class="product-card lazy-load clickable"
          style="animation-delay: ${index * 0.05}s"
          onclick="window.location.hash='#/product/${product.id}'"
          title="View details for ${product.model}">
       <img data-src="${product.imageUrl}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${product.model}" loading="lazy" class="lazy-load"
-           onerror="this.onerror=null;this.src='root_tech_back_remove-removebg-preview.png';">
+           onerror="this.onerror=null;this.src='logo.png';">
       <div class="product-card-content">
+        <span class="status-badge ${statusClass}">${product.status}</span>
         <h3>${product.model}</h3>
         ${product.processor !== "N/A" ? `<p><strong>Processor:</strong> ${product.processor}</p>` : ""}
         <div class="price">${formatPrice(product.price)}</div>
@@ -285,7 +306,7 @@ function displayAmazonProducts() {
 function createAmazonProductCard(product) {
     return `
     <div class="product-card lazy-load">
-      <img data-src="${product.imageUrl}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${product.model}" class="lazy-load" onerror="this.onerror=null;this.src='root_tech_back_remove-removebg-preview.png';">
+      <img data-src="${product.imageUrl}" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="${product.model}" class="lazy-load" onerror="this.onerror=null;this.src='logo.png';">
       <div class="product-card-content">
         <h3>${product.model}</h3>
         <div class="price">${formatPrice(product.price)}</div>
@@ -334,22 +355,20 @@ function handleRouteChange() {
 function renderProductDetail(product) {
     const container = document.getElementById('product-detail-card-container');
     if (!container) return;
+    const statusClass = product.status.toLowerCase().replace(/ /g, '-');
     const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.imageUrl].filter(Boolean);
-    const slides = images.map(src => `<img src="${src}" alt="${product.model}" onerror="this.onerror=null;this.src='root_tech_back_remove-removebg-preview.png';">`).join('');
+    const slides = images.map(src => `<img src="${src}" alt="${product.model}" onerror="this.onerror=null;this.src='logo.png';">`).join('');
     const thumbs = images.map((src, i) => `<img src="${src}" data-index="${i}" alt="Thumbnail ${i + 1}" class="${i === 0 ? 'active' : ''}">`).join('');
     container.innerHTML = `
     <div class="product-detail-card">
         <div class="detail-gallery">
             <div class="slider"><div class="slides">${slides}</div></div>
-            <div class="slider-nav">
-                <button id="slide-prev" class="slider-btn" aria-label="Previous image"><i class="fas fa-chevron-left"></i></button>
-                <button id="slide-next" class="slider-btn" aria-label="Next image"><i class="fas fa-chevron-right"></i></button>
-            </div>
             <div class="thumbs">${thumbs}</div>
         </div>
         <div class="detail-info">
             <h1>${product.model}</h1>
             <div class="detail-meta">Category: ${product.category}</div>
+            <div class="detail-status ${statusClass}">${product.status}</div>
             <div class="price">${formatPrice(product.price)}</div>
             <div class="specs-list">
                 ${product.processor !== "N/A" ? `<div><strong>Processor:</strong> ${product.processor}</div>` : ''}
@@ -367,6 +386,7 @@ function renderProductDetail(product) {
     document.getElementById('whatsapp-cta').addEventListener('click', () => buyOnWhatsApp(product.model));
 }
 
+
 function initSlider() {
     const slides = document.querySelector('.detail-gallery .slides');
     const thumbs = document.querySelectorAll('.detail-gallery .thumbs img');
@@ -377,8 +397,6 @@ function initSlider() {
         slides.style.transform = `translateX(-${index * 100}%)`;
         thumbs.forEach((t, i) => t.classList.toggle('active', i === index));
     };
-    document.getElementById('slide-next').addEventListener('click', () => { index = (index + 1) % totalSlides; updateSlider(); });
-    document.getElementById('slide-prev').addEventListener('click', () => { index = (index - 1 + totalSlides) % totalSlides; updateSlider(); });
     thumbs.forEach(thumb => {
         thumb.addEventListener('click', () => { index = parseInt(thumb.dataset.index, 10); updateSlider(); });
     });
@@ -643,7 +661,7 @@ function handleSuggestions(query, container) {
     if (merged.length > 0) {
         container.innerHTML = merged.map(p => `
             <a href="${p._src === 'local' ? `#/product/${p.id}` : p.link}" class="suggestion-item" ${p._src === 'amazon' ? 'target="_blank" rel="noopener"' : ''}>
-                <img src="${p.imageUrl || 'root_tech_back_remove-removebg-preview.png'}" alt="${p.model}" class="suggestion-img">
+                <img src="${p.imageUrl || 'logo.png'}" alt="${p.model}" class="suggestion-img">
                 <div class="suggestion-details">
                     <div class="suggestion-name">${p.model}</div>
                     <div class="suggestion-price">${formatPrice(p.price)}</div>
