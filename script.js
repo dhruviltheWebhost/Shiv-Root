@@ -115,28 +115,44 @@ async function fetchSheetData(sheetURL) {
     return JSON.parse(jsonText);
 }
 
+// Gathers all image URLs from the new sheet structure
+function parseImagesFromRow(row) {
+    const images = new Set();
+    // Main Image URL (Column F, index 5)
+    if (row.c[5]?.v) images.add(row.c[5].v);
+    // Additional Images (Columns H to K, indices 7 to 10)
+    for (let i = 7; i <= 10; i++) {
+        if (row.c[i]?.v) images.add(row.c[i].v);
+    }
+    return Array.from(images);
+}
+
+
 async function fetchProducts() {
   const sheetURL = "https://docs.google.com/spreadsheets/d/1Ba_YRVZAxBPh76j6-UdAx0Qi_UfU1d6wKau2av9VhFs/gviz/tq?tqx=out:json&sheet=Products";
   const json = await fetchSheetData(sheetURL);
   if (!json.table || !json.table.rows) return;
 
   const rawProducts = json.table.rows.map((row, idx) => {
-    // CORRECTED LOGIC: Default to 'on order' if the cell is empty or doesn't say 'ready'.
-    const statusValue = row.c[8]?.v?.trim().toLowerCase();
+    // CORRECTED LOGIC: Reads from column L (index 11) for availability status.
+    const statusValue = row.c[11]?.v?.trim().toLowerCase();
     const status = statusValue && statusValue.includes('ready') ? 'Ready to Dispatch' : 'On Order';
     
+    // NOTE: Category is hardcoded as 'Other' since it's not in the sheet.
+    // To enable filtering, please add a 'Category' column to your sheet.
     return {
         model: row.c[0]?.v ?? "N/A",
-        category: row.c[1]?.v ?? "Other",
-        processor: row.c[2]?.v ?? "N/A",
-        ram: row.c[3]?.v ?? "N/A",
-        storage: row.c[4]?.v ?? "N/A",
-        price: row.c[5]?.v ?? "N/A",
-        imageUrl: row.c[6]?.v ?? "",
-        description: row.c[7]?.v ?? "",
+        processor: row.c[1]?.v ?? "N/A",
+        ram: row.c[2]?.v ?? "N/A",
+        storage: row.c[3]?.v ?? "N/A",
+        price: row.c[4]?.v ?? "N/A",
+        imageUrl: row.c[5]?.v ?? "",
+        // The product link from column G (index 6) is not used on cards, but available for future use.
+        productLink: row.c[6]?.v ?? "", 
         status: status,
-        images: parseImages(row.c[6]?.v, row.c[7]?.v),
-        id: generateStableId(row.c[0]?.v, row.c[2]?.v, 'local', idx)
+        images: parseImagesFromRow(row), // Use the new function to get all images
+        id: generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
+        category: 'Other' // Hardcoded category
     };
   }).filter(p => p.model !== "N/A");
 
@@ -200,12 +216,13 @@ function filterAndDisplayProducts() {
 function getFilteredProducts() {
     let filtered = [...allProducts];
     if (currentFilter !== 'all') {
+        // NOTE: This filter will not work until a 'Category' column is added to the sheet.
         filtered = filtered.filter(p => p.category.toLowerCase() === currentFilter.toLowerCase());
     }
     if (isSearching && searchQuery) {
         const q = searchQuery.toLowerCase();
         filtered = filtered.filter(p =>
-            `${p.model} ${p.processor} ${p.ram} ${p.storage} ${p.category}`.toLowerCase().includes(q)
+            `${p.model} ${p.processor} ${p.ram} ${p.storage}`.toLowerCase().includes(q)
         );
     }
     
@@ -229,7 +246,7 @@ function displayProducts(products) {
     let separatorRendered = false;
     const productsHTML = products.map((product, index) => {
         let separatorHTML = '';
-        // CORRECTED: Separator logic to only show when moving from "Ready" to "On Order"
+        // Separator logic to only show when moving from "Ready" to "On Order"
         if (product.status === 'On Order' && !separatorRendered && products.some(p => p.status === 'Ready to Dispatch')) {
             separatorHTML = `<div class="product-grid-separator"><span>-- On Order Products --</span></div>`;
             separatorRendered = true;
@@ -403,17 +420,6 @@ function initSlider() {
     thumbs.forEach(thumb => {
         thumb.addEventListener('click', () => { index = parseInt(thumb.dataset.index, 10); updateSlider(); });
     });
-}
-
-function parseImages(imageUrl, description) {
-    const images = new Set();
-    if (imageUrl) images.add(imageUrl);
-    if (description) {
-        const urlRegex = /https?:\/\/[^\s,]+(\.jpg|\.jpeg|\.png|\.gif)/g;
-        const foundUrls = description.match(urlRegex);
-        if (foundUrls) foundUrls.forEach(url => images.add(url));
-    }
-    return Array.from(images);
 }
 
 function generateStableId(model, processor, source, idx) {
