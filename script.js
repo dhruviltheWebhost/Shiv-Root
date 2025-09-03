@@ -1,6 +1,6 @@
 /*******************************
  * Shiv Infocom — script.js
- * FINAL CORRECTED VERSION V7
+ * FINAL CORRECTED VERSION V8
  *******************************/
 
 /* ================== Global ================== */
@@ -146,7 +146,7 @@ async function fetchProducts() {
             status:      status,
             images:      parseImagesFromRow(row),
             id:          generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
-            category:    'Other'
+            category:    row.c[12]?.v ?? 'Other'
         };
     }).filter(p => p.model !== "N/A");
 
@@ -365,6 +365,7 @@ function renderProductDetail(product) {
     const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.imageUrl].filter(Boolean);
     const slides = images.map(src => `<img src="${src}" alt="${product.model}" onerror="this.onerror=null;this.src='logo.png';" referrerpolicy="no-referrer">`).join('');
     const thumbs = images.map((src, i) => `<img src="${src}" data-index="${i}" alt="Thumbnail ${i + 1}" class="${i === 0 ? 'active' : ''}" referrerpolicy="no-referrer">`).join('');
+    
     container.innerHTML = `
     <div class="product-detail-card">
         <div class="detail-gallery">
@@ -383,12 +384,38 @@ function renderProductDetail(product) {
             </div>
             <div class="detail-actions">
                 <button id="whatsapp-cta" class="btn btn-primary"><i class="fab fa-whatsapp"></i> Contact on WhatsApp</button>
+                <button id="share-product-btn" class="btn btn-share"><i class="fas fa-share-alt"></i> Share</button>
                 <a class="btn btn-secondary" href="#products">Back to Products</a>
             </div>
         </div>
     </div>`;
+    
     initSlider();
     document.getElementById('whatsapp-cta').addEventListener('click', () => buyOnWhatsApp(product.model));
+    
+    // FEATURE: Event listener for the new Share button
+    document.getElementById('share-product-btn').addEventListener('click', async () => {
+        const shareData = {
+            title: `Check out this ${product.model} from Shiv Infocom!`,
+            text: `I found this ${product.model} for ${formatPrice(product.price)} at Shiv Infocom.`,
+            url: window.location.href
+        };
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                throw new Error('Web Share API not supported');
+            }
+        } catch (err) {
+            // Fallback to copying the link to clipboard
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                showNotificationToast("Link copied to clipboard!", "success");
+            } catch (copyErr) {
+                showNotificationToast("Could not copy link.", "error");
+            }
+        }
+    });
 }
 
 
