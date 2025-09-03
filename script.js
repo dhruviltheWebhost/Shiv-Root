@@ -1,6 +1,6 @@
 /*******************************
  * Shiv Infocom — script.js
- * FINAL CORRECTED VERSION V9
+ * FINAL CORRECTED VERSION V10
  *******************************/
 
 /* ================== Global ================== */
@@ -13,7 +13,7 @@ let itemsToShow = 6;
 let originalStatsParent = null;
 const productIdToProduct = new Map();
 let amazonRendered = false;
-let productsLoaded = false; // <-- NEW: Flag to track if products are loaded
+let productsLoaded = false; 
 
 // DOM Elements
 const loadingScreen = document.getElementById('loading-screen');
@@ -84,11 +84,11 @@ async function fetchAllProducts() {
             fetchProducts(),
             fetchAmazonProducts()
         ]);
-        productsLoaded = true; // <-- NEW: Set flag to true when done
+        productsLoaded = true; 
         filterAndDisplayProducts();
         displayAmazonProducts();
         updateSearchResultsCount();
-        handleRouteChange(); // Re-run router in case a deep link was hit on first load
+        handleRouteChange();
     } catch (error) {
         console.error("A critical error occurred while fetching products:", error);
         if (productGrid) {
@@ -136,6 +136,7 @@ async function fetchProducts() {
         const statusValue = row.c[11]?.v?.trim().toLowerCase();
         const status = statusValue && (statusValue.includes('ready') || statusValue.includes('dispetch')) ? 'Ready to Dispatch' : 'On Order';
 
+        // FINAL FIX: Reading category from Column M (index 12)
         return {
             model:       row.c[0]?.v ?? "N/A",
             processor:   row.c[1]?.v ?? "N/A",
@@ -147,7 +148,7 @@ async function fetchProducts() {
             status:      status,
             images:      parseImagesFromRow(row),
             id:          generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
-            category:    row.c[12]?.v ?? 'Other'
+            category:    row.c[12]?.v ?? 'Other' 
         };
     }).filter(p => p.model !== "N/A");
 
@@ -329,16 +330,14 @@ function initRouter() {
     window.addEventListener('hashchange', handleRouteChange);
 }
 
-// FINAL FIX: This function now waits for products to be loaded before showing details
 function handleRouteChange() {
     const hash = window.location.hash;
     const detailSection = document.getElementById('product-detail-view');
     const mainSections = document.querySelectorAll('main > section:not(#product-detail-view)');
 
     if (hash.startsWith('#/product/')) {
-        // If products are not loaded yet, wait. The fetchAllProducts function will call this again.
         if (!productsLoaded) {
-            mainSections.forEach(sec => sec.style.display = 'none'); // Hide main view to prevent flash
+            mainSections.forEach(sec => sec.style.display = 'none');
             detailSection.style.display = 'none';
             showProductsLoading(true);
             return;
@@ -351,9 +350,8 @@ function handleRouteChange() {
             renderProductDetail(product);
             mainSections.forEach(sec => sec.style.display = 'none');
             detailSection.style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'auto' }); // Use auto for instant jump
+            window.scrollTo({ top: 0, behavior: 'auto' });
         } else {
-            // If product not found, go back to product list
             window.location.hash = '#products';
         }
     } else {
