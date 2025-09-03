@@ -1,6 +1,6 @@
 /*******************************
  * Shiv Infocom — script.js
- * FINAL CORRECTED VERSION V8
+ * FINAL CORRECTED VERSION V9
  *******************************/
 
 /* ================== Global ================== */
@@ -13,6 +13,7 @@ let itemsToShow = 6;
 let originalStatsParent = null;
 const productIdToProduct = new Map();
 let amazonRendered = false;
+let productsLoaded = false; // <-- NEW: Flag to track if products are loaded
 
 // DOM Elements
 const loadingScreen = document.getElementById('loading-screen');
@@ -83,10 +84,11 @@ async function fetchAllProducts() {
             fetchProducts(),
             fetchAmazonProducts()
         ]);
+        productsLoaded = true; // <-- NEW: Set flag to true when done
         filterAndDisplayProducts();
         displayAmazonProducts();
         updateSearchResultsCount();
-        handleRouteChange();
+        handleRouteChange(); // Re-run router in case a deep link was hit on first load
     } catch (error) {
         console.error("A critical error occurred while fetching products:", error);
         if (productGrid) {
@@ -113,14 +115,13 @@ async function fetchSheetData(sheetURL) {
     return JSON.parse(jsonText);
 }
 
-// FINAL FIX: This function now correctly reads ALL image columns
 function parseImagesFromRow(row) {
     const images = new Set();
-    if (row.c[5]?.v) images.add(row.c[5].v); // Column F: Image URL
-    if (row.c[7]?.v) images.add(row.c[7].v); // Column H: Image 2
-    if (row.c[8]?.v) images.add(row.c[8].v); // Column I: Image 3
-    if (row.c[9]?.v) images.add(row.c[9].v); // Column J: Image 4
-    if (row.c[10]?.v) images.add(row.c[10].v); // Column K: Image 5
+    if (row.c[5]?.v) images.add(row.c[5].v);
+    if (row.c[7]?.v) images.add(row.c[7].v);
+    if (row.c[8]?.v) images.add(row.c[8].v);
+    if (row.c[9]?.v) images.add(row.c[9].v);
+    if (row.c[10]?.v) images.add(row.c[10].v);
     return Array.from(images);
 }
 
@@ -326,37 +327,41 @@ function createAmazonProductCard(product) {
 /* ================== Router & Detail View ================== */
 function initRouter() {
     window.addEventListener('hashchange', handleRouteChange);
-    handleRouteChange();
 }
 
+// FINAL FIX: This function now waits for products to be loaded before showing details
 function handleRouteChange() {
     const hash = window.location.hash;
     const detailSection = document.getElementById('product-detail-view');
     const mainSections = document.querySelectorAll('main > section:not(#product-detail-view)');
 
     if (hash.startsWith('#/product/')) {
+        // If products are not loaded yet, wait. The fetchAllProducts function will call this again.
+        if (!productsLoaded) {
+            mainSections.forEach(sec => sec.style.display = 'none'); // Hide main view to prevent flash
+            detailSection.style.display = 'none';
+            showProductsLoading(true);
+            return;
+        }
+
         const id = hash.split('/')[2];
         const product = productIdToProduct.get(id);
-        const renderView = (p) => {
-            renderProductDetail(p);
+        
+        if (product) {
+            renderProductDetail(product);
             mainSections.forEach(sec => sec.style.display = 'none');
             detailSection.style.display = 'block';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        };
-        if (product) {
-            renderView(product);
+            window.scrollTo({ top: 0, behavior: 'auto' }); // Use auto for instant jump
         } else {
-            setTimeout(() => {
-                const p = productIdToProduct.get(id);
-                if (p) renderView(p);
-                else window.location.hash = '#products';
-            }, 500);
+            // If product not found, go back to product list
+            window.location.hash = '#products';
         }
     } else {
         mainSections.forEach(sec => sec.style.display = 'block');
         detailSection.style.display = 'none';
     }
 }
+
 
 function renderProductDetail(product) {
     const container = document.getElementById('product-detail-card-container');
@@ -393,7 +398,6 @@ function renderProductDetail(product) {
     initSlider();
     document.getElementById('whatsapp-cta').addEventListener('click', () => buyOnWhatsApp(product.model));
     
-    // FEATURE: Event listener for the new Share button
     document.getElementById('share-product-btn').addEventListener('click', async () => {
         const shareData = {
             title: `Check out this ${product.model} from Shiv Infocom!`,
@@ -407,7 +411,6 @@ function renderProductDetail(product) {
                 throw new Error('Web Share API not supported');
             }
         } catch (err) {
-            // Fallback to copying the link to clipboard
             try {
                 await navigator.clipboard.writeText(window.location.href);
                 showNotificationToast("Link copied to clipboard!", "success");
