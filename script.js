@@ -1,6 +1,6 @@
 /*******************************
  * Shiv Infocom — script.js
- * FINAL CORRECTED VERSION V10
+ * FINAL CORRECTED VERSION V11
  *******************************/
 
 /* ================== Global ================== */
@@ -42,6 +42,30 @@ function formatPrice(price) {
   }
   return `₹${n.toLocaleString('en-IN')}`;
 }
+
+// NEW FEATURE: This function automatically optimizes Cloudinary image URLs
+function optimizeCloudinaryUrl(url, width) {
+    if (!url || !url.includes('res.cloudinary.com')) {
+        return url; // If it's not a cloudinary URL, return it as is
+    }
+    
+    // Split the URL into two parts at the /upload/ point
+    const parts = url.split('/upload/');
+    if (parts.length !== 2) {
+        return url; // Invalid format
+    }
+
+    // Create the transformation string
+    // q_auto: automatic quality, f_auto: automatic format
+    let transformations = 'q_auto,f_auto';
+    if (width) {
+        transformations = `w_${width},${transformations}`; // Add width for thumbnails
+    }
+
+    // Rebuild the URL with the transformations
+    return `${parts[0]}/upload/${transformations}/${parts[1]}`;
+}
+
 
 /* ================== Boot ================== */
 document.addEventListener('DOMContentLoaded', () => {
@@ -136,19 +160,20 @@ async function fetchProducts() {
         const statusValue = row.c[11]?.v?.trim().toLowerCase();
         const status = statusValue && (statusValue.includes('ready') || statusValue.includes('dispetch')) ? 'Ready to Dispatch' : 'On Order';
 
-        // FINAL FIX: Reading category from Column M (index 12)
         return {
             model:       row.c[0]?.v ?? "N/A",
             processor:   row.c[1]?.v ?? "N/A",
             ram:         row.c[2]?.v ?? "N/A",
             storage:     row.c[3]?.v ?? "N/A",
             price:       row.c[4]?.v ?? "N/A",
-            imageUrl:    row.c[5]?.v ?? "",
+            // SCRIPT MANIPULATION: Optimize thumbnail image here
+            imageUrl:    optimizeCloudinaryUrl(row.c[5]?.v ?? "", 400),
             productLink: row.c[6]?.v ?? "",
             status:      status,
-            images:      parseImagesFromRow(row),
+            // SCRIPT MANIPULATION: Optimize all detail page images here
+            images:      parseImagesFromRow(row).map(url => optimizeCloudinaryUrl(url)),
             id:          generateStableId(row.c[0]?.v, row.c[1]?.v, 'local', idx),
-            category:    row.c[12]?.v ?? 'Other' 
+            category:    row.c[12]?.v ?? 'Other'
         };
     }).filter(p => p.model !== "N/A");
 
@@ -177,7 +202,7 @@ async function fetchAmazonProducts() {
             model: row.c[0]?.v ?? "N/A",
             category: row.c[1]?.v ?? "Other",
             price: row.c[5]?.v ?? "N/A",
-            imageUrl: row.c[6]?.v ?? "",
+            imageUrl: optimizeCloudinaryUrl(row.c[6]?.v ?? "", 400),
             link: row.c[7]?.v ?? "#",
             id: generateStableId(row.c[0]?.v, null, 'amazon', idx)
         })).filter(p => p.model !== "N/A");
@@ -367,7 +392,7 @@ function renderProductDetail(product) {
     const statusClass = product.status.toLowerCase().replace(/ /g, '-');
     const images = Array.isArray(product.images) && product.images.length > 0 ? product.images : [product.imageUrl].filter(Boolean);
     const slides = images.map(src => `<img src="${src}" alt="${product.model}" onerror="this.onerror=null;this.src='logo.png';" referrerpolicy="no-referrer">`).join('');
-    const thumbs = images.map((src, i) => `<img src="${src}" data-index="${i}" alt="Thumbnail ${i + 1}" class="${i === 0 ? 'active' : ''}" referrerpolicy="no-referrer">`).join('');
+    const thumbs = images.map((src, i) => `<img src="${optimizeCloudinaryUrl(src, 100)}" data-index="${i}" alt="Thumbnail ${i + 1}" class="${i === 0 ? 'active' : ''}" referrerpolicy="no-referrer">`).join('');
     
     container.innerHTML = `
     <div class="product-detail-card">
