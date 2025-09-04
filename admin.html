@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiv Infocom - Admin Panel</title>
+    <style>
+        :root { --primary: #2563eb; --secondary: #10b981; --danger: #ef4444; --light: #f3f4f6; --dark: #111827; --text: #374151; --white: #fff; --radius: 0.5rem; --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        body { font-family: system-ui, sans-serif; line-height: 1.5; background-color: var(--light); color: var(--text); margin: 0; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .admin-panel { display: none; }
+        .auth-container { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 100; }
+        .auth-box { background: var(--white); padding: 2rem; border-radius: var(--radius); text-align: center; }
+        h1, h2 { color: var(--dark); }
+        h1 { margin-bottom: 2rem; }
+        h2 { margin-bottom: 1rem; }
+        table { width: 100%; border-collapse: collapse; background: var(--white); box-shadow: var(--shadow); border-radius: var(--radius); overflow: hidden; }
+        th, td { padding: 0.75rem 1rem; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th { background-color: var(--light); font-weight: 600; }
+        tr:last-child td { border-bottom: none; }
+        .actions { display: flex; gap: 0.5rem; }
+        .btn { border: none; padding: 0.5rem 1rem; border-radius: var(--radius); cursor: pointer; font-weight: 500; text-decoration: none; display: inline-block; }
+        .btn-primary { background-color: var(--primary); color: var(--white); }
+        .btn-danger { background-color: var(--danger); color: var(--white); }
+        .btn-secondary { background-color: #6b7280; color: var(--white); }
+        .form-section { background: var(--white); padding: 1.5rem; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 2rem; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .form-group { display: flex; flex-direction: column; }
+        label { margin-bottom: 0.25rem; font-weight: 500; }
+        input, select { padding: 0.5rem; border: 1px solid #d1d5db; border-radius: var(--radius); width: 100%; }
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center; z-index: 50; }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--white); padding: 2rem; border-radius: var(--radius); width: 90%; max-width: 600px; }
+        .loading { text-align: center; padding: 2rem; font-size: 1.2rem; }
+        #toast { position: fixed; bottom: 20px; right: 20px; background: var(--dark); color: var(--white); padding: 1rem 1.5rem; border-radius: var(--radius); z-index: 110; opacity: 0; transition: opacity 0.3s; }
+        #toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container" id="auth-container">
+        <div class="auth-box">
+            <h2>Admin Login</h2>
+            <input type="password" id="password-input" placeholder="Enter Password">
+            <button class="btn btn-primary" onclick="checkAuth()">Login</button>
+        </div>
+    </div>
+
+    <div class="container admin-panel" id="admin-panel">
+        <h1>Shiv Infocom - Admin Panel</h1>
+
+        <div class="form-section">
+            <h2 id="form-title">Add New Product</h2>
+            <form id="product-form">
+                <input type="hidden" id="row-index-input">
+                <div class="form-grid">
+                    <div class="form-group"><label for="model-name">Model Name</label><input type="text" id="model-name" required></div>
+                    <div class="form-group"><label for="processor">Processor</label><input type="text" id="processor"></div>
+                    <div class="form-group"><label for="ram">RAM</label><input type="text" id="ram"></div>
+                    <div class="form-group"><label for="storage">Storage</label><input type="text" id="storage"></div>
+                    <div class="form-group"><label for="price">Price</label><input type="number" id="price"></div>
+                    <div class="form-group"><label for="image-url">Image URL</label><input type="url" id="image-url"></div>
+                    <div class="form-group"><label for="image-2">Image 2</label><input type="url" id="image-2"></div>
+                    <div class="form-group"><label for="image-3">Image 3</label><input type="url" id="image-3"></div>
+                    <div class="form-group"><label for="image-4">Image 4</label><input type="url" id="image-4"></div>
+                    <div class="form-group"><label for="image-5">Image 5</label><input type="url" id="image-5"></div>
+                    <div class="form-group"><label for="available">Available</label><select id="available"><option>Ready to Dispatch</option><option>On Order</option></select></div>
+                    <div class="form-group"><label for="category">Category</label><select id="category"><option>Laptop</option><option>Desktop</option><option>Accessory</option><option>Other</option></select></div>
+                </div>
+                <div style="margin-top: 1rem;">
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                    <button type="button" class="btn btn-secondary" id="cancel-edit-btn" style="display: none;" onclick="cancelEdit()">Cancel Edit</button>
+                </div>
+            </form>
+        </div>
+
+        <div>
+            <h2>Manage Products</h2>
+            <div id="product-table-container">
+                <p class="loading">Loading products...</p>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast"></div>
+
+    <script>
+        // IMPORTANT: REPLACE THIS WITH YOUR GOOGLE APPS SCRIPT WEB APP URL
+        const SCRIPT_URL = "YOUR_APPS_SCRIPT_URL_HERE"; 
+        // IMPORTANT: CHOOSE A SECRET TOKEN AND ADD IT TO YOUR APPS SCRIPT
+        const SECRET_TOKEN = "YOUR_SECRET_TOKEN_HERE"; 
+        const ADMIN_PASSWORD = "admin"; // Change this password
+
+        function checkAuth() {
+            const input = document.getElementById('password-input').value;
+            if (input === ADMIN_PASSWORD) {
+                document.getElementById('auth-container').style.display = 'none';
+                document.getElementById('admin-panel').style.display = 'block';
+                loadProducts();
+            } else {
+                alert('Incorrect Password');
+            }
+        }
+
+        async function apiRequest(action, data = {}) {
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: SECRET_TOKEN, action, data }),
+                });
+                if (!response.ok) throw new Error('Network response was not ok');
+                return await response.json();
+            } catch (error) {
+                console.error('API Request Error:', error);
+                showToast('Error communicating with the server.');
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function loadProducts() {
+            const container = document.getElementById('product-table-container');
+            container.innerHTML = '<p class="loading">Loading products...</p>';
+            const result = await apiRequest('read');
+            if (result.success) {
+                renderTable(result.data);
+            } else {
+                container.innerHTML = '<p>Error loading products. Check the console and ensure your Apps Script is deployed correctly.</p>';
+            }
+        }
+
+        function renderTable(products) {
+            const container = document.getElementById('product-table-container');
+            if (products.length === 0) {
+                container.innerHTML = '<p>No products found in the sheet.</p>';
+                return;
+            }
+            const tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Model Name</th>
+                            <th>Processor</th>
+                            <th>Status</th>
+                            <th>Category</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${products.map(p => `
+                            <tr data-row-index="${p.rowIndex}">
+                                <td>${p['Model Name']}</td>
+                                <td>${p.Processor}</td>
+                                <td>${p.Available}</td>
+                                <td>${p.Category}</td>
+                                <td class="actions">
+                                    <button class="btn btn-secondary" onclick="editProduct(${p.rowIndex})">Edit</button>
+                                    <button class="btn btn-danger" onclick="deleteProduct(${p.rowIndex})">Delete</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+            container.innerHTML = tableHTML;
+        }
+        
+        const form = document.getElementById('product-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const productData = {
+                'Model Name': document.getElementById('model-name').value,
+                'Processor': document.getElementById('processor').value,
+                'RAM': document.getElementById('ram').value,
+                'Storage': document.getElementById('storage').value,
+                'Price': document.getElementById('price').value,
+                'Image URL': document.getElementById('image-url').value,
+                'Image 2': document.getElementById('image-2').value,
+                'Image 3': document.getElementById('image-3').value,
+                'Image 4': document.getElementById('image-4').value,
+                'Image 5': document.getElementById('image-5').value,
+                'Available': document.getElementById('available').value,
+                'Category': document.getElementById('category').value,
+            };
+
+            const rowIndex = document.getElementById('row-index-input').value;
+            const action = rowIndex ? 'update' : 'create';
+            const data = rowIndex ? { rowIndex, values: productData } : productData;
+            
+            showToast('Saving...');
+            const result = await apiRequest(action, data);
+            if (result.success) {
+                showToast('Product saved successfully!');
+                form.reset();
+                cancelEdit();
+                loadProducts();
+            } else {
+                showToast('Error saving product.');
+            }
+        });
+
+        async function editProduct(rowIndex) {
+            showToast('Loading product for editing...');
+            const result = await apiRequest('readRow', { rowIndex });
+            if (result.success && result.data) {
+                const product = result.data;
+                document.getElementById('form-title').innerText = 'Edit Product';
+                document.getElementById('row-index-input').value = rowIndex;
+                document.getElementById('model-name').value = product['Model Name'] || '';
+                document.getElementById('processor').value = product.Processor || '';
+                document.getElementById('ram').value = product.RAM || '';
+                document.getElementById('storage').value = product.Storage || '';
+                document.getElementById('price').value = product.Price || '';
+                document.getElementById('image-url').value = product['Image URL'] || '';
+                document.getElementById('image-2').value = product['Image 2'] || '';
+                document.getElementById('image-3').value = product['Image 3'] || '';
+                document.getElementById('image-4').value = product['Image 4'] || '';
+                document.getElementById('image-5').value = product['Image 5'] || '';
+                document.getElementById('available').value = product.Available || 'On Order';
+                document.getElementById('category').value = product.Category || 'Other';
+                document.getElementById('cancel-edit-btn').style.display = 'inline-block';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                showToast('Product loaded.');
+            } else {
+                showToast('Could not load product data.');
+            }
+        }
+
+        function cancelEdit() {
+            document.getElementById('form-title').innerText = 'Add New Product';
+            document.getElementById('row-index-input').value = '';
+            document.getElementById('product-form').reset();
+            document.getElementById('cancel-edit-btn').style.display = 'none';
+        }
+
+        async function deleteProduct(rowIndex) {
+            if (confirm('Are you sure you want to delete this product? This cannot be undone.')) {
+                showToast('Deleting...');
+                const result = await apiRequest('delete', { rowIndex });
+                if (result.success) {
+                    showToast('Product deleted successfully.');
+                    loadProducts();
+                } else {
+                    showToast('Error deleting product.');
+                }
+            }
+        }
+        
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
