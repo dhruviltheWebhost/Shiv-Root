@@ -30,7 +30,15 @@
   </script>
 
   <!-- OneSignal -->
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" async></script>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "ee523d8b-51c0-43d7-ad51-f0cf380f0487",
+      });
+    });
+  </script>
 </head>
 
 <body>
@@ -313,5 +321,4 @@
 
 </body>
 </html>
-
 
