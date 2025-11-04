@@ -216,343 +216,302 @@
   <button id="openCart" class="fixed bottom-24 right-5 rounded-full bg-earth-900 text-white px-4 py-2 shadow-lg text-sm">View Cart (0)</button>
 
   <script>
-    /******************** CONFIG ********************/
-    const CONFIG = {
-      STORE_NAME: 'Shiv Root Naturals',
-      CITY: 'Ahmedabad',
-      WHATSAPP_NUMBER: '919909980299', // e.g. '919876543210' (country code without +). Keep empty to open chat without number.
-      CALL_NUMBER: '+91-XXXXXXXXXX',
-      INSTAGRAM_URL: '',
-      GST_NUMBER: '', // optional, will be hidden if empty
+  /******************** CONFIG ********************/
+  const CONFIG = {
+    STORE_NAME: 'Shiv Root Naturals',
+    CITY: 'Ahmedabad',
+    WHATSAPP_NUMBER: '919909980299',
+    CALL_NUMBER: '+91-9909980299',
+    INSTAGRAM_URL: '',
+    GST_NUMBER: '',
 
-      // Google Sheet (optional): publish to web as CSV and paste URL here
-      GOOGLE_SHEET_CSV_URL: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vScdH5MrieOq8rHZJkcvv7wCJu8dFL1X8bSOEquuoGYl1D29jKbFlP5ojIwIx_i2OWnLgxiKcqN9QI_/pub?output=csv' // example: https://docs.google.com/spreadsheets/d/<<SHEET_ID>>/gviz/tq?tqx=out:csv&gid=<<GID>>
+    // Google Sheet CSV URL
+    GOOGLE_SHEET_CSV_URL:
+      'https://docs.google.com/spreadsheets/d/e/2PACX-1vScdH5MrieOq8rHZJkcvv7wCJu8dFL1X8bSOEquuoGYl1D29jKbFlP5ojIwIx_i2OWnLgxiKcqN9QI_/pub?output=csv',
+  };
+
+  /******************** HELPERS ********************/
+  function encodeText(t) {
+    return encodeURIComponent(t);
+  }
+  function money(n) {
+    return '₹' + Number(n || 0).toLocaleString('en-IN');
+  }
+  function getWAUrl(message) {
+    const base = 'https://wa.me/';
+    if (CONFIG.WHATSAPP_NUMBER) {
+      return base + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeText(message);
     }
+    return base + '?text=' + encodeText(message);
+  }
 
-    /******************** DATA (fallback) ********************/
-    // You can edit products here OR load from Google Sheet (see fetchSheetProducts)
-    const PRODUCTS = [
-      {
-        id:'ghee-a2', name:'A2 Desi Ghee', category:'ghee',
-        description:'Made from A2 milk using traditional bilona method. Rich aroma, granular texture.',
-        image:'https://images.unsplash.com/photo-1604909052800-0e06f96d5f22?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'500 ml', price:799},
-          {label:'1 L', price:1499}
-        ]
-      },
-      {
-        id:'honey-raw', name:'Raw Forest Honey', category:'honey',
-        description:'Unprocessed, unfiltered, no added sugar. Seasonal floral notes.',
-        image:'https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'250 g', price:199},
-          {label:'500 g', price:349},
-          {label:'1 kg', price:649}
-        ]
-      },
-      {
-        id:'oil-sesame', name:'Cold-pressed Sesame Oil', category:'oils',
-        description:'Wood-pressed (kachi ghani) sesame oil. Ideal for cooking & massage.',
-        image:'https://images.unsplash.com/photo-1603516863860-7d5c9f0ec77b?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'500 ml', price:299},
-          {label:'1 L', price:549}
-        ]
-      },
-      {
-        id:'oil-mustard', name:'Cold-pressed Mustard Oil', category:'oils',
-        description:'Traditional pungent flavor, perfect for pickles & tadka.',
-        image:'https://images.unsplash.com/photo-1607301405390-0f2c3e167afb?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'1 L', price:349}
-        ]
-      },
-      {
-        id:'oil-coconut', name:'Cold-pressed Coconut Oil', category:'oils',
-        description:'Pure wood-pressed coconut oil for cooking, hair & skin.',
-        image:'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'500 ml', price:329},
-          {label:'1 L', price:599}
-        ]
-      },
-      {
-        id:'fruits-mixed', name:'Farm-fresh Fruits & Vegetables', category:'fruits',
-        description:'Seasonal, pesticide-free produce sourced from local farms.',
-        image:'https://images.unsplash.com/photo-1490474418585-ba9bad8fd0ea?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'Veg Basket (3–4 kg)', price:349},
-          {label:'Fruit Basket (3–4 kg)', price:499}
-        ]
-      },
-      {
-        id:'jaggery-powder', name:'Jaggery Powder', category:'jaggery',
-        description:'Chemical-free, naturally processed jaggery powder.',
-        image:'https://images.unsplash.com/photo-1587041401659-fdc87f20870b?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'500 g', price:119},
-          {label:'1 kg', price:209}
-        ]
-      },
-      {
-        id:'grains-mix', name:'Whole Grains & Pulses', category:'grains',
-        description:'Unpolished dals & stone-milled flours.',
-        image:'https://images.unsplash.com/photo-1615486364460-01975c00bcd5?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'Arhar Dal 1 kg', price:169},
-          {label:'Chana 1 kg', price:129},
-          {label:'Multi-grain Atta 5 kg', price:399}
-        ]
-      },
-      {
-        id:'nuts-mix', name:'Dry Fruits & Nuts', category:'dryfruits',
-        description:'Premium almonds, cashews, pistachios & raisins.',
-        image:'https://images.unsplash.com/photo-1615485737651-91741b1b6801?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'Almonds 500 g', price:449},
-          {label:'Cashews 500 g', price:499}
-        ]
-      },
-      {
-        id:'pickle-mango', name:'Homemade Mango Pickle', category:'condiments',
-        description:'Grandma’s recipe, cold-pressed mustard oil, sun-cured.',
-        image:'https://images.unsplash.com/photo-1625940824157-1ee06f8ca9fe?q=80&w=1600&auto=format&fit=crop',
-        variants:[
-          {label:'400 g', price:199}
-        ]
-      }
-    ];
-
-    const TESTIMONIALS = [
-      {name:'Nidhi P.', city:'Ahmedabad', text:'Best Desi Ghee I\'ve ever tasted. Authentic and rich.', stars:5},
-      {name:'Harsh S.', city:'Gandhinagar', text:'Raw honey tastes so floral and pure. Loved it!', stars:5},
-      {name:'Asmita R.', city:'Vadodara', text:'Oil quality is superb. Perfect for everyday cooking.', stars:5},
-      {name:'Viral T.', city:'Surat', text:'Vegetable basket was fresh and value for money.', stars:5}
-    ];
-
-    /******************** HELPERS ********************/
-    function encodeText(t){ return encodeURIComponent(t); }
-    function money(n){ return '₹' + Number(n||0).toLocaleString('en-IN'); }
-
-    function getWAUrl(message){
-      const base = 'https://wa.me/';
-      if(CONFIG.WHATSAPP_NUMBER){
-        return base + CONFIG.WHATSAPP_NUMBER + '?text=' + encodeText(message);
-      }
-      return base + '?text=' + encodeText(message);
+  /******************** CART STATE ********************/
+  const CART = [];
+  function addToCart(productId, variantLabel, qty, price) {
+    const key = productId + '|' + variantLabel;
+    const existing = CART.find((i) => i.key === key);
+    if (existing) {
+      existing.qty += qty;
+    } else {
+      CART.push({ key, productId, variantLabel, qty, price });
     }
+    renderCart();
+    openCart();
+  }
 
-    function productWA(product, variantLabel, qty){
-      const itemLine = `${product.name} – ${variantLabel} × ${qty}`;
-      const msg = `Hello! I want to order:\n• ${itemLine}\nPlease share details. 🙏`;
-      return getWAUrl(msg);
-    }
+  function renderCart() {
+    const box = document.getElementById('cartItems');
+    box.innerHTML = '';
+    let subtotal = 0;
+    CART.forEach((item, idx) => {
+      const p = currentProducts.find((x) => x.id === item.productId) || {};
+      const line = item.qty * item.price;
+      subtotal += line;
+      const row = document.createElement('div');
+      row.className = 'border rounded-lg p-3 flex items-center gap-3';
+      row.innerHTML = `
+        <div class='grow'>
+          <div class='font-medium'>${p.name || ''}</div>
+          <div class='text-sm text-stone-600'>${item.variantLabel} • ${money(item.price)} × ${item.qty}</div>
+        </div>
+        <div class='text-right'>${money(line)}</div>
+        <button aria-label='Remove item' class='ml-2 text-stone-500 hover:text-red-600'
+          data-idx='${idx}'>🗑️</button>
+      `;
+      box.appendChild(row);
+    });
+    document.getElementById('subtotal').textContent = money(subtotal);
+    document.getElementById('openCart').textContent = `View Cart (${CART.reduce(
+      (a, b) => a + b.qty,
+      0
+    )})`;
 
-    // Cart state
-    const CART = [];
-    function addToCart(productId, variantLabel, qty, price){
-      const key = productId + '|' + variantLabel;
-      const existing = CART.find(i => i.key === key);
-      if(existing){ existing.qty += qty; }
-      else { CART.push({ key, productId, variantLabel, qty, price }); }
-      renderCart();
-      openCart();
-    }
+    const lines = CART.map((i) => {
+      const p = currentProducts.find((x) => x.id === i.productId);
+      return `• ${p.name} – ${i.variantLabel} × ${i.qty}`;
+    }).join('\n');
+    const message = `Hello! I want to place an order:\n${lines}\nSubtotal: ${money(
+      subtotal
+    )}\nDelivery in ${CONFIG.CITY}. Please share availability & payment options. 🙏`;
+    document.getElementById('cartWhatsApp').href = getWAUrl(message);
 
-    function renderCart(){
-      const box = document.getElementById('cartItems');
-      box.innerHTML = '';
-      let subtotal = 0;
-      CART.forEach((item, idx) => {
-        const p = currentProducts.find(x => x.id === item.productId) || {};
-        const line = item.qty * item.price; subtotal += line;
-        const row = document.createElement('div');
-        row.className = 'border rounded-lg p-3 flex items-center gap-3';
-        row.innerHTML = `
-          <div class='grow'>
-            <div class='font-medium'>${p.name || ''}</div>
-            <div class='text-sm text-stone-600'>${item.variantLabel} • ${money(item.price)} × ${item.qty}</div>
-          </div>
-          <div class='text-right'>${money(line)}</div>
-          <button aria-label='Remove item' class='ml-2 text-stone-500 hover:text-red-600' data-idx='${idx}'>🗑️</button>`;
-        box.appendChild(row);
+    // remove handlers
+    box.querySelectorAll('button[data-idx]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const i = Number(btn.dataset.idx);
+        CART.splice(i, 1);
+        renderCart();
       });
-      document.getElementById('subtotal').textContent = money(subtotal);
-      document.getElementById('openCart').textContent = `View Cart (${CART.reduce((a,b)=>a+b.qty,0)})`;
+    });
+  }
 
-      const lines = CART.map(i => {
-        const p = currentProducts.find(x => x.id === i.productId);
-        return `• ${p.name} – ${i.variantLabel} × ${i.qty}`;
-      }).join('\n');
-      const message = `Hello! I want to place an order:\n${lines}\nSubtotal: ${money(subtotal)}\nDelivery in ${CONFIG.CITY}. Please share availability & payment options. 🙏`;
-      document.getElementById('cartWhatsApp').href = getWAUrl(message);
+  function openCart() {
+    document.getElementById('cartDrawer').classList.remove('translate-x-full');
+  }
+  function closeCart() {
+    document.getElementById('cartDrawer').classList.add('translate-x-full');
+  }
 
-      // remove handlers
-      box.querySelectorAll('button[data-idx]').forEach(btn => {
-        btn.addEventListener('click', () => { const i = Number(btn.dataset.idx); CART.splice(i,1); renderCart(); });
-      });
-    }
-
-    function openCart(){ document.getElementById('cartDrawer').classList.remove('translate-x-full'); }
-    function closeCart(){ document.getElementById('cartDrawer').classList.add('translate-x-full'); }
-
-    // Product rendering
-    let currentProducts = PRODUCTS.slice();
-    function renderProducts(list){
-      const grid = document.getElementById('productGrid');
-      grid.innerHTML = '';
-      list.forEach(p => {
-        const card = document.createElement('div');
-        card.className = 'bg-white border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition';
-        card.innerHTML = `
-          <img loading="lazy" src='${p.image}' alt='${p.name}' class='w-full aspect-[4/3] object-cover' />
-          <div class='p-4'>
-            <div class='font-semibold text-lg'>${p.name}</div>
-            <div class='text-sm text-stone-600 mt-1'>${p.description}</div>
-            <div class='flex items-center gap-3 mt-3'>
-              <select class='variant rounded-full border border-stone-300 px-3 py-2 text-sm'>
-                ${p.variants.map(v=>`<option value='${v.label}' data-price='${v.price}'>${v.label} – ${money(v.price)}</option>`).join('')}
-              </select>
-              <input type='number' min='1' value='1' class='qty w-16 rounded-full border border-stone-300 px-3 py-2 text-sm text-center' />
-            </div>
-            <div class='mt-4 flex gap-2'>
-              <a class='wa inline-flex items-center justify-center gap-2 rounded-full bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 text-sm grow'>Order Now on WhatsApp</a>
-              <button class='addCart rounded-full border border-stone-300 px-4 py-2 text-sm'>Add</button>
-            </div>
-          </div>`;
-
-        // events
-        const variantEl = card.querySelector('.variant');
-        const qtyEl = card.querySelector('.qty');
-        const waBtn = card.querySelector('.wa');
-        const addBtn = card.querySelector('.addCart');
-
-        function currentVariant(){
-          const opt = variantEl.selectedOptions[0];
-          return { label: opt.value, price: Number(opt.dataset.price) };
-        }
-
-        waBtn.addEventListener('click', () => {
-          const v = currentVariant(); const qty = Number(qtyEl.value)||1;
-          window.open(productWA(p, v.label, qty), '_blank');
-        });
-        addBtn.addEventListener('click', () => {
-          const v = currentVariant(); const qty = Number(qtyEl.value)||1;
-          addToCart(p.id, v.label, qty, v.price);
-        });
-
-        grid.appendChild(card);
-      });
-    }
-
-    // Testimonials
-    function renderTestimonials(){
-      const grid = document.getElementById('testimonialGrid');
-      TESTIMONIALS.forEach(t => {
-        const el = document.createElement('div');
-        el.className = 'bg-white border rounded-2xl p-4 shadow-sm';
-        el.innerHTML = `
-          <div class='text-yellow-500'>${'★'.repeat(t.stars)}${'☆'.repeat(5-t.stars)}</div>
-          <div class='mt-2 text-stone-700'>“${t.text}”</div>
-          <div class='mt-3 text-sm text-stone-600'>— ${t.name}, ${t.city}</div>`;
-        grid.appendChild(el);
-      });
-    }
-
-    // Search / Filter
-    function initFilters(){
-      const search = document.getElementById('search');
-      const category = document.getElementById('category');
-      function apply(){
-        const q = (search.value||'').toLowerCase();
-        const c = category.value;
-        const filtered = currentProducts.filter(p =>
-          (c==='all' || p.category===c) &&
-          (p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q))
-        );
-        renderProducts(filtered);
-      }
-      search.addEventListener('input', apply);
-      category.addEventListener('change', apply);
-      apply();
-    }
-
-    // Google Sheet loader (CSV) – columns: name,category,description,image,variant,label,price
-    async function fetchSheetProducts(){
-      if(!CONFIG.GOOGLE_SHEET_CSV_URL) return null;
-      try{
-        const res = await fetch(CONFIG.GOOGLE_SHEET_CSV_URL);
-        const csv = await res.text();
-        const rows = csv.split(/\r?\n/).map(r=>r.split(','));
-        const headers = rows.shift().map(h=>h.trim().toLowerCase());
-        const idx = Object.fromEntries(headers.map((h,i)=>[h,i]));
-        const map = new Map();
-        rows.forEach(r => {
-          if(!r[idx.name]) return;
-          const id = (r[idx.name]||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
-          const key = id;
-          if(!map.has(key)) map.set(key, {
+  /******************** GOOGLE SHEET LOADER ********************/
+  async function fetchSheetProducts() {
+    if (!CONFIG.GOOGLE_SHEET_CSV_URL) return null;
+    try {
+      const res = await fetch(CONFIG.GOOGLE_SHEET_CSV_URL);
+      const csv = await res.text();
+      const rows = csv.split(/\r?\n/).map((r) => r.split(','));
+      const headers = rows.shift().map((h) => h.trim().toLowerCase());
+      const idx = Object.fromEntries(headers.map((h, i) => [h, i]));
+      const map = new Map();
+      rows.forEach((r) => {
+        if (!r[idx.name]) return;
+        const id = (r[idx.name] || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+        const key = id;
+        if (!map.has(key))
+          map.set(key, {
             id,
             name: r[idx.name],
-            category: (r[idx.category]||'misc').toLowerCase(),
-            description: r[idx.description]||'',
-            image: r[idx.image]||'',
-            variants: []
+            category: (r[idx.category] || 'misc').toLowerCase(),
+            description: r[idx.description] || '',
+            image: r[idx.image] || '',
+            variants: [],
           });
-          const item = map.get(key);
-          const vLabel = r[idx.label] || r[idx.variant] || '';
-          const vPrice = Number(r[idx.price]||0);
-          if(vLabel) item.variants.push({label:vLabel, price:vPrice});
-        });
-        return Array.from(map.values());
-      }catch(e){ console.warn('Sheet load failed', e); return null; }
+        const item = map.get(key);
+        const vLabel = r[idx.label] || r[idx.variant] || '';
+        const vPrice = Number(r[idx.price] || 0);
+        if (vLabel) item.variants.push({ label: vLabel, price: vPrice });
+      });
+      return Array.from(map.values());
+    } catch (e) {
+      console.warn('Sheet load failed', e);
+      return null;
+    }
+  }
+
+  /******************** PRODUCTS RENDERING ********************/
+  let currentProducts = [];
+
+  function renderProducts(list) {
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '';
+    list.forEach((p) => {
+      const card = document.createElement('div');
+      card.className =
+        'bg-white border rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer';
+      card.dataset.id = p.id;
+      card.innerHTML = `
+        <img loading="lazy" src='${p.image}' alt='${p.name}' class='w-full aspect-[4/3] object-cover' />
+        <div class='p-4'>
+          <div class='font-semibold text-lg'>${p.name}</div>
+          <div class='text-sm text-stone-600 mt-1'>${p.description}</div>
+        </div>`;
+      
+      card.addEventListener('click', () => openProductModal(p.id));
+      grid.appendChild(card);
+    });
+  }
+
+  /******************** MODAL SYSTEM ********************/
+  function openProductModal(productId) {
+    const product = currentProducts.find((x) => x.id === productId);
+    if (!product) return;
+
+    document.getElementById('modalName').textContent = product.name;
+    document.getElementById('modalDescription').textContent = product.description;
+    document.getElementById('modalImage').src = product.image || '';
+    document.getElementById('modalPrice').textContent = money(product.variants[0]?.price || 0);
+
+    const variantSel = document.getElementById('modalVariant');
+    variantSel.innerHTML = product.variants
+      .map(
+        (v) => `<option value="${v.label}" data-price="${v.price}">${v.label} – ${money(v.price)}</option>`
+      )
+      .join('');
+
+    const qtyInput = document.getElementById('modalQty');
+    qtyInput.value = 1;
+
+    // Add to cart
+    document.getElementById('modalAddToCart').onclick = () => {
+      const variant = variantSel.value;
+      const price = Number(variantSel.selectedOptions[0].dataset.price);
+      const qty = Number(qtyInput.value);
+      addToCart(product.id, variant, qty, price);
+      closeProductModal();
+    };
+
+    // Buy now
+    document.getElementById('modalBuyNow').onclick = () => {
+      const variant = variantSel.value;
+      const qty = Number(qtyInput.value);
+      const message = `Hello! I want to order: ${product.name} – ${variant} × ${qty}. Please share details. 🙏`;
+      window.open(getWAUrl(message), '_blank');
+    };
+
+    // Share link
+    document.getElementById('modalShare').onclick = () => {
+      const url = `${location.origin}${location.pathname}?product=${product.id}`;
+      navigator.clipboard.writeText(url);
+      alert('Link copied to clipboard!');
+    };
+
+    // Display modal
+    const modal = document.getElementById('productModal');
+    modal.classList.remove('hidden');
+    setTimeout(() => {
+      document.getElementById('productModalContent').classList.remove('translate-y-full');
+    }, 10);
+
+    // Close action
+    document.getElementById('closeProductModal').onclick = closeProductModal;
+  }
+
+  function closeProductModal() {
+    const modal = document.getElementById('productModal');
+    document.getElementById('productModalContent').classList.add('translate-y-full');
+    setTimeout(() => {
+      modal.classList.add('hidden');
+    }, 300);
+  }
+
+  // Support ?product=id URL param
+  function checkURLProduct() {
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get('product');
+    if (pid) openProductModal(pid);
+  }
+
+  /******************** INITIALIZE ********************/
+  (async function () {
+    document.getElementById('year').textContent =
+      new Date().getFullYear();
+
+    // Contact links
+    if (CONFIG.CALL_NUMBER) {
+      document.getElementById('callLink').href =
+        'tel:' + CONFIG.CALL_NUMBER.replace(/\s+/g, '');
+    }
+    if (CONFIG.WHATSAPP_NUMBER) {
+      const msg =
+        "Hello! I'm interested in your natural products. Please help me with today's availability. 🙏";
+      const wa = getWAUrl(msg);
+      document.getElementById('waLink').href = wa;
+      document.getElementById('fabWhatsApp').href = wa;
+      document.getElementById('heroWhatsAppCTA').href = wa;
+      document.getElementById('headerWhatsAppCTA').href = wa;
     }
 
-    // Init
-    (async function(){
-      document.getElementById('year').textContent = new Date().getFullYear();
+    // Cart controls
+    document.getElementById('openCart').addEventListener('click', openCart);
+    document.getElementById('closeCart').addEventListener('click', closeCart);
 
-      // Contact links
-      if(CONFIG.CALL_NUMBER){
-        document.getElementById('callLink').href = 'tel:' + CONFIG.CALL_NUMBER.replace(/\s+/g,'');
-        document.getElementById('callLink').textContent = CONFIG.CALL_NUMBER;
-      }
-      if(CONFIG.WHATSAPP_NUMBER){
-        const msg = 'Hello! I\'m interested in your natural products. Please help me with today\'s availability. 🙏';
-        const wa = getWAUrl(msg);
-        document.getElementById('waLink').href = wa;
-        document.getElementById('fabWhatsApp').href = wa;
-        document.getElementById('heroWhatsAppCTA').href = wa;
-        document.getElementById('headerWhatsAppCTA').href = wa;
-      } else {
-        const wa = getWAUrl('Hello! I\'m interested in your natural products.');
-        document.getElementById('waLink').href = wa;
-        document.getElementById('fabWhatsApp').href = wa;
-        document.getElementById('heroWhatsAppCTA').href = wa;
-        document.getElementById('headerWhatsAppCTA').href = wa;
-      }
-      if(CONFIG.INSTAGRAM_URL){ document.getElementById('igLink').href = CONFIG.INSTAGRAM_URL; }
-      if(CONFIG.GST_NUMBER){
-        document.getElementById('gstNo').textContent = CONFIG.GST_NUMBER;
-        document.getElementById('gstLine').classList.remove('hidden');
-      }
+    // Load products from Sheet
+    currentProducts =
+      (await fetchSheetProducts()) || currentProducts || [];
+    renderProducts(currentProducts);
 
-      // Cart controls
-      document.getElementById('openCart').addEventListener('click', openCart);
-      document.getElementById('closeCart').addEventListener('click', closeCart);
+    renderTestimonials();
+    initFilters();
 
-      // Load products from Sheet (if provided), else fallback
-      const sheetData = await fetchSheetProducts();
-      if(sheetData && sheetData.length){ currentProducts = sheetData; }
+    checkURLProduct();
+  })();
+</script>
 
-      renderProducts(currentProducts);
-      renderTestimonials();
-      initFilters();
-    })();
-  </script>
+  <!-- Product Detail Modal -->
+<div id="productModal" class="fixed inset-0 bg-black bg-opacity-60 hidden z-50">
+  <div class="absolute inset-0 flex items-end lg:items-center justify-center">
+    <div class="bg-white w-full lg:w-[500px] lg:h-auto h-[90vh] rounded-t-2xl lg:rounded-2xl shadow-xl overflow-y-auto relative transform translate-y-full lg:translate-y-0 transition-transform duration-300" id="productModalContent">
+      
+      <!-- Close Button -->
+      <button id="closeProductModal" class="absolute top-3 right-3 text-2xl text-gray-600 hover:text-black">×</button>
+
+      <!-- Product Image -->
+      <img id="modalImage" src="" alt="" class="w-full lg:rounded-t-2xl h-64 object-cover" />
+
+      <!-- Content -->
+      <div class="p-5 space-y-3">
+        <h2 id="modalName" class="text-2xl font-semibold"></h2>
+        <p id="modalDescription" class="text-gray-600"></p>
+
+        <div class="flex items-center gap-4 mt-2">
+          <select id="modalVariant" class="flex-1 border rounded-full px-3 py-2"></select>
+          <input id="modalQty" type="number" value="1" min="1" class="w-16 border rounded-full text-center py-2" />
+        </div>
+
+        <p id="modalPrice" class="text-xl font-bold text-primary-600"></p>
+
+        <button id="modalAddToCart" class="w-full bg-earth-900 hover:bg-earth-800 text-white py-3 rounded-full font-medium">Add to Cart</button>
+        
+        <button id="modalBuyNow" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-full font-medium mt-2">Buy Now on WhatsApp</button>
+        
+        <button id="modalShare" class="w-full border border-gray-300 hover:border-gray-500 py-2 rounded-full font-medium mt-2">🔗 Share Product</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
+
 
 
 
